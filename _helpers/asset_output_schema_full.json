@@ -1,0 +1,197 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "FabAssetsManager Flattened Assets Full Output",
+  "description": "Contract for full flattened asset JSON output returned by /api/assets and /api/export/json.",
+  "type": "array",
+  "items": {
+    "$ref": "#/$defs/asset"
+  },
+  "$defs": {
+    "asset": {
+      "type": "object",
+      "required": [
+        "uid",
+        "title",
+        "seller_name",
+        "seller_id",
+        "seller_avatar_url",
+        "listing_type",
+        "created_at",
+        "last_updated_at",
+        "is_mature",
+        "status",
+        "asset_formats",
+        "asset_format_codes",
+        "tags",
+        "description",
+        "average_rating",
+        "price",
+        "currency_code",
+        "discounted_price",
+        "media_count",
+        "image_count",
+        "licenses",
+        "engine_versions",
+        "ue_max",
+        "thumbnail_url",
+        "image_urls",
+        "can_download",
+        "fab_url",
+        "details_fetched",
+        "details_updated_at",
+        "technical_specs",
+        "media_urls",
+        "review_count"
+      ],
+      "properties": {
+        "uid": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "seller_name": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "seller_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "seller_avatar_url": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "listing_type": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "created_at": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "last_updated_at": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "is_mature": {
+          "type": "boolean"
+        },
+        "status": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "asset_formats": {
+          "type": "string"
+        },
+        "asset_format_codes": {
+          "type": "string"
+        },
+        "tags": {
+          "type": "string"
+        },
+        "description": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "average_rating": {
+          "type": "number"
+        },
+        "price": {
+          "type": [
+            "number",
+            "string",
+            "null"
+          ]
+        },
+        "currency_code": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "discounted_price": {
+          "type": [
+            "number",
+            "string",
+            "null"
+          ]
+        },
+        "media_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "image_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "licenses": {
+          "type": "string"
+        },
+        "engine_versions": {
+          "type": "string"
+        },
+        "ue_max": {
+          "type": "string"
+        },
+        "thumbnail_url": {
+          "type": "string"
+        },
+        "image_urls": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "can_download": {
+          "type": "boolean"
+        },
+        "fab_url": {
+          "type": "string"
+        },
+        "details_fetched": {
+          "type": "boolean"
+        },
+        "details_updated_at": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "technical_specs": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "media_urls": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "review_count": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

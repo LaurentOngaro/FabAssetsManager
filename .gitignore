@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+.pytest_cache/
+env/
+venv/
+.venv
+
+# IDE
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Flask
+instance/
+.webassets-cache
+
+# Logs
+logs/
+*.log
+
+# Temp
+.cache/
+tmp/
+temp/
+*.tmp
+
+# specifiques app
+_helpers/images/
+assets/
+previews/
+exports/
+config/cookies.txt
+config/user_agent.txt

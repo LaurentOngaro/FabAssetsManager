@@ -1,0 +1,174 @@
+openapi: 3.1.0
+info:
+  title: FabAssetsManager API
+  description: Local API to manage and query your Fab.com asset library. 5002 is the default port and can be changed in the config.
+  version: 0.12.3
+servers:
+  - url: http://localhost:5002
+    description: Local development server
+
+paths:
+  /api/assets:
+    get:
+      summary: List all cached assets
+      description: Returns the full list of assets stored in the local cache in a flattened format.
+      responses:
+        '200':
+          description: A list of flattened assets.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: './_helpers/asset_output_schema_full.json#/$defs/asset'
+
+  /api/lookup:
+    get:
+      summary: Lookup an asset
+      description: Search for an asset in the local cache by UID, name, or Fab URL.
+      parameters:
+        - name: uid
+          in: query
+          schema:
+            type: string
+          description: Exact Fab UID of the asset.
+        - name: name
+          in: query
+          schema:
+            type: string
+          description: Substring match on the asset title.
+        - name: url
+          in: query
+          schema:
+            type: string
+          description: Fab.com listing URL (UID will be extracted).
+      responses:
+        '200':
+          description: Search results.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  query:
+                    type: object
+                  count:
+                    type: integer
+                  matches:
+                    type: array
+                    items:
+                      $ref: './_helpers/asset_output_schema_full.json#/$defs/asset'
+        '400':
+          $ref: '#/components/responses/ErrorResponse'
+
+  /api/details/{uid}:
+    get:
+      summary: Get enriched asset details
+      description: Returns detailed information for a specific asset. Fetches from Fab.com if not already cached.
+      parameters:
+        - name: uid
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Enriched asset data.
+          content:
+            application/json:
+              schema:
+                $ref: './_helpers/asset_output_schema_full.json#/$defs/asset'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+
+  /api/fetch:
+    post:
+      summary: Sync library from Fab.com
+      description: Triggers a synchronization of your Fab.com library.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refresh_mode:
+                  type: string
+                  enum: [partial, full]
+                  default: partial
+      responses:
+        '200':
+          description: Sync results.
+        '401':
+          $ref: '#/components/responses/ErrorResponse'
+
+  /api/image/{uid}:
+    get:
+      summary: Get asset thumbnail
+      description: Returns the JPEG thumbnail for the asset. Downloads it on the fly if missing.
+      parameters:
+        - name: uid
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: JPEG Image.
+          content:
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+
+  /api/clear_previews:
+    post:
+      summary: Efface les previews locales
+      description: Supprime toutes les images de prévisualisation enregistrées localement dans le dossier des previews.
+      responses:
+        '200':
+          description: Succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+                  deleted_count:
+                    type: integer
+        '500':
+          description: Erreur serveur
+
+  /api/clear_cache:
+    post:
+      summary: Efface le cache local
+      description: Supprime tous les fichiers de cache des assets et remet à zéro l'état du cache.
+      responses:
+        '200':
+          description: Succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+                  deleted_count:
+                    type: integer
+        '500':
+          description: Erreur serveur
+
+components:
+  responses:
+    ErrorResponse:
+      description: Standardized error response.
+      content:
+        application/json:
+          schema:
+            $ref: './_helpers/error_response_contract.json'

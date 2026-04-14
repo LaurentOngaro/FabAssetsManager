@@ -1,0 +1,146 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://FabAssetsManager.local/schemas/error-response-v0.11.0.json",
+  "title": "FabAssetsManager - Standardized Error Response",
+  "description": "Contract for all error responses from the FabAssetsManager API. All errors follow this structure regardless of HTTP status code.",
+  "type": "object",
+  "required": [
+    "error"
+  ],
+  "properties": {
+    "error": {
+      "type": "object",
+      "description": "Root error object",
+      "required": [
+        "code",
+        "message",
+        "http_status",
+        "timestamp"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "Standardized error code (e.g., 'ASSET_NOT_FOUND', 'INVALID_REQUEST')",
+          "enum": [
+            "MISSING_PARAMETER",
+            "INVALID_REQUEST",
+            "INVALID_QUERY",
+            "UNAUTHORIZED",
+            "FORBIDDEN",
+            "NOT_FOUND",
+            "ASSET_NOT_FOUND",
+            "NO_RESULTS",
+            "INTERNAL_ERROR",
+            "SERVER_UNAVAILABLE",
+            "CONNECTION_ERROR",
+            "TIMEOUT",
+            "CACHE_ERROR",
+            "DETAIL_FETCH_FAILED",
+            "CORRUPTED_ASSET_DATA"
+          ]
+        },
+        "message": {
+          "type": "string",
+          "description": "Human-readable error message (may be customized from default)"
+        },
+        "http_status": {
+          "type": "integer",
+          "description": "HTTP status code corresponding to the error",
+          "enum": [
+            400,
+            401,
+            403,
+            404,
+            500,
+            503,
+            504
+          ]
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "ISO 8601 UTC timestamp when the error occurred",
+          "format": "date-time",
+          "example": "2026-04-13T14:23:45.123456Z"
+        },
+        "details": {
+          "type": "object",
+          "description": "Optional object with additional context-specific error details",
+          "additionalProperties": true,
+          "examples": [
+            {
+              "requested_uid": "abc-123",
+              "attempts": 3,
+              "last_external_error": "Connection timeout to api.fab.com"
+            }
+          ]
+        },
+        "_context": {
+          "type": "object",
+          "description": "INTERNAL ONLY - Debug context for logging (should not be sent to external clients). Only present if debug mode is enabled.",
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false,
+  "examples": [
+    {
+      "error": {
+        "code": "ASSET_NOT_FOUND",
+        "message": "Asset 'abc-123-def' not found in cache",
+        "http_status": 404,
+        "timestamp": "2026-04-13T14:23:45.123456Z",
+        "details": {
+          "requested_uid": "abc-123-def",
+          "searched_paths": [
+            "assets/abc-123-def.json"
+          ]
+        }
+      }
+    },
+    {
+      "error": {
+        "code": "MISSING_PARAMETER",
+        "message": "Required parameter 'uid' or 'name' or 'url' is missing",
+        "http_status": 400,
+        "timestamp": "2026-04-13T14:23:45.123456Z",
+        "details": {
+          "endpoint": "/api/lookup",
+          "expected_parameters": [
+            "uid",
+            "name",
+            "url"
+          ],
+          "received": {}
+        }
+      }
+    },
+    {
+      "error": {
+        "code": "CONNECTION_ERROR",
+        "message": "Failed to connect to Fab.com API",
+        "http_status": 503,
+        "timestamp": "2026-04-13T14:23:45.123456Z",
+        "details": {
+          "external_service": "api.fab.com",
+          "endpoint": "/i/listings/abc-123",
+          "underlying_error": "Connection refused",
+          "retry_after_seconds": 60
+        }
+      }
+    },
+    {
+      "error": {
+        "code": "UNAUTHORIZED",
+        "message": "Authentication is required",
+        "http_status": 401,
+        "timestamp": "2026-04-13T14:23:45.123456Z",
+        "details": {
+          "required_header": "Authorization",
+          "hint": "Configure cookies and user-agent via /api/config"
+        }
+      }
+    }
+  ]
+}
