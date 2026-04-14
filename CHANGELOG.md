@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.12.5] - 2026-04-14
+
+### 🔧 Modifié
+
+- Bump automatique `patch` déclenché sur fichiers importants.
+- Fichiers importants détectés: app.py, cache_manager.py, errors.py, fetch_fab_library.py, models.py, openapi.yaml, static/index.html.
+
+---
+
+
+## [0.12.4] - 2026-04-14
+
+### 🔧 Modifié
+
+- Bump automatique `patch` déclenché sur fichiers importants.
+- Fichiers importants détectés: fetch_fab_library.py.
+
+---
+
 ## [0.12.3] - 2026-04-14
 
 ### 🔧 Modifié
@@ -8,7 +27,6 @@
 - Fichiers importants détectés: Python/03_apps/FabAssetsManager/app.py, Python/03_apps/FabAssetsManager/cache_manager.py, Python/03_apps/FabAssetsManager/errors.py, Python/03_apps/FabAssetsManager/fetch_fab_library.py, Python/03_apps/FabAssetsManager/models.py, Python/03_apps/FabAssetsManager/openapi.yaml, Python/03_apps/FabAssetsManager/static/index.html.
 
 ---
-
 
 All notable changes to this project will be documented in this file.
 

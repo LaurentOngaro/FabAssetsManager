@@ -21,6 +21,21 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 APP_ROOT = SCRIPT_DIR.parent
 VERSION_FILE = APP_ROOT / "VERSION.txt"
 
+VERSION_TAG_FILES = [
+    APP_ROOT / "app.py",
+    APP_ROOT / "static" / "index.html",
+    APP_ROOT / "fetch_fab_library.py",
+    APP_ROOT / "cache_manager.py",
+    APP_ROOT / "models.py",
+    APP_ROOT / "errors.py",
+    APP_ROOT / "README.md",
+    APP_ROOT / "_helpers" / "specs.md",
+    APP_ROOT / "tests" / "test_api.py",
+    APP_ROOT / "tests" / "test_cache.py",
+    APP_ROOT / "tests" / "test_connection.py",
+    APP_ROOT / "tests" / "test_parser.py",
+]
+
 IMPORTANT_FILES = [
     APP_ROOT / "app.py",
     APP_ROOT / "static" / "index.html",
@@ -33,14 +48,7 @@ IMPORTANT_FILES = [
 ]
 
 SYNC_FILES = [
-    APP_ROOT / "app.py",
-    APP_ROOT / "static" / "index.html",
-    APP_ROOT / "fetch_fab_library.py",
-    APP_ROOT / "cache_manager.py",
-    APP_ROOT / "models.py",
-    APP_ROOT / "errors.py",
-    APP_ROOT / "README.md",
-    APP_ROOT / "_helpers" / "specs.md",
+    *VERSION_TAG_FILES,
     APP_ROOT / "API_GUIDE.md",
     APP_ROOT / "openapi.yaml",
     APP_ROOT / "CHANGELOG.md",
@@ -136,11 +144,11 @@ def sync_version_txt(new_version: str) -> bool:
     VERSION_FILE.write_text(f"{new_version}\n", encoding="utf-8")
     return True
 
-def sync_file_version_tag(file_path: Path, new_version: str) -> bool:
+def sync_version_tag(file_path: Path, new_version: str) -> bool:
     if not file_path.exists():
         return False
     text = file_path.read_text(encoding="utf-8")
-    new_text, changed = replace_all(r"^(.*File version:\s*)\d+\.\d+\.\d+(.*)$", rf"\g<1>{new_version}\g<2>", text)
+    new_text, changed = replace_all(r"^(Version:\s*)\d+\.\d+\.\d+(.*)$", rf"\g<1>{new_version}\g<2>", text)
     if not changed:
         return False
     if new_text == text:
@@ -154,7 +162,7 @@ def sync_readme(new_version: str) -> bool:
     if not target.exists():
         return False
     text = target.read_text(encoding="utf-8")
-    new_text, changed = replace_first(r"^(.*File version:\s*)\d+\.\d+\.\d+(.*)$", rf"\g<1>{new_version}\g<2>", text)
+    new_text, changed = replace_first(r"^(Version:\s*)\d+\.\d+\.\d+(.*)$", rf"\g<1>{new_version}\g<2>", text)
     if not changed:
         return False
     if new_text == text:
@@ -247,17 +255,10 @@ def sync_all(new_version: str, scope: str, changed_files: list[str]) -> list[str
     if sync_version_txt(new_version):
         touched.append("VERSION.txt")
 
-    for py_file in ["app.py", "fetch_fab_library.py", "cache_manager.py", "models.py", "errors.py"]:
-        if sync_file_version_tag(APP_ROOT / py_file, new_version):
-            touched.append(py_file)
+    for file_path in VERSION_TAG_FILES:
+        if sync_version_tag(file_path, new_version):
+            touched.append(str(file_path.relative_to(APP_ROOT)).replace("\\", "/"))
 
-    if sync_file_version_tag(APP_ROOT / "static" / "index.html", new_version):
-        touched.append("static/index.html")
-    if sync_file_version_tag(APP_ROOT / "_helpers" / "specs.md", new_version):
-        touched.append("_helpers/specs.md")
-
-    if sync_readme(new_version):
-        touched.append("README.md")
     if sync_api_guide(new_version):
         touched.append("API_GUIDE.md")
     if sync_openapi(new_version):

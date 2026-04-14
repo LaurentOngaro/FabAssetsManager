@@ -3,7 +3,7 @@
 FabAssetsManager — Standardized Error Handling
 Central registry for all application error codes and utilities.
 
-File version: 0.12.3
+Version: 0.12.5
 """
 
 from enum import Enum

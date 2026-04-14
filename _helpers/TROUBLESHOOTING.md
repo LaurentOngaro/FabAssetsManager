@@ -1,7 +1,5 @@
 # 🔧 Troubleshooting Guide - 403 Error when accessing FAB
 
-File version: 0.6.0
-
 ## Step 1: Verify curl_cffi installation
 
 Cloudflare bypass **requires** curl_cffi:

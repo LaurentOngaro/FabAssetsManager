@@ -50,5 +50,5 @@ Application locale (Python/Flask + Vanilla JS/HTML) permettant de lister, filtre
 
 1. Documentez systématiquement la modification dans le fichier `CHANGELOG.md` (idéalement au format [Keep a Changelog](https://keepachangelog.com/)) sous la version en cours ou la balise `[Unreleased]`.
 2. Utilisez les catégories standard : `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, ou `Security`.
-3. Utilisez le script `python _helpers/bumpImportantVersion.py` pour incrémenter automatiquement la version du projet (`patch` par défaut, ou via l'argument `--scope minor` / `--scope major`).
-4. **IMPORTANT** : Ce script se charge de synchroniser automatiquement le fichier `VERSION.txt`, `CHANGELOG.md`, ainsi que l'ensemble des balises de version (`File version: X.Y.Z`, `**Version:** X.Y.Z`, ou `version: X.Y.Z`) présentes dans les en-têtes des fichiers du projet (ex: `app.py`, `static/index.html`, `fetch_fab_library.py`, `README.md`, `openapi.yaml`, etc.). N'éditez plus les versions manuellement.
+3. Tout bump de version doit passer par le helper `python _helpers/bumpImportantVersion.py` (`patch` par défaut, ou via `--scope minor` / `--scope major`).
+4. **IMPORTANT** : N'éditez plus les versions manuellement. Ce script synchronise automatiquement `VERSION.txt`, `CHANGELOG.md`, ainsi que l'ensemble des balises de version (`Version: X.Y.Z`, `**Version:** X.Y.Z`, ou `version: X.Y.Z`) présentes dans les en-têtes des fichiers du projet (ex: `app.py`, `static/index.html`, `fetch_fab_library.py`, `README.md`, `openapi.yaml`, etc.).

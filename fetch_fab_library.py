@@ -3,7 +3,7 @@
 Fab.com Library Fetcher
 Fetches all assets from your fab.com library via session cookies.
 
-File version: 0.12.3
+Version: 0.12.5
 """
 
 import csv
@@ -84,13 +84,9 @@ def build_headers_for_user_agent(user_agent: str) -> dict:
 
 def create_http_session(user_agent: str = "", debug: bool = False):
     """Create a session with best-effort curl_cffi browser impersonation."""
-    chrome_major = get_chrome_major(user_agent)
 
     if USE_CURL_CFFI and cffi_requests is not None:
-        candidates = []
-        if chrome_major:
-            candidates.append(f"chrome{chrome_major}")
-        candidates.extend(["chrome", "chrome120"])
+        candidates = ["chrome120", "chrome"]
 
         seen = set()
         for impersonation in candidates:
@@ -188,7 +184,7 @@ def fetch_all_assets(cookie_string: str, user_agent: str = "", verbose: bool = T
     if user_agent:
         headers["User-Agent"] = user_agent
     else:
-        headers["User-Agent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36"
+        headers["User-Agent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36"
 
     # Generate coherent Client Hints from current User-Agent.
     headers.update(build_headers_for_user_agent(headers["User-Agent"]))
@@ -315,7 +311,7 @@ def fetch_asset_details(uid: str, cookie_string: str, user_agent: str = "", debu
     if user_agent:
         headers["User-Agent"] = user_agent
     else:
-        headers["User-Agent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36"
+        headers["User-Agent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36"
     headers.update(build_headers_for_user_agent(headers["User-Agent"]))
     if "fab_csrftoken" in cookies:
         headers["X-CSRFToken"] = cookies["fab_csrftoken"]

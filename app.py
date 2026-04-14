@@ -6,7 +6,7 @@ Then open: http://localhost:5002
 
 NOTE: 5002 is the default port for the web interface, but the it can be changed in `config/config.json`
 
-File version: 0.12.3
+Version: 0.12.5
 """
 
 import csv

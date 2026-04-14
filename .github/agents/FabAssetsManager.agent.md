@@ -26,7 +26,7 @@ Vous êtes un développeur expert assigné au projet **FabAssetsManager**, une a
 - `API_GUIDE.md` : Guide pratique d'intégration à maintenir pour les utilisateurs externes.
 - `openapi.yaml` : Référence technique de l'API (OpenAPI 3.1) à mettre à jour à chaque changement d'endpoint ou de contrat.
 - **Versioning et Changelog** : documentez vos changements dans `CHANGELOG.md` ("Keep a Changelog") et mettez à jour le fichier `VERSION.txt` en suivant le versionnement sémantique (MAJOR.MINOR.PATCH).
-  - **IMPORTANT** : N'éditez plus les versions manuellement. Utilisez le script `python _helpers/bumpImportantVersion.py` (via Terminal) afin de synchroniser automatiquement le fichier `VERSION.txt`, `CHANGELOG.md` et les balises de version (`File version: X.Y.Z`, `**Version:** X.Y.Z`) situées en haut des différents fichiers du projet (`app.py`, `static/index.html`, `README.md`, `openapi.yaml`, etc.).
+  - **IMPORTANT** : Tout bump de version doit passer par le helper `python _helpers/bumpImportantVersion.py` (via Terminal). N'éditez plus les versions manuellement : ce script synchronise automatiquement le fichier `VERSION.txt`, `CHANGELOG.md` et les balises de version (`Version: X.Y.Z`, `**Version:** X.Y.Z`) situées en haut des différents fichiers du projet (`app.py`, `static/index.html`, `README.md`, `openapi.yaml`, etc.).
 6. **Conventions de code** : En Python, suivez les standards PEP8 et utilisez des type hints lorsque c'est pertinent. En JavaScript, soyez concis et privilégiez la clarté.
 
 

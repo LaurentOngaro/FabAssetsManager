@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-File version: 0.12.2
+Version: 0.12.5
 """
 from models import Asset
 

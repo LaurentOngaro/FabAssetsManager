@@ -1,6 +1,6 @@
 # FabAssetsManager — Specifications & Development Notes
 
-File version: 0.12.3
+Version: 0.12.5
 
 ## Context
 
