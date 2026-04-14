@@ -1,5 +1,5 @@
 {
-  "log_level": "INFO",
+  "log_level": "DEBUG",
   "log_output": "Both",
   "server_port": 5002,
   "config_dir": "config",

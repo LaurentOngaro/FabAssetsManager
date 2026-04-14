@@ -1747,44 +1747,74 @@
 let exportTemplates = {};
 
 async function openExportModal() {
-  document.getElementById('exportModal').classList.add('open');
-  if (Object.keys(exportTemplates).length === 0) {
-    try {
-      const res = await fetch('/api/export-templates');
-      if (res.ok) {
-        exportTemplates = await res.json();
-        const select = document.getElementById('exportProfileSelect');
-        select.innerHTML = '';
-        for (const [name, profile] of Object.entries(exportTemplates)) {
-          const option = document.createElement('option');
-          option.value = name;
-          option.textContent = name;
-          select.appendChild(option);
-        }
-        select.onchange = (e) => {
-          const profile = exportTemplates[e.target.value];
-          document.getElementById('exportProfileDescription').textContent = profile ? profile.description : '';
-        };
-        // Trigger first change
-        if (select.options.length > 0) select.dispatchEvent(new Event('change'));
-      }
-    } catch (e) {
-      console.error('Failed to load export templates', e);
-    }
+  const exportModal = document.getElementById('exportModal');
+  const exportSelect = document.getElementById('exportProfileSelect');
+  const exportDescription = document.getElementById('exportProfileDescription');
+  if (!exportModal || !exportSelect || !exportDescription) {
+    console.error('[FabAssetsManager] Custom export modal is missing required DOM nodes');
+    return;
   }
+
+  exportModal.style.display = 'flex';
+  exportModal.classList.add('open');
+  try {
+    const res = await fetch('/api/export-templates');
+    if (res.ok) {
+      exportTemplates = await res.json();
+      exportSelect.innerHTML = '';
+      for (const [name, profile] of Object.entries(exportTemplates)) {
+        const option = document.createElement('option');
+        option.value = name;
+        option.textContent = name;
+        exportSelect.appendChild(option);
+      }
+      exportSelect.onchange = (e) => {
+        const profile = exportTemplates[e.target.value];
+        exportDescription.textContent = profile ? profile.description : '';
+      };
+      if (exportSelect.options.length > 0) exportSelect.dispatchEvent(new Event('change'));
+    } else {
+      console.error('[FabAssetsManager] Failed to fetch export templates', res.status);
+    }
+  } catch (e) {
+    console.error('Failed to load export templates', e);
+  }
+}
+
+function resolveCustomExportExtension(profileName, pattern) {
+  const name = String(profileName || '').toLowerCase();
+  const fmt = String(pattern || '').toLowerCase();
+  const looksCsv =
+    name.includes('csv') ||
+    (fmt.includes(',') && !fmt.includes('|') && !fmt.includes(']('));
+  const looksMarkdown =
+    name.includes('markdown') ||
+    fmt.includes('| %') ||
+    fmt.includes('- [%') ||
+    fmt.includes('](%');
+  if (looksCsv) return 'csv';
+  return looksMarkdown ? 'md' : 'txt';
 }
 
 function closeExportModal(e) {
   if (e && e.target !== e.currentTarget) return;
-  document.getElementById('exportModal').classList.remove('open');
+  const exportModal = document.getElementById('exportModal');
+  if (!exportModal) return;
+  exportModal.classList.remove('open');
+  exportModal.style.display = 'none';
 }
 
 function performCustomExport() {
+  console.info('[FabAssetsManager] Custom export requested');
   const profileName = document.getElementById('exportProfileSelect').value;
-  if (!profileName || !exportTemplates[profileName]) return;
+  if (!profileName || !exportTemplates[profileName]) {
+    console.warn('[FabAssetsManager] Custom export aborted: no export profile selected');
+    return;
+  }
   const profile = exportTemplates[profileName];
-  
-  const targetAssets = selectedAssets.size > 0 
+  const extension = resolveCustomExportExtension(profileName, profile.pattern);
+
+  const targetAssets = selectedAssets.size > 0
     ? filteredAssets.filter(a => selectedAssets.has(a.uid))
     : filteredAssets;
 
@@ -1807,7 +1837,7 @@ function performCustomExport() {
   const blob = new Blob([output.join('\n')], { type: 'text/plain;charset=utf-8' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = \ab_export_\.txt\;
+  a.download = `Fab_export.${extension}`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);

@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.13.2] - 2026-04-14
+
+### Fixed
+
+- Correction de la modale `Custom Export` qui ne s'affichait pas malgré le clic sur le bouton.
+- Stabilisation du flux de chargement des profils d'export depuis `/api/export-templates`.
+
+### Changed
+
+- Détection automatique de l'extension de fichier d'export personnalisé selon le profil sélectionné (`.csv`, `.md`, `.txt`).
+- Journalisation explicite côté backend lors des appels à `/api/export-templates` pour faciliter le diagnostic.
+
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),

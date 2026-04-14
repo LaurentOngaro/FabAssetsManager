@@ -2,7 +2,7 @@
 """
 Cache Management — Individual Asset File Storage (Phase 2 Architecture)
 
-Version: 0.13.1
+Version: 0.13.2
 
 This module implements a distributed cache system where each asset is stored
 as an individual JSON file instead of a monolithic cache. This approach enables:

@@ -12,9 +12,6 @@ Pour plus de détails sur l'implémentation de ces modifications, consulter le f
 
 classement des demandes par priorité de la plus urgente à la moins urgente:
 
-- FEAT6
-- FEAT7
-- FEAT8
 - FEAT9
 - FEAT3
 - FEAT4
@@ -38,10 +35,6 @@ classement des demandes par priorité de la plus urgente à la moins urgente:
 - [ ] FEAT3: ajouter un système de favoris pour marquer les assets préférés
 - [ ] FEAT4: ajouter un système de tags personnalisés pour classer les assets (ex: "à tester", "inspirant", "à acheter", etc.)
 - [ ] FEAT5: ajouter un system de commentaires locaux pour chaque asset (ex: "ne fonctionne pas avec UE5.3", "super pour les jeux 2D", etc.)
-- [ ] FEAT6: utiliser des profil d'exportation des données
-  - reprendre ce qui a été fait dans l'application UnityAssetsManager (`H:\Sync\PKM_PROJECTS\TerraBloom\_Helpers\04_Assets\UnityAssetsManager`)
-- [ ] FEAT7: externaliser le css dans un fichier "static/css/style.css" pour faciliter la maintenance et la personnalisation de l'apparence de l'application
-- [ ] FEAT8: externaliser le js dans un fichier "static/js/app.js" pour faciliter la maintenance et la personnalisation du comportement de l'application
 - [ ] FEAT9: creer des fichier spécifiques par vue HTML dans "static"
   - s'inspirer ce qui a été fait pour `UnityAssetsManager` et l'adapter à `FabAssetsManager`.
 
@@ -75,7 +68,7 @@ classement des demandes par priorité de la plus urgente à la moins urgente:
 - [x] REF1: créer une classe Asset pour centraliser le mapping des données des assets (liste + détails), et faire basculer le backend pour l'utiliser au maximum.
 - [x] FEAT1: mémoriser la date de mise à jour du cache (si ce n'est pas déjà fait)
 - [x] CI12: ajouter le UID (ex "001d83fe-9594-42c5-a93e-3b277f74863d") dans l'export CSV pour faciliter le mapping avec les fichiers de cache individuels (`assets/<uid>.json`) et éviter les confusions en cas de titres d'assets similaires ou identiques.
-- [x] BUG3:j'ai activé le niveau "debug" dans le log, mais app.log ne contient aucun "DEBUG". est ce un bug ? dans ce niveau de débug, je voudrai logguer TOUS les appels aux fonctions "app.route*"
+- [x] BUG3:j'ai activé le niveau "debug" dans le log, mais app.log ne contient aucun "DEBUG". est ce un bug ? dans ce niveau de débug, je voudrai logguer TOUS les appels aux fonctions "app.route\*"
 - [x] BUG2: sauvegarde et restauration des options de logs via `config/config.json` (log level, log output, debug mode)
 - [x] CI7 (redo): correction du merge backend `/api/details`, revalidation des assets incomplets (`details_fetched`), et enrichissement effectif de la modale avec fallback de refetch
 - [x] BUG1: un clic sur "Get new assets" affiche désormais un message "No new assets available" au lieu d'une erreur quand il n'y a pas de nouveaux assets
@@ -108,4 +101,3 @@ classement des demandes par priorité de la plus urgente à la moins urgente:
   - [x] le faire automatiquement pour chaque asset consulté dans la liste
   - [x] ajouter une option pour le faire automatiquement pour tous les nouveaux assets disponibles (cf FEAT6)
   - [x] proposer de le faire par batch en tache de fond (définir une taille de batch et la périodicité du lancement à configurer dans les options)
-

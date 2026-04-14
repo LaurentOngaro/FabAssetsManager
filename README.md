@@ -1,6 +1,6 @@
 # 🎮 FabAssetsManager
 
-Version: 0.13.1
+Version: 0.13.2
 
 Local web application to manage and explore your **fab.com** asset library (Unreal Engine, Blender, etc.).
 
@@ -37,6 +37,8 @@ Local web application to manage and explore your **fab.com** asset library (Unre
 - **Pagination**: 50 items/page, smooth navigation
 - **Selection**: individual or entire page
 - **Export**: CSV/JSON (selected or filtered assets)
+- **Custom Export**: profils d'export textuels personnalisables (markdown, csv, texte) via une modale dédiée
+- **Extension auto**: `.csv`, `.md`, `.txt` selon le profil sélectionné
 - **CSV**: includes the asset UID first to simplify cache-file mapping
 - **Dark mode**: clean design optimized for long reading
 
@@ -152,9 +154,11 @@ Click **Title**, **Added**, or **Updated** to toggle sort ascending ↔ descendi
 ### Selection & Export
 
 1. Check assets to export (or select entire page)
-2. Click **⬇ CSV** or **⬇ JSON**
+2. Click **⬇ CSV**, **⬇ JSON**, or **⬇ Custom Export**
 3. If no selection → exports all **filtered** assets
-4. File named: `fab_export_YYYY-MM-DD.csv|json`
+4. File named:
+   - Standard export: `fab_export_YYYY-MM-DD.csv|json`
+   - Custom export: `Fab_export.csv|md|txt` (extension auto selon profil)
 
 ### Image Preview (Lazy Loading)
 

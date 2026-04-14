@@ -16,32 +16,9 @@ Chaque fois qu'une modification est teminée:
 
 ## Groupe Refactoring
 
-### DONE [FEAT7] Externaliser le CSS
-
-- CSS déplacé dans static/css/style.css
-
-### DONE [FEAT8] Externaliser le JS
-
-- JS déplacé dans static/js/app.js
-
 ## Groupe Filtrage
 
-### DONE [FIL2] Recherche pour le filtre des vendeurs (Sellers)
-
-- **Objectif :** Faciliter la navigation quand la liste de vendeurs est longue.
-- **Actions :**
-  - Ajouter un champ `<input type="text">` au-dessus de la liste des sellers dans la colonne de gauche.
-  - Ajouter un event listener JS pour filtrer/masquer dynamiquement les éléments de la liste qui ne correspondent pas au texte saisi.
-
 ## Groupe Fonctionnalités (Export)
-
-### DONE [FEAT6] Profils d'exportation des données
-
-- **Objectif :** Permettre un export modulable.
-- **Actions :**
-  - Analyser l'implémentation d'export dans l'application UnityAssetsManager.
-  - consulter le fichier `H:\Sync\PKM_PROJECTS\TerraBloom\_Helpers\04_Assets\UnityAssetsManager\data\export_templates.jsonc` pour s'inspirer de la structure de données utilisée pour les profils d'exportation.
-  - Adapter le endpoint ou la fonction d'export frontend pour supporter ces profils.
 
 ## Groupe 6 : Maintenance, Tableaux et Caches
 

@@ -3,7 +3,7 @@
 Fab.com Library Fetcher
 Fetches all assets from your fab.com library via session cookies.
 
-Version: 0.13.1
+Version: 0.13.2
 """
 
 import csv

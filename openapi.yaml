@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: FabAssetsManager API
   description: Local API to manage and query your Fab.com asset library. 5002 is the default port and can be changed in the config.
-  version: 0.13.1
+  version: 0.13.2
 servers:
   - url: http://localhost:5002
     description: Local development server
@@ -167,10 +167,22 @@ paths:
   /api/export-templates:
     get:
       summary: Get export templates
-      description: Returns the list of available text export templates.
+      description: Returns the list of available custom export templates used by the frontend custom export modal.
       responses:
         '200':
           description: A dictionary of export profiles.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+                  properties:
+                    description:
+                      type: string
+                    pattern:
+                      type: string
+                  required: [description, pattern]
 components:
   responses:
     ErrorResponse:

@@ -1,6 +1,6 @@
 # API Guide - FabAssetsManager
 
-**Version:** 0.13.1
+**Version:** 0.13.2
 This guide explains how to integrate the FabAssetsManager API into your workflows (e.g., TerraBloom curation pipeline).
 
 ## 🚀 Quick Start
@@ -57,6 +57,14 @@ To display thumbnails, use `/api/image/{uid}`.
 - **`POST /api/clear_previews`**: Supprime toutes les images de prévisualisation enregistrées localement dans le dossier des previews.
 - **`POST /api/clear_cache`**: Supprime tous les fichiers de cache des assets et remet à zéro l'état du cache local.
 
+### 5. Custom Export Profiles
+
+- **`GET /api/export-templates`**: Retourne les profils d'export personnalisés utilisés par la modale **Custom Export**.
+- Le frontend applique le pattern sélectionné asset par asset, puis choisit automatiquement l'extension du fichier exporté:
+  - `.csv` pour les profils CSV
+  - `.md` pour les profils Markdown
+  - `.txt` pour les autres profils texte
+
 ---
 
 ## ⚠️ Error Handling (Standardized)
@@ -112,4 +120,3 @@ def get_asset_by_url(fab_url):
         print(f"Error [{error.get('code')}]: {error.get('message')}")
     return None
 ```
-

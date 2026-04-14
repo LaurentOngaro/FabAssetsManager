@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Version: 0.13.1
+Version: 0.13.2
 """
 import pytest
 import cache_manager
