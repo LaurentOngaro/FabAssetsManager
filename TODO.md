@@ -12,10 +12,9 @@ Pour plus de détails sur l'implémentation de ces modifications, consulter le f
 
 classement des demandes par priorité de la plus urgente à la moins urgente:
 
-- FEAT9
 - FEAT3
-- FEAT4
 - FEAT5
+- FEAT4
 - IDEA1
 
 ### documentation (last: DOC1)
@@ -30,13 +29,11 @@ classement des demandes par priorité de la plus urgente à la moins urgente:
 
 ### affichage (last: AFF5)
 
-### features (last: FEAT9)
+### features (last: FEAT8)
 
 - [ ] FEAT3: ajouter un système de favoris pour marquer les assets préférés
-- [ ] FEAT4: ajouter un système de tags personnalisés pour classer les assets (ex: "à tester", "inspirant", "à acheter", etc.)
 - [ ] FEAT5: ajouter un system de commentaires locaux pour chaque asset (ex: "ne fonctionne pas avec UE5.3", "super pour les jeux 2D", etc.)
-- [ ] FEAT9: creer des fichier spécifiques par vue HTML dans "static"
-  - s'inspirer ce qui a été fait pour `UnityAssetsManager` et l'adapter à `FabAssetsManager`.
+- [ ] FEAT4: ajouter un système de tags personnalisés pour classer les assets (ex: "à tester", "inspirant", "à acheter", etc.)
 
 ### idées à creuser (last: IDEA1)
 

@@ -30,15 +30,26 @@ _Note : Ces données devront être stockées localement en parallèle du cache d
 
 ### [FEAT3] Système de Favoris
 
-- **Actions :** Étoile cliquable dans la grille ; sauvegarde d'un Array d'UID.
+- **Objectif :** Permettre de repérer rapidement les assets à garder sous la main.
+- **Actions :**
+  - Ajouter une icône étoile cliquable dans la grille et/ou dans la modale de détail.
+  - Stocker l'état favori localement par UID dans un fichier userdata ou localStorage.
+  - Réafficher l'état au rechargement et lors des changements de filtre / pagination.
+  - Prévoir une logique de compatibilité avec les exports et les mises à jour de cache.
 
-### [FEAT4] Tags personnalisés
+### FEAT4 mis de côté
 
-- **Actions :** Modale ou input texte au sein de l'[AFF1] permettant la persistance de mots-clés.
+- **Décision :** repoussé volontairement, car moins utile à court terme que FEAT3 et FEAT5.
+- **Remarque :** à réévaluer seulement après mise en place d'une base commune pour les données utilisateur.
 
 ### [FEAT5] Commentaires locaux
 
-- **Actions :** Champ `textarea` libre sauvegardé par UID.
+- **Objectif :** Permettre de conserver des notes personnelles par asset.
+- **Actions :**
+  - Ajouter un champ `textarea` dans la modale de détail ou dans une zone dédiée.
+  - Sauvegarder le commentaire localement par UID.
+  - Afficher un indicateur visuel quand un asset possède déjà une note.
+  - Prévoir une lecture/écriture robuste avec le même stockage que FEAT3.
 
 ## Groupe 9 : Etudes (Hors-Périmètre/Long-Terme)
 
