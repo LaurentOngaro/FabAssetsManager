@@ -16,6 +16,14 @@ Chaque fois qu'une modification est teminée:
 
 ## Groupe Refactoring
 
+### DONE [FEAT7] Externaliser le CSS
+
+- CSS déplacé dans static/css/style.css
+
+### DONE [FEAT8] Externaliser le JS
+
+- JS déplacé dans static/js/app.js
+
 ## Groupe Filtrage
 
 ### DONE [FIL2] Recherche pour le filtre des vendeurs (Sellers)
@@ -27,7 +35,7 @@ Chaque fois qu'une modification est teminée:
 
 ## Groupe Fonctionnalités (Export)
 
-### [FEAT6] Profils d'exportation des données
+### DONE [FEAT6] Profils d'exportation des données
 
 - **Objectif :** Permettre un export modulable.
 - **Actions :**

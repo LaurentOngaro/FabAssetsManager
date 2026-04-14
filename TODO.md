@@ -13,11 +13,12 @@ Pour plus de détails sur l'implémentation de ces modifications, consulter le f
 classement des demandes par priorité de la plus urgente à la moins urgente:
 
 - FEAT6
+- FEAT7
+- FEAT8
+- FEAT9
 - FEAT3
 - FEAT4
 - FEAT5
-- FEAT7
-- FEAT8
 - IDEA1
 
 ### documentation (last: DOC1)
@@ -49,6 +50,10 @@ classement des demandes par priorité de la plus urgente à la moins urgente:
 - [ ] IDEA1: rechercher/filtrer des assets (et afficher) parmis la totalité de la bibliothèque FAB (et pas seulement ceux qui sont posssédés) . Attention au volume de données à gérer et à afficher !!!
 
 ## Terminés
+
+- [x] FEAT6: utiliser des profils d'exportation de données
+- [x] FEAT7: externaliser le css dans static/css/style.css
+- [x] FEAT8: externaliser le js dans static/js/app.js
 
 - [x] GE3: ajouter une zone avec des action de maintenance en bas de la colonne de gauche
   - [x] GE1: ajouter un bouton pour effacer les preview téléchargé localement
@@ -103,3 +108,4 @@ classement des demandes par priorité de la plus urgente à la moins urgente:
   - [x] le faire automatiquement pour chaque asset consulté dans la liste
   - [x] ajouter une option pour le faire automatiquement pour tous les nouveaux assets disponibles (cf FEAT6)
   - [x] proposer de le faire par batch en tache de fond (définir une taille de batch et la périodicité du lancement à configurer dans les options)
+

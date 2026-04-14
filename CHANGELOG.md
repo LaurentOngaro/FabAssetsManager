@@ -1,37 +1,20 @@
 # Changelog
 
-## [0.12.5] - 2026-04-14
-
-### 🔧 Modifié
-
-- Bump automatique `patch` déclenché sur fichiers importants.
-- Fichiers importants détectés: app.py, cache_manager.py, errors.py, fetch_fab_library.py, models.py, openapi.yaml, static/index.html.
-
----
-
-
-## [0.12.4] - 2026-04-14
-
-### 🔧 Modifié
-
-- Bump automatique `patch` déclenché sur fichiers importants.
-- Fichiers importants détectés: fetch_fab_library.py.
-
----
-
-## [0.12.3] - 2026-04-14
-
-### 🔧 Modifié
-
-- Bump automatique `patch` déclenché sur fichiers importants.
-- Fichiers importants détectés: Python/03_apps/FabAssetsManager/app.py, Python/03_apps/FabAssetsManager/cache_manager.py, Python/03_apps/FabAssetsManager/errors.py, Python/03_apps/FabAssetsManager/fetch_fab_library.py, Python/03_apps/FabAssetsManager/models.py, Python/03_apps/FabAssetsManager/openapi.yaml, Python/03_apps/FabAssetsManager/static/index.html.
-
----
-
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [0.13.1]
+
+### ✨ Ajouté
+
+- [FEAT6] Profils d'exportation de données customisables via \config/export_templates.json\ avec un nouveau point d'entrée d'API \/api/export-templates\ et une modale d'export personnalisée.
+
+### ♻️ Refactoring
+
+- [FEAT7] Externalisation du code CSS depuis \static/index.html\ vers \static/css/style.css\.
+- [FEAT8] Externalisation du code JavaScript depuis \static/index.html\ vers \static/js/app.js\.
 
 ## [0.12.2] - 2026-04-14
 

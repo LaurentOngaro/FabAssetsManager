@@ -1,0 +1,38 @@
+{
+  "texte simple sans URL": {
+    "description": "Texte simple - une ligne par asset : TITRE - VENDEUR - TYPE",
+    "pattern": "%title% - %seller_name% - %listing_type%"
+  },
+  "CSV sans URL": {
+    "description": "CSV - une ligne par asset : TITRE,VENDEUR,TYPE",
+    "pattern": "%title%,%seller_name%,%listing_type%"
+  },
+  "table markdown sans URL": {
+    "description": "Tableau Markdown : TITRE | VENDEUR | TYPE",
+    "pattern": "| %title% | %seller_name% | %listing_type% |"
+  },
+  "liste markdown sans URL": {
+    "description": "Liste Markdown à puces (sans liens) : TITRE - VENDEUR (TYPE)",
+    "pattern": "- %title% - %seller_name% (%listing_type%)"
+  },
+  "texte simple avec URL": {
+    "description": "Texte simple avec URL ajoutée : TITRE - URL",
+    "pattern": "%title% - %fab_url%"
+  },
+  "CSV avec URL": {
+    "description": "CSV incluant la colonne Url : TITRE,URL,TYPE",
+    "pattern": "%title%,%fab_url%,%listing_type%"
+  },
+  "table markdown avec URL": {
+    "description": "Tableau Markdown avec lien sur le nom : TITRE(URL) | VENDEUR | TYPE | TAGS",
+    "pattern": "| [%title%](%fab_url%) | %seller_name% | %listing_type% | %tags% |"
+  },
+  "liste markdown avec URL": {
+    "description": "Liste Markdown à puces avec lien sur le nom : TITRE(URL) - VENDEUR - TYPE - TAGS",
+    "pattern": "- [%title%](%fab_url%) - %seller_name% - %listing_type% - %tags%"
+  },
+  "UE version tracking": {
+    "description": "Suivi des versions Unreal Engine : TITRE(URL) - VENDEUR - MAX_UE",
+    "pattern": "- [%title%](%fab_url%) - %seller_name% - Max UE: %ue_max%"
+  }
+}

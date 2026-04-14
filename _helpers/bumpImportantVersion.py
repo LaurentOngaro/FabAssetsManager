@@ -5,6 +5,11 @@ Behavior:
 - Uses VERSION.txt as source of truth.
 - Bumps only when at least one important app file changed (unless --force).
 - Synchronizes the bumped version to key app files only to avoid noisy commits.
+
+Maintenance note:
+- Keep this helper aligned with the TerraBloom counterpart at
+    `H:/Sync/PKM_PROJECTS/TerraBloom/_Helpers/04_Assets/UnityAssetsManager/_helpers/bumpImportantVersion.py`.
+- Any agent change to one file should be mirrored in the other unless the repository-specific paths differ.
 """
 
 from __future__ import annotations
@@ -13,7 +18,6 @@ import argparse
 import re
 import subprocess
 import sys
-from datetime import date
 from pathlib import Path
 
 
@@ -21,20 +25,7 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 APP_ROOT = SCRIPT_DIR.parent
 VERSION_FILE = APP_ROOT / "VERSION.txt"
 
-VERSION_TAG_FILES = [
-    APP_ROOT / "app.py",
-    APP_ROOT / "static" / "index.html",
-    APP_ROOT / "fetch_fab_library.py",
-    APP_ROOT / "cache_manager.py",
-    APP_ROOT / "models.py",
-    APP_ROOT / "errors.py",
-    APP_ROOT / "README.md",
-    APP_ROOT / "_helpers" / "specs.md",
-    APP_ROOT / "tests" / "test_api.py",
-    APP_ROOT / "tests" / "test_cache.py",
-    APP_ROOT / "tests" / "test_connection.py",
-    APP_ROOT / "tests" / "test_parser.py",
-]
+VERSION_TAG_EXTENSIONS = {".py", ".md", ".html", ".htm", ".js", ".yaml", ".yml"}
 
 IMPORTANT_FILES = [
     APP_ROOT / "app.py",
@@ -47,13 +38,7 @@ IMPORTANT_FILES = [
     APP_ROOT / "start-FabAssetsManager.bat",
 ]
 
-SYNC_FILES = [
-    *VERSION_TAG_FILES,
-    APP_ROOT / "API_GUIDE.md",
-    APP_ROOT / "openapi.yaml",
-    APP_ROOT / "CHANGELOG.md",
-    VERSION_FILE,
-]
+VERSION_MARKER_RE = re.compile(r"(?m)^\s*(?:#\s*)?(?:\*\*Version:\*\*|Version:|version:)\s*\d+\.\d+\.\d+")
 
 SEMVER_RE = re.compile(r"^(\d+)\.(\d+)\.(\d+)$")
 
@@ -132,10 +117,19 @@ def replace_first(pattern: str, replacement: str, text: str) -> tuple[str, bool]
     new_text, count = compiled.subn(replacement, text, count=1)
     return new_text, count == 1
 
-def replace_all(pattern: str, replacement: str, text: str) -> tuple[str, bool]:
-    compiled = re.compile(pattern, flags=re.MULTILINE)
-    new_text, count = compiled.subn(replacement, text)
-    return new_text, count > 0
+
+def discover_version_tag_files() -> list[Path]:
+    discovered: list[Path] = []
+    for path in APP_ROOT.rglob("*"):
+        if not path.is_file() or path.suffix.lower() not in VERSION_TAG_EXTENSIONS:
+            continue
+        try:
+            text = path.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError):
+            continue
+        if VERSION_MARKER_RE.search(text):
+            discovered.append(path)
+    return sorted(discovered)
 
 def sync_version_txt(new_version: str) -> bool:
     previous = VERSION_FILE.read_text(encoding="utf-8").strip() if VERSION_FILE.exists() else ""
@@ -148,123 +142,38 @@ def sync_version_tag(file_path: Path, new_version: str) -> bool:
     if not file_path.exists():
         return False
     text = file_path.read_text(encoding="utf-8")
-    new_text, changed = replace_all(r"^(Version:\s*)\d+\.\d+\.\d+(.*)$", rf"\g<1>{new_version}\g<2>", text)
-    if not changed:
-        return False
-    if new_text == text:
-        return False
-    file_path.write_text(new_text, encoding="utf-8")
-    return True
+    patterns = [
+        r"^(\s*#\s*Version:\s*)\d+\.\d+\.\d+(\s*)$",
+        r"^(\s*\*\*Version:\*\*\s*)\d+\.\d+\.\d+(\s*)$",
+        r"^(\s*Version:\s*)\d+\.\d+\.\d+(\s*)$",
+        r"^(\s*version:\s*)\d+\.\d+\.\d+(\s*)$",
+    ]
+
+    for pattern in patterns:
+        new_text, changed = replace_first(pattern, rf"\g<1>{new_version}\g<2>", text)
+        if changed:
+            if new_text != text:
+                file_path.write_text(new_text, encoding="utf-8")
+                return True
+            return False
+
+    return False
 
 
-def sync_readme(new_version: str) -> bool:
-    target = APP_ROOT / "README.md"
-    if not target.exists():
-        return False
-    text = target.read_text(encoding="utf-8")
-    new_text, changed = replace_first(r"^(Version:\s*)\d+\.\d+\.\d+(.*)$", rf"\g<1>{new_version}\g<2>", text)
-    if not changed:
-        return False
-    if new_text == text:
-        return False
-    target.write_text(new_text, encoding="utf-8")
-    return True
+def get_sync_files(version_tag_files: list[Path]) -> list[Path]:
+    return [*version_tag_files, VERSION_FILE]
 
 
-def sync_api_guide(new_version: str) -> bool:
-    target = APP_ROOT / "API_GUIDE.md"
-    text = target.read_text(encoding="utf-8")
-
-    # Replace if already present
-    new_text, replaced = replace_first(r"^\*\*Version:\*\*\s*\d+\.\d+\.\d+\s*$", f"**Version:** {new_version}", text)
-    if replaced:
-        if new_text != text:
-            target.write_text(new_text, encoding="utf-8")
-            return True
-        return False
-
-    # Else inject after title line
-    lines = text.splitlines()
-    if not lines:
-        lines = ["# API Guide - FabAssetsManager\n"]
-
-    insert_at = 1
-    if len(lines) > 1 and lines[1].strip() == "":
-        insert_at = 2
-
-    lines.insert(insert_at, f"**Version:** {new_version}")
-    if insert_at == 1:
-        lines.insert(2, "")
-
-    updated = "\n".join(lines) + "\n"
-    if updated == text:
-        return False
-    target.write_text(updated, encoding="utf-8")
-    return True
-
-
-def sync_openapi(new_version: str) -> bool:
-    target = APP_ROOT / "openapi.yaml"
-    text = target.read_text(encoding="utf-8")
-    new_text, changed = replace_first(r"^(\s*version:\s*)\d+\.\d+\.\d+\s*$", rf"\g<1>{new_version}", text)
-    if not changed:
-        return False
-    if new_text == text:
-        return False
-    target.write_text(new_text, encoding="utf-8")
-    return True
-
-
-def sync_changelog(new_version: str, scope: str, changed_files: list[str]) -> bool:
-    target = APP_ROOT / "CHANGELOG.md"
-    text = target.read_text(encoding="utf-8")
-
-    if f"## [{new_version}]" in text:
-        return False
-
-    today = date.today().isoformat()
-    pretty_changed = ", ".join(changed_files) if changed_files else "(manual)"
-    entry = (
-        f"## [{new_version}] - {today}\n\n"
-        "### 🔧 Modifié\n\n"
-        f"- Bump automatique `{scope}` déclenché sur fichiers importants.\n"
-        f"- Fichiers importants détectés: {pretty_changed}.\n\n"
-        "---\n\n"
-    )
-
-    lines = text.splitlines(keepends=True)
-    if not lines:
-        new_text = "# Changelog\n\n" + entry
-    else:
-        # Keep title as first line and insert new release block right after.
-        head = lines[0]
-        tail = "".join(lines[1:])
-        if not tail.startswith("\n"):
-            tail = "\n" + tail
-        new_text = head + "\n" + entry + tail
-
-    if new_text == text:
-        return False
-    target.write_text(new_text, encoding="utf-8")
-    return True
-
-
-def sync_all(new_version: str, scope: str, changed_files: list[str]) -> list[str]:
+def sync_all(new_version: str) -> list[str]:
     touched: list[str] = []
+    version_tag_files = discover_version_tag_files()
 
     if sync_version_txt(new_version):
         touched.append("VERSION.txt")
 
-    for file_path in VERSION_TAG_FILES:
+    for file_path in version_tag_files:
         if sync_version_tag(file_path, new_version):
             touched.append(str(file_path.relative_to(APP_ROOT)).replace("\\", "/"))
-
-    if sync_api_guide(new_version):
-        touched.append("API_GUIDE.md")
-    if sync_openapi(new_version):
-        touched.append("openapi.yaml")
-    if sync_changelog(new_version, scope, changed_files):
-        touched.append("CHANGELOG.md")
 
     return touched
 
@@ -295,11 +204,11 @@ def main() -> int:
         else:
             print("Detected important changes: none (forced)")
         print("Files synchronized on real run:")
-        for file_path in SYNC_FILES:
+        for file_path in get_sync_files(discover_version_tag_files()):
             print(f"- {file_path.relative_to(APP_ROOT)}")
         return 0
 
-    touched = sync_all(new_version, args.scope, important_changes)
+    touched = sync_all(new_version)
     print(f"Version bumped: {current} -> {new_version}")
 
     if important_changes:

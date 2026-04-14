@@ -6,7 +6,7 @@ Then open: http://localhost:5002
 
 NOTE: 5002 is the default port for the web interface, but the it can be changed in `config/config.json`
 
-Version: 0.12.5
+Version: 0.13.1
 """
 
 import csv
@@ -304,6 +304,15 @@ def log_route_result(response):
 def index():
     return send_from_directory("static", "index.html")
 
+
+@app.route("/api/export-templates")
+def api_export_templates():
+    import os
+    path = os.path.join("config", "export_templates.json")
+    if os.path.exists(path):
+        with open(path, "r", encoding="utf-8") as f:
+            return jsonify(json.load(f))
+    return jsonify({})
 
 @app.route("/api/assets")
 def api_assets():
@@ -904,3 +913,4 @@ if __name__ == "__main__":
 
     logger.info(f"\n✅ Open: http://localhost:{server_port}\n")
     app.run(debug=True, host="127.0.0.1", port=server_port)
+

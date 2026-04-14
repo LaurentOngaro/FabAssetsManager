@@ -1,6 +1,6 @@
 # API Guide - FabAssetsManager
 
-**Version:** 0.12.5
+**Version:** 0.13.1
 This guide explains how to integrate the FabAssetsManager API into your workflows (e.g., TerraBloom curation pipeline).
 
 ## 🚀 Quick Start
@@ -112,3 +112,4 @@ def get_asset_by_url(fab_url):
         print(f"Error [{error.get('code')}]: {error.get('message')}")
     return None
 ```
+
