@@ -1,6 +1,6 @@
 # API Guide - FabAssetsManager
 
-**Version:** 0.13.2
+**Version:** 0.13.3
 This guide explains how to integrate the FabAssetsManager API into your workflows (e.g., TerraBloom curation pipeline).
 
 ## 🚀 Quick Start
@@ -64,6 +64,12 @@ To display thumbnails, use `/api/image/{uid}`.
   - `.csv` pour les profils CSV
   - `.md` pour les profils Markdown
   - `.txt` pour les autres profils texte
+
+### 6. Local User Annotations (FEAT3 / FEAT5)
+
+- Favorites and per-asset comments are managed in the frontend and stored in browser localStorage, keyed by asset UID.
+- No dedicated REST endpoint is required for these annotations.
+- Since they are independent from `assets/*.json`, they are preserved when `/api/clear_cache` is used.
 
 ---
 

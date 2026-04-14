@@ -5,6 +5,7 @@
 
   const DEBUG_MODE_STORAGE_KEY = 'FabAssetsManager_debug_mode';
   const DISPLAYED_COLUMNS_STORAGE_KEY = 'FabAssetsManager_displayed_columns';
+  const USER_DATA_STORAGE_KEY = 'FabAssetsManager_user_data';
 
   const DEFAULT_FULL_COLS_LIST = [
     'thumbnail_url',
@@ -49,6 +50,7 @@
   ];
 
   let DISPLAYED_COLS_LIST = [...DEFAULT_DISPLAYED_COLS_LIST];
+  let userAssetData = {};
 
   const COLUMN_LABELS = {
     thumbnail_url: 'Preview',
@@ -125,6 +127,102 @@
 
   function getSavedDebugMode() {
     return localStorage.getItem(DEBUG_MODE_STORAGE_KEY) === 'true';
+  }
+
+  function loadUserAssetData() {
+    try {
+      const raw = localStorage.getItem(USER_DATA_STORAGE_KEY);
+      const parsed = raw ? JSON.parse(raw) : {};
+      userAssetData = parsed && typeof parsed === 'object' ? parsed : {};
+    } catch (_) {
+      userAssetData = {};
+    }
+  }
+
+  function saveUserAssetData() {
+    localStorage.setItem(USER_DATA_STORAGE_KEY, JSON.stringify(userAssetData));
+  }
+
+  function getAssetUserData(uid) {
+    if (!uid) return { favorite: false, comment: '' };
+    const entry = userAssetData[uid] || {};
+    return {
+      favorite: Boolean(entry.favorite),
+      comment: typeof entry.comment === 'string' ? entry.comment : ''
+    };
+  }
+
+  function hasComment(uid) {
+    return getAssetUserData(uid).comment.trim().length > 0;
+  }
+
+  function setAssetFavorite(uid, favorite) {
+    if (!uid) return;
+    const current = getAssetUserData(uid);
+    userAssetData[uid] = {
+      favorite: Boolean(favorite),
+      comment: current.comment
+    };
+    saveUserAssetData();
+  }
+
+  function setAssetComment(uid, comment) {
+    if (!uid) return;
+    const current = getAssetUserData(uid);
+    userAssetData[uid] = {
+      favorite: current.favorite,
+      comment: String(comment || '')
+    };
+    saveUserAssetData();
+  }
+
+  function updateDetailFavoriteUi(uid) {
+    const btn = document.getElementById('detFavoriteBtn');
+    if (!btn || currentDetailUid !== uid) return;
+
+    const favorite = getAssetUserData(uid).favorite;
+    btn.textContent = favorite ? '★ Favorite' : '☆ Add to favorites';
+    btn.classList.toggle('is-active', favorite);
+    btn.title = favorite ? 'Remove from favorites' : 'Add to favorites';
+  }
+
+  function updateDetailCommentStatus(uid) {
+    const status = document.getElementById('detCommentStatus');
+    if (!status || currentDetailUid !== uid) return;
+    status.textContent = hasComment(uid) ? 'Comment saved locally' : 'No local comment';
+  }
+
+  function toggleFavorite(uid) {
+    const current = getAssetUserData(uid);
+    setAssetFavorite(uid, !current.favorite);
+    renderTable(filteredAssets);
+    updateDetailFavoriteUi(uid);
+  }
+
+  function toggleCurrentAssetFavorite() {
+    if (!currentDetailUid) return;
+    toggleFavorite(currentDetailUid);
+  }
+
+  function saveCurrentAssetComment() {
+    if (!currentDetailUid) return;
+    const input = document.getElementById('detLocalComment');
+    if (!input) return;
+    setAssetComment(currentDetailUid, input.value || '');
+    renderTable(filteredAssets);
+    updateDetailCommentStatus(currentDetailUid);
+  }
+
+  function clearCurrentAssetComment() {
+    if (!currentDetailUid) return;
+    const input = document.getElementById('detLocalComment');
+    if (input) {
+      input.value = '';
+      input.focus();
+    }
+    setAssetComment(currentDetailUid, '');
+    renderTable(filteredAssets);
+    updateDetailCommentStatus(currentDetailUid);
   }
 
   function escapeHtml(value) {
@@ -231,13 +329,20 @@
   }
 
   function renderColumnValue(asset, column) {
+    const uid = asset.uid || '';
+    const meta = getAssetUserData(uid);
+    const favoriteBtn = `<button class="favorite-toggle ${meta.favorite ? 'is-favorite' : ''}" type="button" onclick="toggleFavorite('${uid}')" title="${meta.favorite ? 'Remove favorite' : 'Add favorite'}">${meta.favorite ? '★' : '☆'}</button>`;
+    const commentBadge = meta.comment.trim()
+      ? '<span class="local-comment-indicator" title="Local comment saved">📝</span>'
+      : '';
+
     switch (column) {
       case 'thumbnail_url':
         return asset.thumbnail_url
           ? `<img class="preview-thumb" src="/api/image/${asset.uid || ''}" alt="Preview" onerror="this.style.display='none'" onclick="showImageModal('${asset.uid}')" style="cursor:pointer; max-width:60px; max-height:40px; border-radius:4px; object-fit:cover;">`
           : '<span style="color:var(--text2)">—</span>';
       case 'title':
-        return `<a href="javascript:void(0)" onclick="showAssetDetailsModal('${asset.uid}')" title="${escapeHtml(asset.title || '')}">${escapeHtml(asset.title || '—')}</a>`;
+        return `<div class="title-cell-wrap">${favoriteBtn}<a href="javascript:void(0)" onclick="showAssetDetailsModal('${asset.uid}')" title="${escapeHtml(asset.title || '')}">${escapeHtml(asset.title || '—')}</a>${commentBadge}</div>`;
       case 'seller_name':
         return asset.seller_name ? `<a href="javascript:void(0)" style="color:inherit;text-decoration:underline dashed;" onclick="setFilterByClick('seller-cb', '${escapeHtml(asset.seller_name)}')">${escapeHtml(asset.seller_name)}</a>` : '—';
       case 'listing_type':
@@ -457,6 +562,7 @@
   async function init() {
     loadFullColumnsList();
     loadDisplayedColumns();
+    loadUserAssetData();
     renderColumnsSelector();
 
     const debugCheckbox = document.getElementById('debugMode');
@@ -927,7 +1033,9 @@
       ueMax: [...document.querySelectorAll('.ue-max-cb:checked')].map(c => c.value),
       onlyDownloadable: document.getElementById('filterDownloadable').checked,
       onlyDiscounted: document.getElementById('filterDiscounted').checked,
-      hideMature: document.getElementById('filterMature').checked
+      hideMature: document.getElementById('filterMature').checked,
+      favoritesOnly: document.getElementById('filterFavoritesOnly').checked,
+      withLocalNote: document.getElementById('filterWithLocalNote').checked
     };
     localStorage.setItem(FILTERS_STORAGE_KEY, JSON.stringify(state));
   }
@@ -958,6 +1066,8 @@
       if (state.onlyDownloadable !== undefined) document.getElementById('filterDownloadable').checked = state.onlyDownloadable;
       if (state.onlyDiscounted !== undefined) document.getElementById('filterDiscounted').checked = state.onlyDiscounted;
       if (state.hideMature !== undefined) document.getElementById('filterMature').checked = state.hideMature;
+      if (state.favoritesOnly !== undefined) document.getElementById('filterFavoritesOnly').checked = state.favoritesOnly;
+      if (state.withLocalNote !== undefined) document.getElementById('filterWithLocalNote').checked = state.withLocalNote;
     } catch(e) {
       console.warn("Could not restore filters state", e);
     }
@@ -1053,6 +1163,8 @@
     const onlyDownloadable = document.getElementById('filterDownloadable').checked;
     const onlyDiscounted = document.getElementById('filterDiscounted').checked;
     const hideMature = document.getElementById('filterMature').checked;
+    const favoritesOnly = document.getElementById('filterFavoritesOnly').checked;
+    const withLocalNote = document.getElementById('filterWithLocalNote').checked;
     const sort = document.getElementById('sortSelect').value;
 
     let result = allAssets.filter(a => {
@@ -1081,6 +1193,8 @@
       if (onlyDownloadable && !a.can_download) return false;
       if (onlyDiscounted && (!a.discounted_price || a.discounted_price === a.price)) return false;
       if (hideMature && a.is_mature) return false;
+      if (favoritesOnly && !getAssetUserData(a.uid || '').favorite) return false;
+      if (withLocalNote && !hasComment(a.uid || '')) return false;
       return true;
     });
 
@@ -1342,6 +1456,12 @@
     document.getElementById('detUpdated').textContent = asset.last_updated_at ? asset.last_updated_at.substring(0, 10) : '—';
     document.getElementById('detTags').innerHTML = renderTagList(asset.tags);
     document.getElementById('detDesc').textContent = asset.description || 'No description provided.';
+    const localCommentInput = document.getElementById('detLocalComment');
+    if (localCommentInput) {
+      localCommentInput.value = getAssetUserData(uid).comment;
+    }
+    updateDetailFavoriteUi(uid);
+    updateDetailCommentStatus(uid);
 
     // Hide detail-only sections initially
     document.getElementById('detTechSpecsSection').style.display = 'none';

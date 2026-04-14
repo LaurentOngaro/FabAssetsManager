@@ -28,7 +28,7 @@ Chaque fois qu'une modification est teminée:
 
 _Note : Ces données devront être stockées localement en parallèle du cache de base de l'API (ex: via un fichier JSON séparé `userdata.json` ou localStorage), afin qu'elles survivent à un `Clear Cache` (CA2) ou à une mise à jour d'asset (FEAT2)._
 
-### [FEAT3] Système de Favoris
+### DONE [FEAT3] Système de Favoris
 
 - **Objectif :** Permettre de repérer rapidement les assets à garder sous la main.
 - **Actions :**
@@ -42,7 +42,7 @@ _Note : Ces données devront être stockées localement en parallèle du cache d
 - **Décision :** repoussé volontairement, car moins utile à court terme que FEAT3 et FEAT5.
 - **Remarque :** à réévaluer seulement après mise en place d'une base commune pour les données utilisateur.
 
-### [FEAT5] Commentaires locaux
+### DONE [FEAT5] Commentaires locaux
 
 - **Objectif :** Permettre de conserver des notes personnelles par asset.
 - **Actions :**

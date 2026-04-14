@@ -1,6 +1,6 @@
 """Asset data model and mapping helpers.
 
-Version: 0.13.2
+Version: 0.13.3
 """
 
 from dataclasses import dataclass

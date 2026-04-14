@@ -235,6 +235,52 @@
     }
     .asset-title a:hover { color: var(--accent2); }
 
+    .title-cell-wrap {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      max-width: 100%;
+    }
+
+    .favorite-toggle {
+      background: transparent;
+      border: none;
+      color: var(--text2);
+      cursor: pointer;
+      font-size: 0.95rem;
+      line-height: 1;
+      padding: 0;
+    }
+    .favorite-toggle:hover { color: #fbbf24; }
+    .favorite-toggle.is-favorite { color: #fbbf24; }
+
+    #detFavoriteBtn.is-active {
+      background: #664d03;
+      border-color: #a16207;
+      color: #fef3c7;
+    }
+
+    .local-comment-indicator {
+      font-size: 0.78rem;
+      opacity: 0.85;
+    }
+
+    #detLocalComment {
+      margin-top: 8px;
+      min-height: 90px;
+      width: 100%;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px;
+      color: var(--text);
+      font-size: 0.84rem;
+      font-family: inherit;
+      resize: vertical;
+      outline: none;
+    }
+    #detLocalComment:focus { border-color: var(--accent); }
+
     .tag {
       display: inline-block;
       padding: 2px 8px;

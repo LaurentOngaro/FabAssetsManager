@@ -3,7 +3,7 @@
 
 FabAssetsManager — Web Interface (Phase 4+: Lazy Loading Support)
 
-Version: 0.13.2
+Version: 0.13.3
 
 This interface manages a local cache of fab.com assets (3480+ items) with:
 
@@ -212,6 +212,14 @@ This interface manages a local cache of fab.com assets (3480+ items) with:
           <input type="checkbox" id="filterMature" onchange="applyFilters()" />
           Hide adult content
         </label>
+        <label class="filter-label">
+          <input type="checkbox" id="filterFavoritesOnly" onchange="applyFilters()" />
+          Favorites only
+        </label>
+        <label class="filter-label">
+          <input type="checkbox" id="filterWithLocalNote" onchange="applyFilters()" />
+          With a local note
+        </label>
         <label class="filter-label" style="margin-top:10px;padding-left:0">
           <input type="checkbox" id="debugMode" onchange="updateLoggingConfig()" />
             Enable debug mode
@@ -355,6 +363,19 @@ This interface manages a local cache of fab.com assets (3480+ items) with:
       <div>
         <strong style="color:var(--text2)">Description:</strong>
         <div id="detDesc" style="margin-top:8px; padding:12px; background:var(--bg3); border-radius:8px; font-size:0.85rem; line-height:1.5; white-space:pre-wrap; max-height:250px; overflow-y:auto;"></div>
+      </div>
+
+      <div style="margin-top:12px;">
+        <strong style="color:var(--text2)">Local Notes:</strong>
+        <div style="margin-top:8px; display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+          <button id="detFavoriteBtn" type="button" class="btn btn-ghost btn-sm" onclick="toggleCurrentAssetFavorite()">☆ Add to favorites</button>
+          <span id="detCommentStatus" style="color:var(--text2); font-size:0.8rem;">No local comment</span>
+        </div>
+        <textarea id="detLocalComment" placeholder="Add a local note for this asset..."></textarea>
+        <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:8px;">
+          <button type="button" class="btn btn-ghost btn-sm" onclick="clearCurrentAssetComment()">Clean note</button>
+          <button type="button" class="btn btn-primary btn-sm" onclick="saveCurrentAssetComment()">Save note</button>
+        </div>
       </div>
 
       <!-- Media gallery (from details) -->

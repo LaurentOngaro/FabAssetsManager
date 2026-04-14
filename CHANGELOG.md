@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.13.3] - 2026-04-14
+
+### Added
+
+- **[FEAT3]** Système de favoris local: étoile cliquable dans la grille et bouton dédié dans la modale de détail.
+- **[FEAT5]** Commentaires locaux par asset: champ de note dans la modale avec sauvegarde locale par UID.
+
+### Changed
+
+- Ajout d'un indicateur visuel en liste lorsqu'un asset possède une note locale.
+- Persistance des annotations utilisateur (favoris/commentaires) dans le localStorage, indépendante du cache backend (`assets/*.json`).
+- Ajout d'un bouton `Clean note` dans la modale de détail pour effacer rapidement la note locale de l'asset courant.
+
 ## [0.13.2] - 2026-04-14
 
 ### Fixed

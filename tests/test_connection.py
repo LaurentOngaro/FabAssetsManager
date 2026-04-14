@@ -3,7 +3,7 @@
 Diagnostic script to test connection to fab.com
 and troubleshoot Cloudflare issues
 
-Version: 0.13.2
+Version: 0.13.3
 """
 
 import sys

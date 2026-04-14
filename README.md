@@ -1,6 +1,6 @@
 # 🎮 FabAssetsManager
 
-Version: 0.13.2
+Version: 0.13.3
 
 Local web application to manage and explore your **fab.com** asset library (Unreal Engine, Blender, etc.).
 
@@ -36,6 +36,8 @@ Local web application to manage and explore your **fab.com** asset library (Unre
 
 - **Pagination**: 50 items/page, smooth navigation
 - **Selection**: individual or entire page
+- **Favorites**: star toggle in list and details modal to mark priority assets
+- **Local comments**: notes per asset stored locally (no cloud sync)
 - **Export**: CSV/JSON (selected or filtered assets)
 - **Custom Export**: profils d'export textuels personnalisables (markdown, csv, texte) via une modale dédiée
 - **Extension auto**: `.csv`, `.md`, `.txt` selon le profil sélectionné
@@ -159,6 +161,13 @@ Click **Title**, **Added**, or **Updated** to toggle sort ascending ↔ descendi
 4. File named:
    - Standard export: `fab_export_YYYY-MM-DD.csv|json`
    - Custom export: `Fab_export.csv|md|txt` (extension auto selon profil)
+
+### Favorites & Local Notes
+
+1. Click the star next to an asset title to toggle favorite.
+2. Open **See Details** to manage the same favorite state and edit a local note.
+3. Notes are saved in browser localStorage by UID and persist across reloads.
+4. These local annotations are independent from API cache files and survive **Clear Cache**.
 
 ### Image Preview (Lazy Loading)
 

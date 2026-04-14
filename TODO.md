@@ -31,8 +31,6 @@ classement des demandes par priorité de la plus urgente à la moins urgente:
 
 ### features (last: FEAT8)
 
-- [ ] FEAT3: ajouter un système de favoris pour marquer les assets préférés
-- [ ] FEAT5: ajouter un system de commentaires locaux pour chaque asset (ex: "ne fonctionne pas avec UE5.3", "super pour les jeux 2D", etc.)
 - [ ] FEAT4: ajouter un système de tags personnalisés pour classer les assets (ex: "à tester", "inspirant", "à acheter", etc.)
 
 ### idées à creuser (last: IDEA1)
@@ -41,6 +39,8 @@ classement des demandes par priorité de la plus urgente à la moins urgente:
 
 ## Terminés
 
+- [x] FEAT5: ajouter un system de commentaires locaux pour chaque asset (ex: "ne fonctionne pas avec UE5.3", "super pour les jeux 2D", etc.)
+- [x] FEAT3: ajouter un système de favoris pour marquer les assets préférés
 - [x] FEAT6: utiliser des profils d'exportation de données
 - [x] FEAT7: externaliser le css dans static/css/style.css
 - [x] FEAT8: externaliser le js dans static/js/app.js
