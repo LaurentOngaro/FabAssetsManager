@@ -6,10 +6,12 @@ Ce document ordonne et détaille les étapes d'implémentation selon les  défin
 
 Chaque fois qu'une modification est teminée:
 
-- dans ce document: ajouter "DONE " en début du titre de la section correspondante (ex: `### 1. [FIL1] Sections de filtres collapsables` devient `### 1. DONE [FIL1] Sections de filtres collapsables`)
+- dans ce document:
+  - ajouter "DONE " en début du titre de la section correspondante (ex: `### 1. [FIL1] Sections de filtres collapsables` devient `### 1. DONE [FIL1] Sections de filtres collapsables`)
+  - les sections terminées sont régulièrement effacées de ce document pour ne conserver que les tâches en cours ou à venir
 - dans `TODO.md`:
   - cocher la case associée
-  - supprimer la tache de la liste des
+  - supprimer la tache de la liste des Groupes
   - déplacer la tache au début de la section "Terminés" à la fin du fichier (ex: `### Terminés`)
 
 ## TOP Priorités (pour les corrections immédiates)
@@ -26,9 +28,9 @@ Chaque fois qu'une modification est teminée:
 
 ## Fonctionnalités de marquage utilisateur (Local Data)
 
-## 9 : Etudes (Hors-Périmètre/Long-Terme)
+## Etudes (Hors-Périmètre/Long-Terme)
 
-### IDEA2 mis de côté
+### [IDEA2] mis de côté
 
 - **Décision :** repoussé volontairement, car moins utile à court terme que FEAT3 et FEAT5.
 - **Remarque :** à réévaluer seulement après mise en place d'une base commune pour les données utilisateur.
