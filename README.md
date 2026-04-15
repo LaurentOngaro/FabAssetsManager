@@ -2,7 +2,7 @@
 
 Version: 0.13.4
 
-Local web application to manage and explore your **fab.com** asset library (Unreal Engine, Blender, etc.).
+Local web application to manage, enrich, and explore your locally cached **fab.com** asset library (Unreal Engine, Blender, etc.).
 
 ## ✨ Key Features
 
@@ -10,6 +10,7 @@ Local web application to manage and explore your **fab.com** asset library (Unre
 
 - **Distributed cache**: each asset = individual JSON file (`assets/<UID>.json`)
 - **Metadata**: `assets/last_update.txt` with count, oldest_created_at, timestamp
+- **Config persistence**: `config/config.json` stores logging and runtime preferences
 - **UI sync badge**: the home screen shows the last cache sync time
 - **Partial updates**: early stopping when refetching if assets already cached
 - **Cleanup**: easy cache deletion from interface
@@ -74,7 +75,7 @@ python app.py
 ```
 
 Then open **http://localhost:5002** in your browser.
-NOTE: 5002 is the default port for the web interface, but the it can be changed in `config/config.json`
+NOTE: 5002 is the default port for the web interface, but it can be changed in `config/config.json`
 
 ---
 
@@ -209,21 +210,26 @@ Click **Title**, **Added**, or **Updated** to toggle sort ascending ↔ descendi
 FabAssetsManager/
 ├── _helpers/               # Dev files and tools
 │   ├── asset_example.json  # Example asset content
-│   ├── specs.md            # INITIAL specs and technical notes
+│   ├── specs.md            # Technical notes and current architecture
 │   ├── TROUBLESHOOTING.md  # Troubleshooting info
 │   └── test_connection.py  # Connection test script
 ├── app.py                  # Main Flask server
 ├── cache_manager.py        # Cache system management
+├── errors.py               # Standardized API errors
 ├── fetch_fab_library.py    # Client API fab.com
+├── models.py               # Asset normalization and flattening
+├── routes.py               # Flask API and web routes
 ├── assets/                 # Asset cache (auto-created)
 │   ├── <UID>.json          # Individual files
 │   └── last_update.txt     # Update metadata
 ├── previews/               # Image cache (auto-generated)
 │   └── <UID>.jpg
 ├── static/
-│   ├── index.html          # Web interface
-│   └── ...
+│   ├── index.html          # Web interface shell
+│   ├── css/style.css       # Shared styling
+│   └── js/app.js           # Frontend logic
 ├── config/                 # User specific config
+│   ├── config.json         # Persisted runtime settings
 │   ├── cookies.txt         # To fill in: your session cookie (KEEP THIS SECRET)
 │   └── user_agent.txt      # To fill in: your User-Agent (leave as-is unless connection issues)
 ├── requirements.txt        # Python dependencies
@@ -243,9 +249,12 @@ The FabAssetsManager provides a local REST API for integration with other tools 
 
 ### Quick Examples
 
+- `GET /api/config` : Inspect cookies, user-agent, and logging preferences.
+- `POST /api/fetch` : Sync the Fab library from the local browser session or saved config.
 - `GET /api/lookup?uid=...` : Find an asset by UID, Name, or URL.
 - `GET /api/details/{uid}` : Get full metadata (lazy-loaded).
-- `GET /api/image/{uid}` : Serve/Download asset thumbnail.
+- `GET /api/image/{uid}` : Serve or download asset thumbnail.
+- `GET /api/cache-info` : Read cache metadata for the UI badge or external checks.
 
 ---
 
@@ -309,5 +318,5 @@ MIT
 
 ---
 
-**Last updated**: April 2026
-**Version**: 0.11.0 (Standardized API docs & unified guide)
+**Last updated**: April 15, 2026
+**Version**: 0.13.4 (docs refreshed)

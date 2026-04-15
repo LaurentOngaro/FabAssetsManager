@@ -7,7 +7,14 @@ This guide explains how to integrate the FabAssetsManager API into your workflow
 ## 🚀 Quick Start
 
 The API is available at `http://localhost:5002`. Most endpoints return flattened JSON objects.
-(5002 is the default port for the web interface, but the it can be changed in `config/config.json`)
+(5002 is the default port for the web interface, but it can be changed in `config/config.json`)
+
+### Local Configuration
+
+- `GET /api/config` returns the current runtime state, including whether cookies and a user-agent are configured.
+- `POST /api/config` saves cookies, user-agent, and logging preferences from the web interface.
+- `POST /api/config/logging` saves logging preferences and applies them immediately.
+- `GET /api/test` returns a simple Flask health response.
 
 ### 🔍 Finding an Asset
 
@@ -46,21 +53,24 @@ To display thumbnails, use `/api/image/{uid}`.
 - Downloads the image on the first call.
 - Subsequent calls serve from `previews/` disk cache.
 
-### 3. Asset Management
+### 3. Asset Discovery and Status
 
-- **`GET /api/assets`**: Retourne une liste des assets disponibles dans le cache local.
-- **`GET /api/assets/{uid}`**: Retourne les détails d'un asset spécifique.
-- **`POST /api/assets`**: Ajoute un nouvel asset au cache local.
+- **`GET /api/assets`**: Retourne l'ensemble des assets disponibles dans le cache local, déjà aplatis pour l'usage côté client.
+- **`GET /api/lookup`**: Recherche un asset par `uid`, `name` ou `url`.
+- **`GET /api/status`**: Retourne un résumé léger de l'état du cache local.
+- **`GET /api/missing_details`**: Retourne la liste des UID qui doivent encore être enrichis; accepte un paramètre `uids` ou un corps JSON.
 
 ### 4. Cache & Maintenance
 
 - **`GET /api/cache-info`**: Retourne des statistiques sur le cache local (nombre d'assets, taille totale, espace libre, date de dernière mise à jour).
+- **`POST /api/fetch`**: Synchronise la bibliothèque Fab en utilisant les cookies et le User-Agent configurés localement.
 - **`POST /api/clear_previews`**: Supprime toutes les images de prévisualisation enregistrées localement dans le dossier des previews.
 - **`POST /api/clear_cache`**: Supprime tous les fichiers de cache des assets et remet à zéro l'état du cache local.
 
 ### 5. Custom Export Profiles
 
 - **`GET /api/export-templates`**: Retourne les profils d'export personnalisés utilisés par la modale **Custom Export**.
+- **`POST /api/export/json`** et **`POST /api/export/csv`**: exportent les assets, avec filtrage optionnel par UID sélectionnés.
 - Le frontend applique le pattern sélectionné asset par asset, puis choisit automatiquement l'extension du fichier exporté:
   - `.csv` pour les profils CSV
   - `.md` pour les profils Markdown

@@ -25,6 +25,84 @@ paths:
                 items:
                   $ref: './_helpers/asset_output_schema_full.json#/$defs/asset'
 
+  /api/config:
+    get:
+      summary: Read runtime configuration
+      description: Returns whether authentication data and logging settings are configured locally.
+      responses:
+        '200':
+          description: Runtime config summary.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  has_cookies:
+                    type: boolean
+                  has_user_agent:
+                    type: boolean
+                  user_agent:
+                    type: string
+                  cookies_preview:
+                    type: string
+                  log_level:
+                    type: string
+                  log_output:
+                    type: string
+                  debug_mode:
+                    type: boolean
+    post:
+      summary: Save runtime configuration
+      description: Persists cookies, user-agent, and logging settings from the web UI.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [cookies]
+              properties:
+                cookies:
+                  type: string
+                user_agent:
+                  type: string
+                log_level:
+                  type: string
+                log_output:
+                  type: string
+      responses:
+        '200':
+          description: Configuration saved.
+        '401':
+          $ref: '#/components/responses/ErrorResponse'
+
+  /api/config/logging:
+    post:
+      summary: Save logging preferences
+      description: Persists logging settings and applies them immediately.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                level:
+                  type: string
+                output:
+                  type: string
+      responses:
+        '200':
+          description: Logging configuration saved.
+
+  /api/test:
+    get:
+      summary: Flask test route
+      description: Lightweight health check for the Flask app.
+      responses:
+        '200':
+          description: Test response.
+
   /api/lookup:
     get:
       summary: Lookup an asset
@@ -64,6 +142,43 @@ paths:
         '400':
           $ref: '#/components/responses/ErrorResponse'
 
+  /api/missing_details:
+    get:
+      summary: List assets missing details
+      description: Returns the list of UIDs that still need enrichment. Accepts an optional comma-separated uids query parameter.
+      parameters:
+        - name: uids
+          in: query
+          schema:
+            type: string
+          description: Optional comma-separated list of UIDs to inspect.
+      responses:
+        '200':
+          description: UIDs missing detail payloads.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+    post:
+      summary: List assets missing details from JSON payload
+      description: Same as GET, but reads the UIDs from a JSON body.
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                uids:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: UIDs missing detail payloads.
+
   /api/details/{uid}:
     get:
       summary: Get enriched asset details
@@ -84,6 +199,23 @@ paths:
         '404':
           $ref: '#/components/responses/ErrorResponse'
 
+  /api/status:
+    get:
+      summary: Cache status summary
+      description: Returns a lightweight view of the current cache size and presence.
+      responses:
+        '200':
+          description: Cache status.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  cached:
+                    type: integer
+                  has_cache:
+                    type: boolean
+
   /api/fetch:
     post:
       summary: Sync library from Fab.com
@@ -103,6 +235,38 @@ paths:
           description: Sync results.
         '401':
           $ref: '#/components/responses/ErrorResponse'
+
+  /api/cache-info:
+    get:
+      summary: Cache metadata
+      description: Returns cache metadata used by the UI badge and sync state.
+      responses:
+        '200':
+          description: Cache metadata.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  has_cache:
+                    type: boolean
+                  count:
+                    type: integer
+                  timestamp:
+                    type: string
+                    nullable: true
+                  last_sync_at:
+                    type: string
+                    nullable: true
+                  last_sync_label:
+                    type: string
+                    nullable: true
+                  age_seconds:
+                    type: number
+                    nullable: true
+                  age_human:
+                    type: string
+                    nullable: true
 
   /api/image/{uid}:
     get:
@@ -186,6 +350,48 @@ paths:
                     pattern:
                       type: string
                   required: [description, pattern]
+
+  /api/export/json:
+    post:
+      summary: Export cached assets as JSON
+      description: Returns a downloadable JSON export of cached assets, optionally filtered by selected UIDs.
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                selected_uids:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: JSON export.
+
+  /api/export/csv:
+    post:
+      summary: Export cached assets as CSV
+      description: Returns a downloadable CSV export of cached assets, optionally filtered by selected UIDs.
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                selected_uids:
+                  type: array
+                  items:
+                    type: string
+                columns:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: CSV export.
 components:
   responses:
     ErrorResponse:
