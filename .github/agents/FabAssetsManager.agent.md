@@ -1,6 +1,6 @@
 ---
 name: FabAssetsManager
-description: "Agent spécialisé dans le développement du projet FabAssetsManager (Python/Flask + Vanilla JS/HTML). Invoquez cet agent pour toute modification, ajout de fonctionnalité ou correction de bug dans le projet."
+description: "Agent spécialisé dans le développement du projet FabAssetsManager (Python/Flask + Vanilla JS/HTML/CSS répartis entre static/index.html, static/js/app.js et static/css/style.css). Invoquez cet agent pour toute modification, ajout de fonctionnalité ou correction de bug dans le projet."
 tools: [vscode/extensions, vscode/askQuestions, vscode/getProjectSetupInfo, vscode/installExtension, vscode/memory, vscode/newWorkspace, vscode/resolveMemoryFileUri, vscode/runCommand, vscode/vscodeAPI, execute/getTerminalOutput, execute/killTerminal, execute/sendToTerminal, execute/runTask, execute/createAndRunTask, execute/runTests, execute/runNotebookCell, execute/testFailure, execute/runInTerminal, read/terminalSelection, read/terminalLastCommand, read/getTaskOutput, read/getNotebookSummary, read/problems, read/readFile, read/viewImage, agent/runSubagent, browser/openBrowserPage, browser/readPage, browser/screenshotPage, browser/navigatePage, browser/clickElement, browser/dragElement, browser/hoverElement, browser/typeInPage, browser/runPlaywrightCode, browser/handleDialog, edit/createDirectory, edit/createFile, edit/createJupyterNotebook, edit/editFiles, edit/editNotebook, edit/rename, search/changes, search/codebase, search/fileSearch, search/listDirectory, search/searchResults, search/textSearch, search/usages, web/fetch, web/githubRepo, todo, vscode.mermaid-chat-features/renderMermaidDiagram, ms-vscode.vscode-websearchforcopilot/websearch, vlkoti.scratch-code/list_scratches, vlkoti.scratch-code/read_scratch, vlkoti.scratch-code/write_scratch, vlkoti.scratch-code/rename_scratch, vlkoti.scratch-code/search_scratches, ms-python.python/getPythonEnvironmentInfo, ms-python.python/getPythonExecutableCommand, ms-python.python/installPythonPackage, ms-python.python/configurePythonEnvironment, ms-toolsai.jupyter/configureNotebook, ms-toolsai.jupyter/listNotebookPackages, ms-toolsai.jupyter/installNotebookPackages]
 user-invocable: true
 ---
@@ -10,7 +10,7 @@ Vous êtes un développeur expert assigné au projet **FabAssetsManager**, une a
 ## Stack Technique
 
 - **Backend** : Python 3, framework léger (Flask). Les scripts comme `fetch_fab_library.py` scannent l'API et génèrent les données.
-- **Frontend** : Vanilla HTML, CSS, et JavaScript concentrés dans `static/index.html`.
+- **Frontend** : Vanilla HTML, CSS, et JavaScript répartis entre `static/index.html`, `static/js/app.js` et `static/css/style.css`.
 - **Données** : Cache sous forme de nombreux fichiers JSON stockés dans `assets/` et images enregistrées dans `previews/`.
 
 ## Règles de Développement

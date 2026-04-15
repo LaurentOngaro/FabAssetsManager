@@ -22,8 +22,8 @@ Application locale (Python/Flask + Vanilla JS/HTML) permettant de lister, filtre
 
 2. **Frontend (Vanilla)** :
 
-- Tout est dans `static/index.html`.
-- **Interdiction formelle** d'utiliser un framework JavaScript (React, Vue, etc.) ou CSS (Tailwind, Bootstrap). Tout doit être fait en Vanilla JS et CSS pur.
+- L'interface est répartie entre `static/index.html`, `static/js/app.js` et `static/css/style.css`.
+- **Interdiction formelle** d'utiliser un framework JavaScript (React, Vue, etc.) ou CSS (Tailwind, Bootstrap). Toute l'UI doit rester en Vanilla JS et CSS pur.
 - Respectez les classes utilitaires CSS déjà existantes (`.btn`, `.modal`, `.filter-group`, etc.).
 
 3. **Organisation du travail** :
@@ -42,13 +42,15 @@ Application locale (Python/Flask + Vanilla JS/HTML) permettant de lister, filtre
 
 À chaque modification significative du projet (nouvelle fonctionnalité, correction de bug, refonte), vous devez mettre à jour les fichiers `CHANGELOG.md` et `VERSION.txt` selon les principes du **Semantic Versioning (SemVer)** (format `MAJOR.MINOR.PATCH`) :
 
-- **MAJOR** : Changements incompatibles ou refonte majeure (ex: changement radical de l'architecture, nouvelle techno, cassure de compatibilité).
-- **MINOR** : Ajout de nouvelles fonctionnalités de manière rétrocompatible (ex: ajout d'un nouveau filtre, nouvel export, actions par lot).
-- **PATCH** : Corrections de bugs et petites améliorations rétrocompatibles (ex: ajustement UI, fix d'un parsing JSON).
 
 **Règles de suivi :**
 
 1. Documentez systématiquement la modification dans le fichier `CHANGELOG.md` (idéalement au format [Keep a Changelog](https://keepachangelog.com/)) sous la version en cours ou la balise `[Unreleased]`.
 2. Utilisez les catégories standard : `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, ou `Security`.
-3. Tout bump de version doit passer par le helper `python _helpers/bumpImportantVersion.py` (`patch` par défaut, ou via `--scope minor` / `--scope major`).
-4. **IMPORTANT** : N'éditez plus les versions manuellement. Ce script synchronise automatiquement `VERSION.txt`, `CHANGELOG.md`, ainsi que l'ensemble des balises de version (`Version: X.Y.Z`, `**Version:** X.Y.Z`, ou `version: X.Y.Z`) présentes dans les en-têtes des fichiers du projet (ex: `app.py`, `static/index.html`, `fetch_fab_library.py`, `README.md`, `openapi.yaml`, etc.).
+3. **Actualisation de la documentation** : après une modification significative, assurez-vous que la documentation impactée reste cohérente.
+
+- `README.md` et `API_GUIDE.md` : mettez-les à jour si le comportement visible, les workflows ou les usages changent.
+- `_helpers/specs.md` : gardez-le aligné avec l'architecture réelle, les routes, les formats de cache et les hypothèses techniques courantes.
+- `openapi.yaml` : mettez-le à jour dès qu'un endpoint, un payload ou un contrat de réponse change.
+- `CHANGELOG.md` et `VERSION.txt` : mettez-les à jour pour les changements significatifs, en suivant le versionnement sémantique (MAJOR.MINOR.PATCH).
+  - **IMPORTANT** : Tout bump de version doit passer par le helper `python _helpers/bumpImportantVersion.py` (via Terminal). N'éditez plus les versions manuellement : ce script synchronise automatiquement le fichier `VERSION.txt`, `CHANGELOG.md` et les balises de version (`Version: X.Y.Z`, `**Version:** X.Y.Z`) situées en haut des différents fichiers du projet (`app.py`, `static/index.html`, `README.md`, `openapi.yaml`, etc.).

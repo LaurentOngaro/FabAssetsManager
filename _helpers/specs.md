@@ -1,10 +1,11 @@
 # FabAssetsManager — Specifications & Development Notes
 
 Version: 0.13.4
+Last reviewed: 2026-04-15
 
 ## Context
 
-Local application that allows an Epic Games / fab.com user to **retrieve, browse, and export** their Unreal Engine asset library.
+Local application that allows an Epic Games / fab.com user to **retrieve, browse, enrich, and export** their owned asset library.
 
 ---
 
@@ -42,11 +43,49 @@ No documented public API. Access relies on session cookies:
 
 Because `cf_clearance` is tied to the exact browser UA, Python must send **the exact same User-Agent** used when cookies were generated.
 
+### 4. Local configuration files
+
+- `config/config.json` stores persisted application settings.
+- `config/cookies.txt` and `config/user_agent.txt` are the user-provided authentication inputs.
+- `assets/last_update.txt` stores cache metadata used by the UI badge and freshness checks.
+
 ---
 
 ## Discovered API Endpoints
 
-Source: reverse engineering based on [egs-api-rs](https://github.com/AchetaGames/egs-api-rs), an open-source Rust library implementing Epic Games / fab.com access.
+Source: current Flask routes and the Fab.com library access flow.
+
+### Local configuration and diagnostics
+
+```
+GET  /api/config
+POST /api/config
+POST /api/config/logging
+GET  /api/test
+```
+
+### Library synchronization and cache
+
+```
+POST /api/fetch
+GET  /api/missing_details
+GET  /api/cache-info
+POST /api/clear_previews
+POST /api/clear_cache
+GET  /api/status
+```
+
+### Library data and export
+
+```
+GET  /api/assets
+GET  /api/lookup
+GET  /api/details/{uid}
+GET  /api/image/{uid}
+GET  /api/export-templates
+POST /api/export/json
+POST /api/export/csv
+```
 
 ### Retrieve account ID
 
@@ -92,20 +131,26 @@ Used by the frontend badge to show the last cache synchronization time.
 
 ---
 
-## Current Architecture (v0.1)
+## Current Architecture
 
 ```
 FabAssetsManager/
 ├── app.py                  # Local Flask server (port 5002 by default)
 ├── cache_manager.py        # Local cache management (JSON files, paths, utilities)
 ├── fetch_fab_library.py    # API calls + pagination + cache logic
+├── routes.py               # Flask API routes and UI endpoints
+├── models.py               # Asset normalization and flattening model
+├── errors.py                # Standardized API error helpers
 ├── requirements.txt        # python packages
 ├── README.md
 ├── TODO.md                 # Prioritized tasks list
+├── VERSION.txt
+├── CHANGELOG.md
 ├── config/
-│   ├── cookies.txt         # Created on first setup (auto-ignored/ignored)
-│   └── user_agent.txt      # Created on first setup (requires matching UA for Cloudflare)
-├── start.bat               # Bootstrap script
+│   ├── config.json         # Persisted runtime settings
+│   ├── cookies.txt         # Created on first setup (requires matching UA for Cloudflare)
+│   └── user_agent.txt      # Created on first setup (must match the browser UA)
+├── start_FabAssetsManager.bat
 ├── _helpers/               # Development and planning documents
 │   ├── PLAN_ACTIONS.md     # Detailed roadmap for current and future features
 │   ├── specs.md            # Initial specifications and notes
@@ -114,17 +159,20 @@ FabAssetsManager/
 ├── tests/                  # Unittests
 │   └── test_connection.py  # Connection test routine
 ├── static/
-│   └── index.html          # SPA interface (vanilla HTML/CSS/JS)
+│   ├── index.html          # SPA shell and page markup
+│   ├── css/style.css       # Shared UI styling
+│   └── js/app.js           # Frontend behavior
 ├── assets/                 # Cached asset metadata (.json files per UID)
 └── previews/               # Cached preview images (.jpg files per UID)
 ```
 
 ### Runtime flow
 
-1. `python app.py` reads `config/cookies.txt` and `config/user_agent.txt`
-2. Backend checks local `assets/` cache, serves it quickly to UI
-3. Flask exposes `/api/fetch` (POST) to pull from Fab API, save .json to `assets/` and download covers into `previews/`.
-4. Web UI supports sorting, filtering, gallery navigation, search, CSV/JSON export.
+1. `python app.py` starts the Flask server and loads persisted configuration from `config/config.json`.
+2. Authentication relies on `config/cookies.txt` and `config/user_agent.txt`; the same machine/browser profile is expected when refreshing them.
+3. Backend serves the cached assets from individual JSON files in `assets/` and cached thumbnails in `previews/`.
+4. `routes.py` exposes JSON endpoints for config, cache maintenance, asset lookup, details enrichment, and export.
+5. The UI in `static/index.html` and `static/js/app.js` manages sorting, filtering, detail modals, gallery navigation, and CSV/JSON export.
 
 ---
 
@@ -150,6 +198,8 @@ resp = session.get(url, headers=headers, cookies=cookies)
 `curl_cffi` emulates Chrome TLS fingerprint and significantly improves Cloudflare pass rate.
 
 Installation: `pip install curl_cffi`
+
+Fallback: the code still keeps a `requests` session available when `curl_cffi` is missing, but that mode is expected to be less reliable against Cloudflare.
 
 ### Alternative
 
@@ -180,6 +230,7 @@ _(Les détails et la planification se trouvent désormais dans les fichiers **TO
 - OS: likely Windows
 - Browser: likely Chrome
 - Current dependencies: `flask`, `requests`, `curl_cffi`
+- Frontend state: favorites, comments, filters, selected columns, and debug preferences are persisted in browser `localStorage`
 
 ---
 
