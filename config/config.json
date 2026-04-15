@@ -1,14 +1,14 @@
 {
-  "log_level": "DEBUG",
-  "log_output": "Both",
-  "server_port": 5002,
   "config_dir": "config",
+  "server_port": 5002,
   "assets_dir": "assets",
   "previews_dir": "previews",
   "cookies_file": "config/cookies.txt",
   "ua_file": "config/user_agent.txt",
-  "log_file": "app.log",
   "last_update_file": "assets/last_update.txt",
+  "log_file": "app.log",
+  "log_level": "DEBUG",
+  "log_output": "both",
   "log_max_bytes": 5242880,
   "log_backup_count": 2
 }

@@ -1,6 +1,6 @@
 """FabAssetsManager — Asset Data Model
 
-Version: 0.13.6
+Version: 0.13.7
 
 Asset data model and mapping helpers.
 """

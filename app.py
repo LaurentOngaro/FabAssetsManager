@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """FabAssetsManager — Local Flask Server
 
-Version: 0.13.6
+Version: 0.13.7
 
 Launch: python app.py
 Then open: http://localhost:5002
@@ -14,7 +14,6 @@ import logging
 import time
 import re
 from urllib.parse import urlparse
-from logging.handlers import RotatingFileHandler
 from flask import Flask, request, g
 from models import Asset
 import cache_manager
@@ -22,6 +21,7 @@ import fetch_fab_library
 import errors
 from routes import bp as main_bp
 import config_manager
+from logging_setup import configure_logging
 
 app = Flask(__name__, static_folder="static", static_url_path="")
 sys.modules.setdefault("app", sys.modules[__name__])
@@ -52,32 +52,14 @@ create_error_response = errors.create_error_response
 # ─── Logging Setup ───────────────────────────────────────────
 logger = logging.getLogger("FabAssetsManager")
 
-
-def configure_logger(level_str="INFO", output_str="Both"):
-    level = getattr(logging, level_str.upper(), logging.INFO)
-    logger.setLevel(level)
-
-    # Remove all handlers to reconfigure
-    for handler in logger.handlers[:]:
-        logger.removeHandler(handler)
-
-    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-
-    if output_str in ("Console", "Both"):
-        ch = logging.StreamHandler(sys.stdout)
-        ch.setFormatter(formatter)
-        logger.addHandler(ch)
-
-    if output_str in ("File", "Both"):
-        try:
-            current_settings = config_manager.load_settings()
-            max_bytes = current_settings.get("log_max_bytes", 5 * 1024 * 1024)
-            backup_count = current_settings.get("log_backup_count", 2)
-            fh = RotatingFileHandler(LOG_FILE, maxBytes=max_bytes, backupCount=backup_count, encoding="utf-8")
-            fh.setFormatter(formatter)
-            logger.addHandler(fh)
-        except Exception as e:
-            logger.info(f"Failed to create file logger: {e}")
+# Configuration du logging via le module unifié
+configure_logging(
+    log_level=_startup_settings.get("log_level", "INFO"),
+    log_output=_startup_settings.get("log_output", "both"),
+    log_max_bytes=_startup_settings.get("log_max_bytes", 5 * 1024 * 1024),
+    log_backup_count=_startup_settings.get("log_backup_count", 2),
+    log_file_path=APP_DIR / _startup_settings.get("log_file", "app.log"),
+)
 
 
 # ─── Read / write config files ───────────────────────────────
@@ -241,9 +223,6 @@ def log_route_result(response):
 app.register_blueprint(main_bp)
 
 # ─── Startup ────────────────────────────────────────────────────────────────
-# Default initialization
-configure_logger(*get_logging_settings())
-
 if __name__ == "__main__":
     logger.info("🚀 FabAssetsManager")
     logger.info("=" * 40)

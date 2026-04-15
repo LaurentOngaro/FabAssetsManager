@@ -1,7 +1,7 @@
 /*
 FabAssetsManager — Frontend Application Logic
 
-Version: 0.13.6
+Version: 0.13.7
 */
 
 // ─────────────────────────────────────────────────────────────────────────

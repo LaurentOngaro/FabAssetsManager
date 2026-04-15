@@ -1,6 +1,6 @@
 """FabAssetsManager — Test Configuration
 
-Version: 0.13.6
+Version: 0.13.7
 """
 
 import sys

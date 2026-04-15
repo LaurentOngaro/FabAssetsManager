@@ -15,7 +15,7 @@ DEFAULT_SETTINGS = {
     "last_update_file": "assets/last_update.txt",
     "server_port": 5002,
     "log_level": "INFO",
-    "log_output": "Both",
+    "log_output": "both",
     "log_max_bytes": 5 * 1024 * 1024,
     "log_backup_count": 2
 }
@@ -72,9 +72,9 @@ def load_settings() -> dict:
     else:
         current_settings["log_level"] = log_level
 
-    log_output = str(current_settings.get("log_output", "Both"))
-    if log_output not in {"Console", "File", "Both"}:
-        current_settings["log_output"] = "Both"
+    log_output = str(current_settings.get("log_output", "both")).lower()
+    if log_output not in {"console", "file", "both"}:
+        current_settings["log_output"] = "both"
         modified = True
     else:
         current_settings["log_output"] = log_output

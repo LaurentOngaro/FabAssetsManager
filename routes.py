@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """FabAssetsManager — API and web routes
 
-Version: 0.13.6
+Version: 0.13.7
 """
 
 import csv

@@ -1,6 +1,15 @@
 # Changelog
 
-Version: 0.13.6
+Version: 0.13.7
+
+## [0.13.7] - 2026-04-15
+
+### Changed
+
+- Extraction de la configuration du logging dans un module dédié `logging_setup.py`.
+- Standardisation des clés de configuration du logging dans `config/config.json` pour correspondre à la structure de UnityAssetsManager.
+- Mise à jour de `config_manager.py` pour valider et normaliser les paramètres de log (passage à `"both"` en minuscules).
+- Correction d'erreurs de type et d'imports manquants dans `app.py`.
 
 ## [0.13.6] - 2026-04-15
 
