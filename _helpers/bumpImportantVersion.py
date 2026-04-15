@@ -20,7 +20,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-
 SCRIPT_DIR = Path(__file__).resolve().parent
 APP_ROOT = SCRIPT_DIR.parent
 VERSION_FILE = APP_ROOT / "VERSION.txt"
@@ -28,14 +27,8 @@ VERSION_FILE = APP_ROOT / "VERSION.txt"
 VERSION_TAG_EXTENSIONS = {".py", ".md", ".html", ".htm", ".js", ".yaml", ".yml"}
 
 IMPORTANT_FILES = [
-    APP_ROOT / "app.py",
-    APP_ROOT / "static" / "index.html",
-    APP_ROOT / "fetch_fab_library.py",
-    APP_ROOT / "cache_manager.py",
-    APP_ROOT / "models.py",
-    APP_ROOT / "errors.py",
-    APP_ROOT / "openapi.yaml",
-    APP_ROOT / "start-FabAssetsManager.bat",
+    APP_ROOT / "app.py", APP_ROOT / "static" / "index.html", APP_ROOT / "fetch_fab_library.py", APP_ROOT / "cache_manager.py", APP_ROOT / "models.py",
+    APP_ROOT / "errors.py", APP_ROOT / "openapi.yaml", APP_ROOT / "start-FabAssetsManager.bat",
 ]
 
 VERSION_MARKER_RE = re.compile(r"(?m)^\s*(?:#\s*)?(?:\*\*Version:\*\*|Version:|version:)\s*\d+\.\d+\.\d+")
@@ -131,6 +124,7 @@ def discover_version_tag_files() -> list[Path]:
             discovered.append(path)
     return sorted(discovered)
 
+
 def sync_version_txt(new_version: str) -> bool:
     previous = VERSION_FILE.read_text(encoding="utf-8").strip() if VERSION_FILE.exists() else ""
     if previous == new_version:
@@ -138,14 +132,13 @@ def sync_version_txt(new_version: str) -> bool:
     VERSION_FILE.write_text(f"{new_version}\n", encoding="utf-8")
     return True
 
+
 def sync_version_tag(file_path: Path, new_version: str) -> bool:
     if not file_path.exists():
         return False
     text = file_path.read_text(encoding="utf-8")
     patterns = [
-        r"^(\s*#\s*Version:\s*)\d+\.\d+\.\d+(\s*)$",
-        r"^(\s*\*\*Version:\*\*\s*)\d+\.\d+\.\d+(\s*)$",
-        r"^(\s*Version:\s*)\d+\.\d+\.\d+(\s*)$",
+        r"^(\s*#\s*Version:\s*)\d+\.\d+\.\d+(\s*)$", r"^(\s*\*\*Version:\*\*\s*)\d+\.\d+\.\d+(\s*)$", r"^(\s*Version:\s*)\d+\.\d+\.\d+(\s*)$",
         r"^(\s*version:\s*)\d+\.\d+\.\d+(\s*)$",
     ]
 

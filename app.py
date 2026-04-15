@@ -34,6 +34,7 @@ APP_DIR = Path(__file__).parent
 _DEFAULT_CONFIG_DIR = APP_DIR / "config"
 CONFIG_FILE = _DEFAULT_CONFIG_DIR / "config.json"
 
+
 def _init_settings() -> dict:
     default_settings = {
         "config_dir": "config",
@@ -68,13 +69,16 @@ def _init_settings() -> dict:
     except (OSError, json.JSONDecodeError):
         return default_settings
 
+
 _startup_settings = _init_settings()
 
-def _resolve_path(path_str: str, default: Path) -> Path:
-    if not path_str:
+
+def _resolve_path(path_value: object | None, default: Path) -> Path:
+    if not isinstance(path_value, str) or not path_value.strip():
         return default
-    p = Path(path_str)
+    p = Path(path_value.strip())
     return p if p.is_absolute() else (APP_DIR / p).resolve()
+
 
 # Configuration paths mapped from settings
 CONFIG_DIR = _resolve_path(_startup_settings.get("config_dir"), _DEFAULT_CONFIG_DIR)
@@ -314,6 +318,7 @@ def api_export_templates():
         with open(path, "r", encoding="utf-8") as f:
             return jsonify(json.load(f))
     return jsonify({})
+
 
 @app.route("/api/assets")
 def api_assets():
@@ -653,18 +658,11 @@ def clear_previews():
                 if file.is_file():
                     file.unlink()
                     deleted_count += 1
-        return jsonify({
-            "status": "success",
-            "message": f"Successfully deleted {deleted_count} preview image(s).",
-            "deleted_count": deleted_count
-        })
+        return jsonify({"status": "success", "message": f"Successfully deleted {deleted_count} preview image(s).", "deleted_count": deleted_count})
     except Exception as e:
         logger.error(f"Error clearing previews: {e}", exc_info=True)
-        return create_error_response(
-            ErrorCode.CACHE_ERROR,
-            message=f"Failed to clear previews: {str(e)}",
-            details={"error": str(e)}
-        )
+        return create_error_response(ErrorCode.CACHE_ERROR, message=f"Failed to clear previews: {str(e)}", details={"error": str(e)})
+
 
 @app.route("/api/clear_cache", methods=["POST"])
 def clear_cache():
@@ -680,18 +678,16 @@ def clear_cache():
         if LAST_UPDATE_FILE.exists():
             LAST_UPDATE_FILE.unlink()
 
-        return jsonify({
-            "status": "success",
-            "message": f"Successfully deleted {deleted_count} cached asset(s) and reset cache state.",
-            "deleted_count": deleted_count
-        })
+        return jsonify(
+            {
+                "status": "success",
+                "message": f"Successfully deleted {deleted_count} cached asset(s) and reset cache state.",
+                "deleted_count": deleted_count
+            }
+        )
     except Exception as e:
         logger.error(f"Error clearing cache: {e}", exc_info=True)
-        return create_error_response(
-            ErrorCode.CACHE_ERROR,
-            message=f"Failed to clear cache: {str(e)}",
-            details={"error": str(e)}
-        )
+        return create_error_response(ErrorCode.CACHE_ERROR, message=f"Failed to clear cache: {str(e)}", details={"error": str(e)})
 
 
 @app.route("/api/export/json", methods=["POST"])
@@ -914,4 +910,3 @@ if __name__ == "__main__":
 
     logger.info(f"\n✅ Open: http://localhost:{server_port}\n")
     app.run(debug=True, host="127.0.0.1", port=server_port)
-
