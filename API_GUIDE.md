@@ -1,6 +1,6 @@
 # FabAssetsManager API Guide
 
-**Version:** 0.13.5
+**Version:** 0.13.6
 
 This guide explains how to integrate the FabAssetsManager API into your workflows (e.g., TerraBloom curation pipeline).
 
@@ -57,13 +57,14 @@ To display thumbnails, use `/api/image/{uid}`.
 ### 3. Asset Discovery and Status
 
 - **`GET /api/assets`**: Retourne l'ensemble des assets disponibles dans le cache local, déjà aplatis pour l'usage côté client.
+- **`POST /api/assets/query`**: Requête paginée/filtrée/triée côté backend (pagination server-side + facettes pour alimenter les filtres UI).
 - **`GET /api/lookup`**: Recherche un asset par `uid`, `name` ou `url`.
 - **`GET /api/status`**: Retourne un résumé léger de l'état du cache local.
 - **`GET /api/missing_details`**: Retourne la liste des UID qui doivent encore être enrichis; accepte un paramètre `uids` ou un corps JSON.
 
 ### 4. Cache & Maintenance
 
-- **`GET /api/cache-info`**: Retourne des statistiques sur le cache local (nombre d'assets, taille totale, espace libre, date de dernière mise à jour).
+- **`GET /api/cache-info`**: Retourne les métadonnées de synchronisation du cache local (`has_cache`, `count`, `last_sync_at`, `last_sync_label`, `age_seconds`, `age_human`).
 - **`POST /api/fetch`**: Synchronise la bibliothèque Fab en utilisant les cookies et le User-Agent configurés localement.
 - **`POST /api/clear_previews`**: Supprime toutes les images de prévisualisation enregistrées localement dans le dossier des previews.
 - **`POST /api/clear_cache`**: Supprime tous les fichiers de cache des assets et remet à zéro l'état du cache local.

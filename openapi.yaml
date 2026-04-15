@@ -5,7 +5,7 @@ openapi: 3.1.0
 info:
   title: FabAssetsManager API
   description: Local API to manage and query your Fab.com asset library. 5002 is the default port and can be changed in the config. Favorites/comments annotations are frontend-local (localStorage) and intentionally outside this API contract.
-  version: 0.13.5
+  version: 0.13.6
 servers:
   - url: http://localhost:5002
     description: Local development server
@@ -24,6 +24,108 @@ paths:
                 type: array
                 items:
                   $ref: './_helpers/asset_output_schema_full.json#/$defs/asset'
+
+  /api/assets/query:
+    post:
+      summary: Query cached assets with server-side filtering and pagination
+      description: Returns a paged slice of flattened assets plus counts and facets for UI filters.
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                page:
+                  type: integer
+                  minimum: 0
+                  default: 0
+                per_page:
+                  type: integer
+                  minimum: 1
+                  maximum: 200
+                  default: 50
+                search:
+                  type: string
+                sort:
+                  type: string
+                  enum:
+                    [title_asc, title_desc, seller_asc, seller_desc, type_asc, type_desc, format_asc, format_desc, date_asc, date_desc, updated_desc]
+                include_all_uids:
+                  type: boolean
+                include_all_items:
+                  type: boolean
+                filters:
+                  type: object
+                  properties:
+                    engines:
+                      type: array
+                      items:
+                        type: string
+                    licenses:
+                      type: array
+                      items:
+                        type: string
+                    formats:
+                      type: array
+                      items:
+                        type: string
+                    sellers:
+                      type: array
+                      items:
+                        type: string
+                    types:
+                      type: array
+                      items:
+                        type: string
+                    ue_max:
+                      type: array
+                      items:
+                        type: string
+                    only_downloadable:
+                      type: boolean
+                    only_discounted:
+                      type: boolean
+                    hide_mature:
+                      type: boolean
+      responses:
+        '200':
+          description: Query result with page items, counts and facets.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: './_helpers/asset_output_schema_full.json#/$defs/asset'
+                  page:
+                    type: integer
+                  per_page:
+                    type: integer
+                  page_count:
+                    type: integer
+                  total_count:
+                    type: integer
+                  filtered_count:
+                    type: integer
+                  facets:
+                    type: object
+                    additionalProperties:
+                      type: object
+                      additionalProperties:
+                        type: integer
+                  all_uids:
+                    type: array
+                    items:
+                      type: string
+                  all_items:
+                    type: array
+                    items:
+                      $ref: './_helpers/asset_output_schema_full.json#/$defs/asset'
+        '400':
+          $ref: '#/components/responses/ErrorResponse'
 
   /api/config:
     get:

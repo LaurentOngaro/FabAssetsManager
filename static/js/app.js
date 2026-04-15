@@ -1,7 +1,7 @@
 /*
 FabAssetsManager — Frontend Application Logic
 
-Version: 0.13.5
+Version: 0.13.6
 */
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -101,6 +101,13 @@ Version: 0.13.5
 
   // Selection state (for export)
   let selectedAssets = new Set();        // UIDs of selected assets (Set for dedup)
+  let isServerModeActive = false;
+  let legacyAllAssets = null;
+  let serverTotals = {
+    total: 0,
+    filtered: 0,
+    pageCount: 0
+  };
 
   /**
    * Purpose of each variable:
@@ -653,14 +660,128 @@ Version: 0.13.5
    */
   async function loadAssets() {
     setProgress(20);
-    const resp = await fetch('/api/assets');
+    const sortValue = document.getElementById('sortSelect').value || 'date_desc';
+    const resp = await fetch('/api/assets/query', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        page: 0,
+        per_page: itemsPerPage,
+        sort: sortValue,
+        search: '',
+        filters: {
+          engines: [],
+          licenses: [],
+          formats: [],
+          sellers: [],
+          types: [],
+          ue_max: [],
+          only_downloadable: false,
+          only_discounted: false,
+          hide_mature: false
+        }
+      })
+    });
     setProgress(70);
-    allAssets = await resp.json();
+    if (!resp.ok) {
+      throw new Error('Failed to load assets via server-side query');
+    }
+    const data = await resp.json();
+
+    allAssets = data.items || [];
+    legacyAllAssets = null;
+    filteredAssets = allAssets;
+    currentPage = data.page || 0;
+    isServerModeActive = true;
+    serverTotals.total = data.total_count || 0;
+    serverTotals.filtered = data.filtered_count || allAssets.length;
+    serverTotals.pageCount = data.page_count || 0;
+
+    buildFiltersFromFacets(data.facets || {});
     setProgress(100);
-    buildFilters();
-    applyFilters();
+    await applyFilters();
     await refreshCacheInfo();
     setTimeout(() => setProgress(0), 500);
+  }
+
+  async function fetchServerAssetsPage(pageNum, state) {
+    const payload = buildServerQueryPayload(state, pageNum);
+    const resp = await fetch('/api/assets/query', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if (!resp.ok) {
+      throw new Error('Failed to query assets from backend');
+    }
+
+    const data = await resp.json();
+    allAssets = data.items || [];
+    filteredAssets = allAssets;
+    currentPage = data.page || 0;
+    isServerModeActive = true;
+
+    serverTotals.total = data.total_count || 0;
+    serverTotals.filtered = data.filtered_count || 0;
+    serverTotals.pageCount = data.page_count || 0;
+
+    if (state.sort.startsWith('title_')) sortCol = 'title';
+    else if (state.sort.startsWith('seller_')) sortCol = 'seller_name';
+    else if (state.sort.startsWith('type_')) sortCol = 'listing_type';
+    else if (state.sort.startsWith('format_')) sortCol = 'asset_formats';
+    else if (state.sort.startsWith('date_')) sortCol = 'created_at';
+    else if (state.sort.startsWith('updated_')) sortCol = 'last_updated_at';
+
+    renderTable(filteredAssets, {
+      serverPaging: true,
+      totalCount: serverTotals.total,
+      filteredCount: serverTotals.filtered,
+      pageCount: serverTotals.pageCount
+    });
+
+    const total = serverTotals.total;
+    const shown = serverTotals.filtered;
+    document.getElementById('totalBadge').textContent = `${total} assets`;
+    const filtBadge = document.getElementById('filteredBadge');
+    if (shown < total) {
+      filtBadge.textContent = `${shown} shown`;
+      filtBadge.style.display = '';
+    } else {
+      filtBadge.style.display = 'none';
+    }
+    document.getElementById('resultsInfo').textContent =
+      `${shown} asset${shown > 1 ? 's' : ''} shown out of ${total}`;
+  }
+
+  async function queryAllFilteredUids(state) {
+    const payload = buildServerQueryPayload(state, 0);
+    payload.include_all_uids = true;
+    const resp = await fetch('/api/assets/query', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (!resp.ok) {
+      throw new Error('Failed to retrieve filtered UIDs');
+    }
+    const data = await resp.json();
+    return Array.isArray(data.all_uids) ? data.all_uids : [];
+  }
+
+  async function queryAllFilteredAssets(state) {
+    const payload = buildServerQueryPayload(state, 0);
+    payload.include_all_items = true;
+    const resp = await fetch('/api/assets/query', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (!resp.ok) {
+      throw new Error('Failed to retrieve filtered assets');
+    }
+    const data = await resp.json();
+    return Array.isArray(data.all_items) ? data.all_items : [];
   }
 
   async function refreshCacheInfo() {
@@ -816,9 +937,15 @@ Version: 0.13.5
 
     // CI12: If no specific assets selected, default to all CURRENTLY FILTERED assets
     if (targetUids.length === 0) {
-      if (filteredAssets && filteredAssets.length > 0) {
+      if (isServerModeActive && !requiresLegacyModeFromState(collectFiltersState())) {
+        try {
+          targetUids = await queryAllFilteredUids(collectFiltersState());
+        } catch (e) {
+          alert('Error retrieving filtered assets: ' + e.message);
+          return;
+        }
+      } else if (filteredAssets && filteredAssets.length > 0) {
         targetUids = filteredAssets.map(a => a.uid || (a.listing && a.listing.uid));
-        // Ensure no undefined
         targetUids = targetUids.filter(uid => uid);
       }
     }
@@ -1025,6 +1152,80 @@ Version: 0.13.5
     restoreFiltersState();
   }
 
+  function buildFiltersFromFacets(facets) {
+    const engines = facets?.engines || {};
+    const licenses = facets?.licenses || {};
+    const formats = facets?.formats || {};
+    const sellers = facets?.sellers || {};
+    const types = facets?.types || {};
+    const ueMaxVersions = facets?.ue_max || {};
+
+    const engineDiv = document.getElementById('engineFilter');
+    engineDiv.innerHTML = Object.entries(engines)
+      .sort((a, b) => b[0].localeCompare(a[0]))
+      .map(([v, c]) => `
+        <label class="filter-label">
+          <input type="checkbox" class="engine-cb" value="${escapeHtml(v)}" onchange="applyFilters()" />
+          ${escapeHtml(v)} <span class="filter-count">${c}</span>
+        </label>`).join('');
+
+    const licDiv = document.getElementById('licenseFilter');
+    licDiv.innerHTML = Object.entries(licenses)
+      .sort((a, b) => b[1] - a[1])
+      .map(([l, c]) => `
+        <label class="filter-label">
+          <input type="checkbox" class="license-cb" value="${escapeHtml(l)}" onchange="applyFilters()" />
+          ${escapeHtml(l)} <span class="filter-count">${c}</span>
+        </label>`).join('');
+
+    const formatDiv = document.getElementById('formatFilter');
+    formatDiv.innerHTML = Object.entries(formats)
+      .sort((a, b) => b[1] - a[1])
+      .map(([f, c]) => `
+        <label class="filter-label">
+          <input type="checkbox" class="format-cb" value="${escapeHtml(f)}" onchange="applyFilters()" />
+          ${escapeHtml(f)} <span class="filter-count">${c}</span>
+        </label>`).join('');
+
+    const sellerDiv = document.getElementById('sellerFilter');
+    sellerDiv.innerHTML = Object.entries(sellers)
+      .sort((a, b) => a[0].localeCompare(b[0]))
+      .map(([s, c]) => `
+        <label class="filter-label">
+          <input type="checkbox" class="seller-cb" value="${escapeHtml(s)}" onchange="applyFilters()" />
+          ${escapeHtml(s)} <span class="filter-count">${c}</span>
+        </label>`).join('');
+
+    const typeDiv = document.getElementById('typeFilter');
+    typeDiv.innerHTML = Object.entries(types)
+      .sort((a, b) => b[1] - a[1])
+      .map(([t, c]) => `
+        <label class="filter-label">
+          <input type="checkbox" class="type-cb" value="${escapeHtml(t)}" onchange="applyFilters()" />
+          ${escapeHtml(t)} <span class="filter-count">${c}</span>
+        </label>`).join('');
+
+    const ueMaxDiv = document.getElementById('ueMaxFilter');
+    const sortedVersions = Object.keys(ueMaxVersions).sort((a, b) => {
+      const aParts = a.split('.').map(Number);
+      const bParts = b.split('.').map(Number);
+      for (let i = 0; i < Math.max(aParts.length, bParts.length); i++) {
+        const aN = aParts[i] || 0;
+        const bN = bParts[i] || 0;
+        if (aN !== bN) return aN - bN;
+      }
+      return 0;
+    });
+    ueMaxDiv.innerHTML = sortedVersions
+      .map(v => `
+        <label class="filter-label">
+          <input type="checkbox" class="ue-max-cb" value="${escapeHtml(v)}" onchange="applyFilters()" />
+          ${escapeHtml(v)} <span class="filter-count">${ueMaxVersions[v]}</span>
+        </label>`).join('');
+
+    restoreFiltersState();
+  }
+
   const FILTERS_STORAGE_KEY = 'FabAssetsManager_filters_state';
 
   function saveFiltersState() {
@@ -1044,6 +1245,48 @@ Version: 0.13.5
       withLocalNote: document.getElementById('filterWithLocalNote').checked
     };
     localStorage.setItem(FILTERS_STORAGE_KEY, JSON.stringify(state));
+  }
+
+  function collectFiltersState() {
+    return {
+      q: document.getElementById('searchInput').value.toLowerCase(),
+      sort: document.getElementById('sortSelect').value,
+      engines: [...document.querySelectorAll('.engine-cb:checked')].map(c => c.value),
+      licenses: [...document.querySelectorAll('.license-cb:checked')].map(c => c.value),
+      formats: [...document.querySelectorAll('.format-cb:checked')].map(c => c.value),
+      sellers: [...document.querySelectorAll('.seller-cb:checked')].map(c => c.value),
+      types: [...document.querySelectorAll('.type-cb:checked')].map(c => c.value),
+      ueMax: [...document.querySelectorAll('.ue-max-cb:checked')].map(c => c.value),
+      onlyDownloadable: document.getElementById('filterDownloadable').checked,
+      onlyDiscounted: document.getElementById('filterDiscounted').checked,
+      hideMature: document.getElementById('filterMature').checked,
+      favoritesOnly: document.getElementById('filterFavoritesOnly').checked,
+      withLocalNote: document.getElementById('filterWithLocalNote').checked
+    };
+  }
+
+  function requiresLegacyModeFromState(state) {
+    return Boolean(state.favoritesOnly || state.withLocalNote);
+  }
+
+  function buildServerQueryPayload(state, pageOverride) {
+    return {
+      page: typeof pageOverride === 'number' ? pageOverride : currentPage,
+      per_page: itemsPerPage,
+      search: state.q || '',
+      sort: state.sort || 'date_desc',
+      filters: {
+        engines: state.engines,
+        licenses: state.licenses,
+        formats: state.formats,
+        sellers: state.sellers,
+        types: state.types,
+        ue_max: state.ueMax,
+        only_downloadable: state.onlyDownloadable,
+        only_discounted: state.onlyDiscounted,
+        hide_mature: state.hideMature
+      }
+    };
   }
 
   function restoreFiltersState() {
@@ -1156,22 +1399,45 @@ Version: 0.13.5
    * - Calls renderTable() to update displayed rows
    * - Image lazy loading happens during renderTable (src="/api/image/<uid>")
    */
-  function applyFilters() {
+  async function applyFilters() {
     saveFiltersState();
-    currentPage = 0; // Reset to first page when filters change
-    const q = document.getElementById('searchInput').value.toLowerCase();
-    const selectedEngines = [...document.querySelectorAll('.engine-cb:checked')].map(c => c.value);
-    const selectedLicenses = [...document.querySelectorAll('.license-cb:checked')].map(c => c.value);
-    const selectedFormats = [...document.querySelectorAll('.format-cb:checked')].map(c => c.value);
-    const selectedSellers = [...document.querySelectorAll('.seller-cb:checked')].map(c => c.value);
-    const selectedTypes = [...document.querySelectorAll('.type-cb:checked')].map(c => c.value);
-    const selectedUeMax = [...document.querySelectorAll('.ue-max-cb:checked')].map(c => c.value);
-    const onlyDownloadable = document.getElementById('filterDownloadable').checked;
-    const onlyDiscounted = document.getElementById('filterDiscounted').checked;
-    const hideMature = document.getElementById('filterMature').checked;
-    const favoritesOnly = document.getElementById('filterFavoritesOnly').checked;
-    const withLocalNote = document.getElementById('filterWithLocalNote').checked;
-    const sort = document.getElementById('sortSelect').value;
+    currentPage = 0;
+    const state = collectFiltersState();
+
+    if (requiresLegacyModeFromState(state)) {
+      await applyFiltersLegacy(state);
+      return;
+    }
+
+    try {
+      await fetchServerAssetsPage(0, state);
+    } catch (e) {
+      console.error('Server-side filtering failed, falling back to legacy mode.', e);
+      await applyFiltersLegacy(state);
+    }
+  }
+
+  async function applyFiltersLegacy(state) {
+    if (!legacyAllAssets) {
+      const resp = await fetch('/api/assets');
+      legacyAllAssets = await resp.json();
+    }
+
+    allAssets = legacyAllAssets;
+    isServerModeActive = false;
+    const q = state.q;
+    const selectedEngines = state.engines;
+    const selectedLicenses = state.licenses;
+    const selectedFormats = state.formats;
+    const selectedSellers = state.sellers;
+    const selectedTypes = state.types;
+    const selectedUeMax = state.ueMax;
+    const onlyDownloadable = state.onlyDownloadable;
+    const onlyDiscounted = state.onlyDiscounted;
+    const hideMature = state.hideMature;
+    const favoritesOnly = state.favoritesOnly;
+    const withLocalNote = state.withLocalNote;
+    const sort = state.sort;
 
     let result = allAssets.filter(a => {
       if (q && !a.title.toLowerCase().includes(q)) return false;
@@ -1253,7 +1519,9 @@ Version: 0.13.5
    *
    * The visible columns are driven by DISPLAYED_COLS_LIST.
    */
-  function renderTable(assets) {
+  function renderTable(assets, options) {
+    options = options || {};
+    const serverPaging = Boolean(options.serverPaging);
     const wrapper = document.getElementById('tableWrapper');
 
     if (!assets.length && allAssets.length === 0) {
@@ -1278,10 +1546,9 @@ Version: 0.13.5
       return;
     }
 
-    const pageCount = Math.ceil(assets.length / itemsPerPage);
+    const pageCount = serverPaging ? (options.pageCount || 0) : Math.ceil(assets.length / itemsPerPage);
     const start = currentPage * itemsPerPage;
-    const end = Math.min(start + itemsPerPage, assets.length);
-    const pageAssets = assets.slice(start, end);
+    const pageAssets = serverPaging ? assets : assets.slice(start, Math.min(start + itemsPerPage, assets.length));
 
     const rows = pageAssets.map(a => {
       const uid = a.uid || '';
@@ -1324,7 +1591,8 @@ Version: 0.13.5
       </table>`;
 
     let paginationHTML = '';
-    if (pageCount > 1 || assets.length > 20) {
+    const totalForPagination = serverPaging ? (options.filteredCount || assets.length) : assets.length;
+    if (pageCount > 1 || totalForPagination > 20) {
       let pageSelectOptions = '';
       for (let i = 0; i < pageCount; i++) {
         const isSelected = i === currentPage ? 'selected' : '';
@@ -1355,27 +1623,41 @@ Version: 0.13.5
     wrapper.innerHTML = tableHTML + paginationHTML;
   }
 
-  function changeItemsPerPage(newLimit) {
+  async function changeItemsPerPage(newLimit) {
     itemsPerPage = newLimit;
     currentPage = 0;
+    const state = collectFiltersState();
+    if (isServerModeActive && !requiresLegacyModeFromState(state)) {
+      await fetchServerAssetsPage(0, state);
+      return;
+    }
     renderTable(filteredAssets);
   }
 
-  function goToPage(pageNum) {
-    const pageCount = Math.ceil(filteredAssets.length / itemsPerPage);
+  async function goToPage(pageNum) {
+    const state = collectFiltersState();
+    const pageCount = isServerModeActive && !requiresLegacyModeFromState(state)
+      ? serverTotals.pageCount
+      : Math.ceil(filteredAssets.length / itemsPerPage);
     if (pageNum < 0) pageNum = 0;
     if (pageNum >= pageCount) pageNum = pageCount - 1;
     currentPage = pageNum;
+
+    if (isServerModeActive && !requiresLegacyModeFromState(state)) {
+      await fetchServerAssetsPage(currentPage, state);
+      document.getElementById('tableWrapper').scrollIntoView({ behavior: 'smooth' });
+      return;
+    }
+
     renderTable(filteredAssets);
     // Scroll table into view
     document.getElementById('tableWrapper').scrollIntoView({ behavior: 'smooth' });
   }
 
   function toggleSelectAll(checkbox) {
-    const pageCount = Math.ceil(filteredAssets.length / itemsPerPage);
-    const start = currentPage * itemsPerPage;
-    const end = Math.min(start + itemsPerPage, filteredAssets.length);
-    const pageAssets = filteredAssets.slice(start, end);
+    const pageAssets = isServerModeActive
+      ? filteredAssets
+      : filteredAssets.slice(currentPage * itemsPerPage, Math.min((currentPage + 1) * itemsPerPage, filteredAssets.length));
 
     if (checkbox.checked) {
       pageAssets.forEach(a => {
@@ -1426,11 +1708,25 @@ Version: 0.13.5
 
   let currentDetailUid = null;
 
+  async function fetchAssetByUid(uid) {
+    const resp = await fetch(`/api/lookup?uid=${encodeURIComponent(uid)}`);
+    if (!resp.ok) return null;
+    const data = await resp.json();
+    if (!data || !Array.isArray(data.matches) || !data.matches.length) return null;
+    return data.matches[0];
+  }
+
   /**
    * ASSET DETAILS MODAL — with lazy loading of details (CI7)
    */
   async function showAssetDetailsModal(uid) {
-    const asset = allAssets.find(a => a.uid === uid);
+    let asset = allAssets.find(a => a.uid === uid);
+    if (!asset) {
+      asset = await fetchAssetByUid(uid);
+      if (asset) {
+        allAssets.push(asset);
+      }
+    }
     if (!asset) return;
     currentDetailUid = uid;
 
@@ -1596,7 +1892,13 @@ Version: 0.13.5
    * @param {string} uid - The asset unique identifier
    */
   async function showImageModal(uid) {
-    const asset = allAssets.find(a => a.uid === uid);
+    let asset = allAssets.find(a => a.uid === uid);
+    if (!asset) {
+      asset = await fetchAssetByUid(uid);
+      if (asset) {
+        allAssets.push(asset);
+      }
+    }
     if (!asset) return;
 
     currentImageModalUrls = [];
@@ -1771,7 +2073,15 @@ Version: 0.13.5
     const endpoint = format === 'csv' ? '/api/export/csv' : '/api/export/json';
     // Convert selected UIDs from Set to Array for JSON payload
     // Empty array means "export all" in backend
-    const uids = Array.from(selectedAssets);
+    let uids = Array.from(selectedAssets);
+    if (uids.length === 0 && isServerModeActive && !requiresLegacyModeFromState(collectFiltersState())) {
+      try {
+        uids = await queryAllFilteredUids(collectFiltersState());
+      } catch (e) {
+        alert('❌ Error preparing export: ' + e.message);
+        return;
+      }
+    }
     const payload = uids.length > 0 ? { selected_uids: uids } : {};
 
     if (format === 'csv') {
@@ -1930,7 +2240,7 @@ function closeExportModal(e) {
   exportModal.style.display = 'none';
 }
 
-function performCustomExport() {
+async function performCustomExport() {
   console.info('[FabAssetsManager] Custom export requested');
   const profileName = document.getElementById('exportProfileSelect').value;
   if (!profileName || !exportTemplates[profileName]) {
@@ -1940,9 +2250,19 @@ function performCustomExport() {
   const profile = exportTemplates[profileName];
   const extension = resolveCustomExportExtension(profileName, profile.pattern);
 
-  const targetAssets = selectedAssets.size > 0
-    ? filteredAssets.filter(a => selectedAssets.has(a.uid))
-    : filteredAssets;
+  let targetAssets = [];
+  if (selectedAssets.size > 0) {
+    targetAssets = filteredAssets.filter(a => selectedAssets.has(a.uid));
+  } else if (isServerModeActive && !requiresLegacyModeFromState(collectFiltersState())) {
+    try {
+      targetAssets = await queryAllFilteredAssets(collectFiltersState());
+    } catch (e) {
+      alert('❌ Error preparing custom export: ' + e.message);
+      return;
+    }
+  } else {
+    targetAssets = filteredAssets;
+  }
 
   let output = [];
   targetAssets.forEach(asset => {

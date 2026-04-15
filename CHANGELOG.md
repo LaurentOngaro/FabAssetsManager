@@ -1,6 +1,14 @@
 # Changelog
 
-Version: 0.13.5
+Version: 0.13.6
+
+## [0.13.6] - 2026-04-15
+
+### Changed
+
+- **[REF5]** Added server-side query endpoint (`/api/assets/query`) with filtering, sorting, pagination and facets; frontend now uses this mode by default with legacy fallback for local-only filters.
+- API guide now describes `/api/cache-info` with its actual synchronization metadata fields.
+- Added backend tests for `/api/assets/query` edge cases: non-object payload rejection, page clamping, and `include_all_items` behavior.
 
 ## [0.13.5] - 2026-04-15
 

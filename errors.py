@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """FabAssetsManager — Standardized Error Handling
 
-Version: 0.13.5
+Version: 0.13.6
 
 Central registry for all application error codes and utilities.
 """

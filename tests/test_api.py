@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """FabAssetsManager — API Tests
 
-Version: 0.13.5
+Version: 0.13.6
 """
 from pathlib import Path
 
@@ -142,3 +142,232 @@ def test_api_export_headless_invalid_format_has_error_path(client):
     assert response.status_code == 400
     assert response.json["error"]["code"] == "INVALID_REQUEST"
     assert response.json["error"]["path"] == "/api/export/headless"
+
+
+def test_api_assets_query_pagination_and_sort(client, monkeypatch):
+    dummy_assets = [
+        {
+            "createdAt": "2026-01-01T10:00:00",
+            "canRequestDownloadUrl": True,
+            "entitlement": {
+                "licenses": [{
+                    "name": "Personal"
+                }]
+            },
+            "listing": {
+                "uid": "u-beta",
+                "title": "Beta Asset",
+                "publisher": {
+                    "sellerName": "Seller B",
+                    "sellerId": "s-b"
+                },
+                "listingType": "3D Model",
+                "assetFormats": [{
+                    "assetFormatType": {
+                        "name": "FBX",
+                        "code": "fbx"
+                    },
+                    "technicalSpecs": {
+                        "unrealEngineEngineVersions": ["UE_5.1"]
+                    }
+                }],
+                "startingPrice": {
+                    "price": 10,
+                    "discountedPrice": 8,
+                    "currencyCode": "USD"
+                },
+                "isMature": False,
+                "lastUpdatedAt": "2026-01-02T10:00:00"
+            }
+        }, {
+            "createdAt": "2026-01-03T10:00:00",
+            "canRequestDownloadUrl": True,
+            "entitlement": {
+                "licenses": [{
+                    "name": "Personal"
+                }]
+            },
+            "listing": {
+                "uid": "u-alpha",
+                "title": "Alpha Asset",
+                "publisher": {
+                    "sellerName": "Seller A",
+                    "sellerId": "s-a"
+                },
+                "listingType": "Material",
+                "assetFormats": [{
+                    "assetFormatType": {
+                        "name": "Unreal",
+                        "code": "ue"
+                    },
+                    "technicalSpecs": {
+                        "unrealEngineEngineVersions": ["UE_5.3"]
+                    }
+                }],
+                "startingPrice": {
+                    "price": 20,
+                    "discountedPrice": 20,
+                    "currencyCode": "USD"
+                },
+                "isMature": False,
+                "lastUpdatedAt": "2026-01-04T10:00:00"
+            }
+        }
+    ]
+    monkeypatch.setattr(app, "get_assets", lambda: dummy_assets)
+
+    response = client.post('/api/assets/query', json={"page": 0, "per_page": 1, "sort": "title_asc", "search": "", "filters": {}})
+
+    assert response.status_code == 200
+    data = response.json
+    assert data["total_count"] == 2
+    assert data["filtered_count"] == 2
+    assert data["page_count"] == 2
+    assert len(data["items"]) == 1
+    assert data["items"][0]["uid"] == "u-alpha"
+
+
+def test_api_assets_query_filters_and_all_uids(client, monkeypatch):
+    dummy_assets = [
+        {
+            "createdAt": "2026-01-01T10:00:00",
+            "canRequestDownloadUrl": False,
+            "entitlement": {
+                "licenses": [{
+                    "name": "Personal"
+                }]
+            },
+            "listing": {
+                "uid": "u-1",
+                "title": "First",
+                "publisher": {
+                    "sellerName": "Seller A",
+                    "sellerId": "s-a"
+                },
+                "listingType": "3D Model",
+                "assetFormats": [{
+                    "assetFormatType": {
+                        "name": "FBX",
+                        "code": "fbx"
+                    },
+                    "technicalSpecs": {
+                        "unrealEngineEngineVersions": ["UE_5.1"]
+                    }
+                }],
+                "startingPrice": {
+                    "price": 15,
+                    "discountedPrice": 12,
+                    "currencyCode": "USD"
+                },
+                "isMature": False
+            }
+        }, {
+            "createdAt": "2026-01-02T10:00:00",
+            "canRequestDownloadUrl": True,
+            "entitlement": {
+                "licenses": [{
+                    "name": "Personal"
+                }]
+            },
+            "listing": {
+                "uid": "u-2",
+                "title": "Second",
+                "publisher": {
+                    "sellerName": "Seller B",
+                    "sellerId": "s-b"
+                },
+                "listingType": "3D Model",
+                "assetFormats": [{
+                    "assetFormatType": {
+                        "name": "Unreal",
+                        "code": "ue"
+                    },
+                    "technicalSpecs": {
+                        "unrealEngineEngineVersions": ["UE_5.3"]
+                    }
+                }],
+                "startingPrice": {
+                    "price": 30,
+                    "discountedPrice": 20,
+                    "currencyCode": "USD"
+                },
+                "isMature": False
+            }
+        }
+    ]
+    monkeypatch.setattr(app, "get_assets", lambda: dummy_assets)
+
+    response = client.post(
+        '/api/assets/query',
+        json={
+            "page": 0,
+            "per_page": 50,
+            "sort": "date_desc",
+            "filters": {
+                "engines": ["5.3"],
+                "only_downloadable": True,
+                "only_discounted": True,
+                "hide_mature": True
+            },
+            "include_all_uids": True
+        }
+    )
+
+    assert response.status_code == 200
+    data = response.json
+    assert data["filtered_count"] == 1
+    assert len(data["items"]) == 1
+    assert data["items"][0]["uid"] == "u-2"
+    assert data["all_uids"] == ["u-2"]
+
+
+def test_api_assets_query_rejects_non_object_payload(client):
+    response = client.post('/api/assets/query', json=["invalid"])
+
+    assert response.status_code == 400
+    assert response.json["error"]["code"] == "INVALID_REQUEST"
+    assert response.json["error"]["path"] == "/api/assets/query"
+
+
+def test_api_assets_query_clamps_page_to_last(client, monkeypatch):
+    dummy_assets = [
+        {
+            "listing": {
+                "uid": "u-a",
+                "title": "A asset"
+            }
+        }, {
+            "listing": {
+                "uid": "u-b",
+                "title": "B asset"
+            }
+        }, {
+            "listing": {
+                "uid": "u-c",
+                "title": "C asset"
+            }
+        }
+    ]
+    monkeypatch.setattr(app, "get_assets", lambda: dummy_assets)
+
+    response = client.post('/api/assets/query', json={"page": 99, "per_page": 2, "sort": "title_asc", "filters": {}})
+
+    assert response.status_code == 200
+    data = response.json
+    assert data["page_count"] == 2
+    assert data["page"] == 1
+    assert len(data["items"]) == 1
+    assert data["items"][0]["uid"] == "u-c"
+
+
+def test_api_assets_query_include_all_items(client, monkeypatch):
+    dummy_assets = [{"listing": {"uid": "u-b", "title": "Beta"}}, {"listing": {"uid": "u-a", "title": "Alpha"}}]
+    monkeypatch.setattr(app, "get_assets", lambda: dummy_assets)
+
+    response = client.post('/api/assets/query', json={"page": 0, "per_page": 1, "sort": "title_asc", "filters": {}, "include_all_items": True})
+
+    assert response.status_code == 200
+    data = response.json
+    assert len(data["items"]) == 1
+    assert data["items"][0]["uid"] == "u-a"
+    assert [item["uid"] for item in data["all_items"]] == ["u-a", "u-b"]

@@ -1,6 +1,6 @@
 # FabAssetsManager
 
-Version: 0.13.5
+Version: 0.13.6
 
 Local web application to manage, enrich, and explore your locally cached **fab.com** asset library (Unreal Engine, Blender, etc.).
 
@@ -28,6 +28,7 @@ Local web application to manage, enrich, and explore your locally cached **fab.c
 ### 🎛️ Advanced Filtering & Sorting
 
 - **Text search**: by title (real-time)
+- **Server-side filtering/pagination**: filtering and page slicing now run in backend to avoid loading the whole cache in browser memory
 - **UE Versions**: filter by Unreal Engine versions
 - **UE Max**: display and filter by maximum supported version (semantic sort)
 - **Licenses**: multi-select filter
@@ -321,4 +322,4 @@ MIT
 ---
 
 **Last updated**: April 15, 2026
-**Version**: 0.13.4 (docs refreshed)
+Release version is maintained in the header (`Version: x.y.z`) and synchronized by the version bump helper.

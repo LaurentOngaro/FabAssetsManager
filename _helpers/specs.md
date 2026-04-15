@@ -1,6 +1,6 @@
 # FabAssetsManager — Specifications & Development Notes
 
-Version: 0.13.5
+Version: 0.13.6
 Last reviewed: 2026-04-15
 
 ## Context
@@ -80,6 +80,7 @@ GET  /api/status
 
 ```
 GET  /api/assets
+POST /api/assets/query
 GET  /api/lookup
 GET  /api/details/{uid}
 GET  /api/image/{uid}

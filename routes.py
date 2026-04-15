@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """FabAssetsManager — API and web routes
 
-Version: 0.13.4
+Version: 0.13.6
 """
 
 import csv
@@ -9,6 +9,7 @@ import io
 import json
 import os
 from datetime import datetime
+from typing import Any
 
 from flask import Blueprint, Response, jsonify, request, send_from_directory
 
@@ -23,6 +24,153 @@ def _app_module():
     import importlib
 
     return importlib.import_module("app")
+
+
+def _safe_int(value: Any, default: int) -> int:
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def _as_bool(value: Any) -> bool:
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, str):
+        return value.strip().lower() in {"1", "true", "yes", "on"}
+    if isinstance(value, (int, float)):
+        return bool(value)
+    return False
+
+
+def _split_csv_field(value: Any) -> list[str]:
+    return [part.strip() for part in str(value or "").split(",") if part.strip()]
+
+
+def _is_discounted(asset: dict[str, Any]) -> bool:
+    price = asset.get("price")
+    discounted_price = asset.get("discounted_price")
+    if discounted_price in (None, ""):
+        return False
+    try:
+        discounted_value = float(str(discounted_price))
+        price_value = float(str(price))
+        return discounted_value < price_value
+    except (TypeError, ValueError):
+        return str(discounted_price).strip() != str(price).strip()
+
+
+def _sort_assets(assets: list[dict[str, Any]], sort_value: str) -> None:
+    if sort_value == "title_asc":
+        assets.sort(key=lambda a: str(a.get("title") or "").lower())
+    elif sort_value == "title_desc":
+        assets.sort(key=lambda a: str(a.get("title") or "").lower(), reverse=True)
+    elif sort_value == "seller_asc":
+        assets.sort(key=lambda a: str(a.get("seller_name") or "").lower())
+    elif sort_value == "seller_desc":
+        assets.sort(key=lambda a: str(a.get("seller_name") or "").lower(), reverse=True)
+    elif sort_value == "type_asc":
+        assets.sort(key=lambda a: str(a.get("listing_type") or "").lower())
+    elif sort_value == "type_desc":
+        assets.sort(key=lambda a: str(a.get("listing_type") or "").lower(), reverse=True)
+    elif sort_value == "format_asc":
+        assets.sort(key=lambda a: str(a.get("asset_formats") or "").lower())
+    elif sort_value == "format_desc":
+        assets.sort(key=lambda a: str(a.get("asset_formats") or "").lower(), reverse=True)
+    elif sort_value == "date_asc":
+        assets.sort(key=lambda a: str(a.get("created_at") or ""))
+    elif sort_value == "date_desc":
+        assets.sort(key=lambda a: str(a.get("created_at") or ""), reverse=True)
+    elif sort_value == "updated_desc":
+        assets.sort(key=lambda a: str(a.get("last_updated_at") or ""), reverse=True)
+
+
+def _build_facets(flat_assets: list[dict[str, Any]]) -> dict[str, dict[str, int]]:
+    facets = {"engines": {}, "licenses": {}, "formats": {}, "sellers": {}, "types": {}, "ue_max": {}, }
+
+    for asset in flat_assets:
+        for engine in _split_csv_field(asset.get("engine_versions")):
+            facets["engines"][engine] = facets["engines"].get(engine, 0) + 1
+        for license_name in _split_csv_field(asset.get("licenses")):
+            facets["licenses"][license_name] = facets["licenses"].get(license_name, 0) + 1
+        for format_name in _split_csv_field(asset.get("asset_formats")):
+            facets["formats"][format_name] = facets["formats"].get(format_name, 0) + 1
+
+        seller_name = str(asset.get("seller_name") or "").strip()
+        if seller_name:
+            facets["sellers"][seller_name] = facets["sellers"].get(seller_name, 0) + 1
+
+        listing_type = str(asset.get("listing_type") or "").strip()
+        if listing_type:
+            facets["types"][listing_type] = facets["types"].get(listing_type, 0) + 1
+
+        ue_max = str(asset.get("ue_max") or "").strip()
+        if ue_max:
+            facets["ue_max"][ue_max] = facets["ue_max"].get(ue_max, 0) + 1
+
+    return facets
+
+
+def _filter_assets(flat_assets: list[dict[str, Any]], payload: dict[str, Any]) -> list[dict[str, Any]]:
+    filters = payload.get("filters") or {}
+    if not isinstance(filters, dict):
+        filters = {}
+
+    search_query = str(payload.get("search") or "").strip().lower()
+    selected_engines = {v for v in filters.get("engines", []) if isinstance(v, str) and v.strip()}
+    selected_licenses = {v for v in filters.get("licenses", []) if isinstance(v, str) and v.strip()}
+    selected_formats = {v for v in filters.get("formats", []) if isinstance(v, str) and v.strip()}
+    selected_sellers = {v for v in filters.get("sellers", []) if isinstance(v, str) and v.strip()}
+    selected_types = {v for v in filters.get("types", []) if isinstance(v, str) and v.strip()}
+    selected_ue_max = {v for v in filters.get("ue_max", []) if isinstance(v, str) and v.strip()}
+
+    only_downloadable = _as_bool(filters.get("only_downloadable", False))
+    only_discounted = _as_bool(filters.get("only_discounted", False))
+    hide_mature = _as_bool(filters.get("hide_mature", False))
+
+    filtered = []
+    for asset in flat_assets:
+        title = str(asset.get("title") or "")
+        if search_query and search_query not in title.lower():
+            continue
+
+        if selected_engines:
+            engines = set(_split_csv_field(asset.get("engine_versions")))
+            if not (engines & selected_engines):
+                continue
+
+        if selected_licenses:
+            licenses = set(_split_csv_field(asset.get("licenses")))
+            if not (licenses & selected_licenses):
+                continue
+
+        if selected_formats:
+            formats = set(_split_csv_field(asset.get("asset_formats")))
+            if not (formats & selected_formats):
+                continue
+
+        if selected_sellers and str(asset.get("seller_name") or "") not in selected_sellers:
+            continue
+
+        if selected_types and str(asset.get("listing_type") or "") not in selected_types:
+            continue
+
+        if selected_ue_max and str(asset.get("ue_max") or "") not in selected_ue_max:
+            continue
+
+        if only_downloadable and not _as_bool(asset.get("can_download", False)):
+            continue
+
+        if only_discounted and not _is_discounted(asset):
+            continue
+
+        if hide_mature and _as_bool(asset.get("is_mature", False)):
+            continue
+
+        filtered.append(asset)
+
+    _sort_assets(filtered, str(payload.get("sort") or "date_desc"))
+    return filtered
 
 
 @bp.route("/")
@@ -49,6 +197,54 @@ def api_assets():
     assets = _app.get_assets()
     flat = [Asset(a).to_dict() for a in assets]
     return jsonify(flat)
+
+
+@bp.route("/api/assets/query", methods=["POST"])
+def api_assets_query():
+    """Server-side pagination + filtering + sorting for assets."""
+    _app = _app_module()
+    payload = request.get_json(silent=True) or {}
+    if not isinstance(payload, dict):
+        return _app.create_error_response(ErrorCode.INVALID_REQUEST, message="Invalid JSON payload")
+
+    page = max(0, _safe_int(payload.get("page", 0), 0))
+    per_page = _safe_int(payload.get("per_page", 50), 50)
+    per_page = max(1, min(per_page, 200))
+
+    raw_assets = _app.get_assets()
+    flat_assets = [Asset(asset).to_dict() for asset in raw_assets]
+
+    filtered_assets = _filter_assets(flat_assets, payload)
+    total_count = len(flat_assets)
+    filtered_count = len(filtered_assets)
+    page_count = (filtered_count + per_page - 1) // per_page if filtered_count > 0 else 0
+
+    if page_count == 0:
+        page = 0
+        page_items: list[dict[str, Any]] = []
+    else:
+        page = min(page, page_count - 1)
+        start = page * per_page
+        end = start + per_page
+        page_items = filtered_assets[start:end]
+
+    response = {
+        "items": page_items,
+        "page": page,
+        "per_page": per_page,
+        "page_count": page_count,
+        "total_count": total_count,
+        "filtered_count": filtered_count,
+        "facets": _build_facets(flat_assets),
+    }
+
+    if _as_bool(payload.get("include_all_uids", False)):
+        response["all_uids"] = [str(asset.get("uid") or "") for asset in filtered_assets if str(asset.get("uid") or "")]
+
+    if _as_bool(payload.get("include_all_items", False)):
+        response["all_items"] = filtered_assets
+
+    return jsonify(response)
 
 
 @bp.route("/api/lookup", methods=["GET"])
@@ -177,36 +373,38 @@ def api_diagnostic():
     if not metadata:
         hints.append("Run /api/fetch at least once to initialize cache metadata")
 
-    return jsonify({
-        "status": "ok",
-        "auth": {
-            "cookies_present": bool(cookies),
-            "cookies_length": len(cookies) if cookies else 0,
-            "user_agent_present": bool(user_agent),
-        },
-        "storage": {
-            "assets_dir": {
-                "path": str(_app.ASSETS_DIR),
-                "writable": assets_ok,
-                "files_count": assets_count
+    return jsonify(
+        {
+            "status": "ok",
+            "auth": {
+                "cookies_present": bool(cookies),
+                "cookies_length": len(cookies) if cookies else 0,
+                "user_agent_present": bool(user_agent),
             },
-            "previews_dir": {
-                "path": str(_app.PREVIEWS_DIR),
-                "writable": previews_ok,
-                "files_count": previews_count
+            "storage": {
+                "assets_dir": {
+                    "path": str(_app.ASSETS_DIR),
+                    "writable": assets_ok,
+                    "files_count": assets_count
+                },
+                "previews_dir": {
+                    "path": str(_app.PREVIEWS_DIR),
+                    "writable": previews_ok,
+                    "files_count": previews_count
+                },
+                "config_dir": {
+                    "path": str(_app.CONFIG_DIR),
+                    "writable": config_ok
+                }
             },
-            "config_dir": {
-                "path": str(_app.CONFIG_DIR),
-                "writable": config_ok
-            }
-        },
-        "cache": {
-            "metadata_present": bool(metadata),
-            "reported_count": int(metadata.get("count", 0)),
-            "last_update": metadata.get("last_update", None)
-        },
-        "hints": hints
-    })
+            "cache": {
+                "metadata_present": bool(metadata),
+                "reported_count": int(metadata.get("count", 0)),
+                "last_update": metadata.get("last_update", None)
+            },
+            "hints": hints
+        }
+    )
 
 
 @bp.route("/api/test")
@@ -571,15 +769,11 @@ def export_headless():
         file_name = data.get("file_name")
         if not output_dir or not file_name:
             return _app.create_error_response(
-                ErrorCode.MISSING_PARAMETER,
-                message="Either 'output_path' or both 'output_dir' and 'file_name' are required"
+                ErrorCode.MISSING_PARAMETER, message="Either 'output_path' or both 'output_dir' and 'file_name' are required"
             )
         file_name = str(file_name)
         if os.path.basename(file_name) != file_name:
-            return _app.create_error_response(
-                ErrorCode.INVALID_REQUEST,
-                message="file_name must not contain path separators"
-            )
+            return _app.create_error_response(ErrorCode.INVALID_REQUEST, message="file_name must not contain path separators")
         output_path = os.path.join(output_dir, file_name)
     else:
         output_path = output_path_str
@@ -594,10 +788,7 @@ def export_headless():
         try:
             os.makedirs(output_dir, exist_ok=True)
         except Exception as e:
-            return _app.create_error_response(
-                ErrorCode.INTERNAL_ERROR,
-                message=f"Failed to create output directory: {e}"
-            )
+            return _app.create_error_response(ErrorCode.INTERNAL_ERROR, message=f"Failed to create output directory: {e}")
 
     export_format = str(data.get("format", "json")).lower()
     if export_format not in ["json", "csv"]:
@@ -635,18 +826,17 @@ def export_headless():
                 for asset in flat:
                     writer.writerow({key: asset.get(key, "") for key in fieldnames})
 
-        return jsonify({
-            "status": "success",
-            "message": f"Successfully exported {len(flat)} assets to {output_path}",
-            "path": output_path,
-            "count": len(flat)
-        })
+        return jsonify(
+            {
+                "status": "success",
+                "message": f"Successfully exported {len(flat)} assets to {output_path}",
+                "path": output_path,
+                "count": len(flat)
+            }
+        )
     except Exception as e:
         _app.logger.error(f"Error during headless export: {e}", exc_info=True)
-        return _app.create_error_response(
-            ErrorCode.INTERNAL_ERROR,
-            message=f"Failed to write file to disk: {e}"
-        )
+        return _app.create_error_response(ErrorCode.INTERNAL_ERROR, message=f"Failed to write file to disk: {e}")
 
 
 @bp.route("/api/status")

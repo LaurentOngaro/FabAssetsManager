@@ -20,8 +20,6 @@ Pour plus de détails sur l'implémentation de ces modifications, consulter le f
 
 ### Refactoring (last: REF8)
 
-- [ ] REF5: introduire une pagination + filtrage server-side pour eviter le chargement complet de la bibliotheque cote navigateur.
-
 ### Affichage (last: AFF5)
 
 ### Features (last: FEAT9)
@@ -33,6 +31,7 @@ Pour plus de détails sur l'implémentation de ces modifications, consulter le f
 
 ## Terminés
 
+- [x] REF5: introduire une pagination + filtrage server-side pour eviter le chargement complet de la bibliotheque cote navigateur.
 - [x] REF4: ajouter un cache memoire backend avec TTL pour limiter les appels repetes a `load_all_assets()`.
 - [x] FEAT9: ajouter un endpoint d'export headless (ecriture fichier sur disque via `output_path` ou `output_dir`/`file_name`) pour automatisation locale.
 - [x] GE4: ajouter un endpoint de diagnostic backend (config/cookies/user-agent/chemins/assets/previews) pour valider les preconditions sans fetch complet.
