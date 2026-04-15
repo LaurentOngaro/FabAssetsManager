@@ -1,6 +1,8 @@
-"""Asset data model and mapping helpers.
+"""FabAssetsManager — Asset Data Model
 
-Version: 0.13.3
+Version: 0.13.4
+
+Asset data model and mapping helpers.
 """
 
 from dataclasses import dataclass

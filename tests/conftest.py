@@ -1,3 +1,8 @@
+"""FabAssetsManager — Test Configuration
+
+Version: 0.13.4
+"""
+
 import sys
 import warnings
 from pathlib import Path

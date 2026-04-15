@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""
-FabAssetsManager — Standardized Error Handling
-Central registry for all application error codes and utilities.
+"""FabAssetsManager — Standardized Error Handling
 
-Version: 0.13.3
+Version: 0.13.4
+
+Central registry for all application error codes and utilities.
 """
 
 from enum import Enum

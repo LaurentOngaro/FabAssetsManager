@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Bump version using a central VERSION file.
+"""FabAssetsManager — Version Bump Helper
+
+Version: 0.13.4
+
+Bump version using a central VERSION file.
 
 Behavior:
 - Uses VERSION.txt as source of truth.
@@ -24,11 +28,15 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 APP_ROOT = SCRIPT_DIR.parent
 VERSION_FILE = APP_ROOT / "VERSION.txt"
 
-VERSION_TAG_EXTENSIONS = {".py", ".md", ".html", ".htm", ".js", ".yaml", ".yml"}
+VERSION_TAG_EXTENSIONS = {".py", ".md", ".html", ".htm", ".js", ".css", ".yaml", ".yml"}
 
 IMPORTANT_FILES = [
-    APP_ROOT / "app.py", APP_ROOT / "static" / "index.html", APP_ROOT / "fetch_fab_library.py", APP_ROOT / "cache_manager.py", APP_ROOT / "models.py",
-    APP_ROOT / "errors.py", APP_ROOT / "openapi.yaml", APP_ROOT / "start-FabAssetsManager.bat",
+    APP_ROOT / "app.py", APP_ROOT / "cache_manager.py", APP_ROOT / "errors.py", APP_ROOT / "fetch_fab_library.py", APP_ROOT / "models.py",
+    APP_ROOT / "static" / "index.html", APP_ROOT / "static" / "js" / "app.js", APP_ROOT / "static" / "css" / "style.css", APP_ROOT / "README.md",
+    APP_ROOT / "API_GUIDE.md", APP_ROOT / "CHANGELOG.md", APP_ROOT / "VERSION.txt", APP_ROOT / "openapi.yaml", APP_ROOT / "_helpers" / "specs.md",
+    APP_ROOT / "_helpers" / "TROUBLESHOOTING.md", APP_ROOT / "_helpers" / "bumpImportantVersion.py", APP_ROOT / "tests" / "conftest.py",
+    APP_ROOT / "tests" / "test_api.py", APP_ROOT / "tests" / "test_cache.py", APP_ROOT / "tests" / "test_parser.py",
+    APP_ROOT / "tests" / "test_connection.py",
 ]
 
 VERSION_MARKER_RE = re.compile(r"(?m)^\s*(?:#\s*)?(?:\*\*Version:\*\*|Version:|version:)\s*\d+\.\d+\.\d+")

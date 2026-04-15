@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""
-FabAssetsManager — Local Flask Server
+"""FabAssetsManager — Local Flask Server
+
+Version: 0.13.4
+
 Launch: python app.py
 Then open: http://localhost:5002
 
 NOTE: 5002 is the default port for the web interface, but the it can be changed in `config/config.json`
-
-Version: 0.13.3
 """
 
 import csv

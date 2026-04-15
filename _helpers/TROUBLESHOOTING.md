@@ -1,4 +1,8 @@
-# 🔧 Troubleshooting Guide - 403 Error when accessing FAB
+# FabAssetsManager Troubleshooting Guide
+
+Version: 0.13.4
+
+Troubleshooting guide for FAB connection issues and 403 responses.
 
 ## Step 1: Verify curl_cffi installation
 

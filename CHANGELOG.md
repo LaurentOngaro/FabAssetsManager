@@ -1,5 +1,18 @@
 # Changelog
 
+Version: 0.13.4
+
+## [0.13.4] - 2026-04-15
+
+### Added
+
+- Normalized project headers across core source files and versioned documentation.
+
+### Changed
+
+- Expanded version tracking to include the frontend stylesheet and the version helper itself.
+- Broadened `IMPORTANT_FILES` so the version bump helper watches the core backend, frontend, docs, and tests.
+
 ## [0.13.3] - 2026-04-14
 
 ### Added

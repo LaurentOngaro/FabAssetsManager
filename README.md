@@ -1,6 +1,6 @@
-# 🎮 FabAssetsManager
+# FabAssetsManager
 
-Version: 0.13.3
+Version: 0.13.4
 
 Local web application to manage and explore your **fab.com** asset library (Unreal Engine, Blender, etc.).
 

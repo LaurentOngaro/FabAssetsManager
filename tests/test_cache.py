@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-"""
-Version: 0.13.3
+"""FabAssetsManager — Cache Tests
+
+Version: 0.13.4
 """
 import pytest
 import cache_manager

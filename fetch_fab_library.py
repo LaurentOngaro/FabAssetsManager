@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""
-Fab.com Library Fetcher
-Fetches all assets from your fab.com library via session cookies.
+"""FabAssetsManager — Fab.com Library Fetcher
 
-Version: 0.13.3
+Version: 0.13.4
+
+Fetches all assets from your fab.com library via session cookies.
 """
 
 import csv

@@ -1,8 +1,11 @@
+# FabAssetsManager — OpenAPI Specification
+# Local API contract for the FabAssetsManager service.
+
 openapi: 3.1.0
 info:
   title: FabAssetsManager API
   description: Local API to manage and query your Fab.com asset library. 5002 is the default port and can be changed in the config. Favorites/comments annotations are frontend-local (localStorage) and intentionally outside this API contract.
-  version: 0.13.3
+  version: 0.13.4
 servers:
   - url: http://localhost:5002
     description: Local development server
@@ -191,4 +194,3 @@ components:
         application/json:
           schema:
             $ref: './_helpers/error_response_contract.json'
-

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""
-Diagnostic script to test connection to fab.com
-and troubleshoot Cloudflare issues
+"""FabAssetsManager — Connection Diagnostics
 
-Version: 0.13.3
+Version: 0.13.4
+
+Diagnostic script to test connection to fab.com and troubleshoot Cloudflare issues.
 """
 
 import sys

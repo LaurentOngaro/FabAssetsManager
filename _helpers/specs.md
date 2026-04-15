@@ -1,21 +1,10 @@
 # FabAssetsManager — Specifications & Development Notes
 
-Version: 0.13.3
+Version: 0.13.4
 
 ## Context
 
 Local application that allows an Epic Games / fab.com user to **retrieve, browse, and export** their Unreal Engine asset library.
-
-## Recent Updates (0.14.0)
-
-- FEAT6/FEAT7/FEAT8 fully finalized:
-  - custom export modal operational and connected to `/api/export-templates`
-  - frontend code externalized in `static/js/app.js` and `static/css/style.css`
-- Custom export now auto-selects output extension by profile type (`.csv`, `.md`, `.txt`).
-- Added backend log trace for export template requests to simplify debugging.
-- FEAT3 implemented: favorites state is now stored locally by UID and exposed in list + detail modal.
-- FEAT5 implemented: per-asset local comments are editable in detail modal, with list indicator when notes exist.
-- Local user annotations persist independently from cache files (`assets/*.json`), so `Clear Cache` does not remove them.
 
 ---
 
