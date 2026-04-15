@@ -159,7 +159,7 @@ DoD:
   - endpoint diagnostic.
   - export headless avec chemins valides/invalides.
 - Non regression:
-  - /api/assets, /api/details/<uid>, /api/export/csv, /api/export/json.
+  - `/api/assets`, `/api/details/<uid>`, `/api/export/csv`, `/api/export/json`.
 
 ## Note
 

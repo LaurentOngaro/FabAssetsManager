@@ -14,10 +14,10 @@ Ordre recommandé d'implementation (voir le detail dans `_helpers\IMPLEMENTATION
 
 1. REF6: durcir tous les endpoints JSON avec `request.get_json(silent=True)` + validation explicite des champs obligatoires.
 2. REF8: enrichir les erreurs API standardisees avec le champ `error.path` (endpoint ayant echoue) et synchroniser le schema de contrat.
-3. REF4: ajouter un cache memoire backend avec TTL pour limiter les appels repetes a `load_all_assets()`.
-4. GE4: ajouter un endpoint de diagnostic backend (config/cookies/user-agent/chemins/assets/previews) pour valider les preconditions sans fetch complet.
-5. FEAT9: ajouter un endpoint d'export headless (ecriture fichier sur disque via `output_path` ou `output_dir`/`file_name`) pour automatisation locale.
-6. REF7: centraliser la lecture/validation de la configuration (parse bool/int, sanitation, bornes minimales).
+3. REF7: centraliser la lecture/validation de la configuration (parse bool/int, sanitation, bornes minimales).
+4. REF4: ajouter un cache memoire backend avec TTL pour limiter les appels repetes a `load_all_assets()`.
+5. GE4: ajouter un endpoint de diagnostic backend (config/cookies/user-agent/chemins/assets/previews) pour valider les preconditions sans fetch complet.
+6. FEAT9: ajouter un endpoint d'export headless (ecriture fichier sur disque via `output_path` ou `output_dir`/`file_name`) pour automatisation locale.
 7. REF5: introduire une pagination + filtrage server-side pour eviter le chargement complet de la bibliotheque cote navigateur.
 
 ### Documentation (last: DOC1)
