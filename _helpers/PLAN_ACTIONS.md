@@ -26,12 +26,12 @@ Chaque fois qu'une modification est teminée:
 
 ## Fonctionnalités de marquage utilisateur (Local Data)
 
-### FEAT4 mis de côté
+## 9 : Etudes (Hors-Périmètre/Long-Terme)
+
+### IDEA2 mis de côté
 
 - **Décision :** repoussé volontairement, car moins utile à court terme que FEAT3 et FEAT5.
 - **Remarque :** à réévaluer seulement après mise en place d'une base commune pour les données utilisateur.
-
-## 9 : Etudes (Hors-Périmètre/Long-Terme)
 
 ### [IDEA1] Recherche globale (Bibliothèque Fab complète)
 

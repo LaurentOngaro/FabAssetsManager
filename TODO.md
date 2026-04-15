@@ -12,11 +12,6 @@ Pour plus de détails sur l'implémentation de ces modifications, consulter le f
 
 classement des demandes par priorité de la plus urgente à la moins urgente:
 
-- FEAT3
-- FEAT5
-- FEAT4
-- IDEA1
-
 ### Documentation (last: DOC1)
 
 ### Filtrage (last: FIL2)
@@ -31,10 +26,9 @@ classement des demandes par priorité de la plus urgente à la moins urgente:
 
 ### Features (last: FEAT8)
 
-- [ ] FEAT4: ajouter un système de tags personnalisés pour classer les assets (ex: "à tester", "inspirant", "à acheter", etc.)
+### Idées à creuser (last: IDEA2)
 
-### Idées à creuser (last: IDEA1)
-
+- [ ] IDEA2: ajouter un système de tags personnalisés pour classer les assets (ex: "à tester", "inspirant", "à acheter", etc.)
 - [ ] IDEA1: rechercher/filtrer des assets (et afficher) parmis la totalité de la bibliothèque FAB (et pas seulement ceux qui sont posssédés) . Attention au volume de données à gérer et à afficher !!!
 
 ## Terminés
@@ -44,7 +38,6 @@ classement des demandes par priorité de la plus urgente à la moins urgente:
 - [x] FEAT6: utiliser des profils d'exportation de données
 - [x] FEAT7: externaliser le css dans static/css/style.css
 - [x] FEAT8: externaliser le js dans static/js/app.js
-
 - [x] GE3: ajouter une zone avec des action de maintenance en bas de la colonne de gauche
   - [x] GE1: ajouter un bouton pour effacer les preview téléchargé localement
   - [x] GE2: ajouter un bouton pour effacer le cache (avec avertissement pour éviter les suppressions accidentelles)
