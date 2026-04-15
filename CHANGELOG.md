@@ -2,6 +2,18 @@
 
 Version: 0.13.4
 
+## [0.13.5] - 2026-04-15
+
+### Added
+
+- New dedicated backend routes module `routes.py` for all web/API endpoints.
+
+### Changed
+
+- Refactored `app.py` to focus on startup/configuration concerns and route telemetry hooks.
+- Registered Flask routes through a blueprint (`main_bp`) to align backend structure with UnityAssetsManager.
+- Preserved route behavior and test monkeypatch compatibility by resolving runtime dependencies via the `app` module inside the new routes blueprint.
+
 ## [0.13.4] - 2026-04-15
 
 ### Added
