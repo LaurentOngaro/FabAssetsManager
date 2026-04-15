@@ -17,23 +17,23 @@ classement des demandes par priorité de la plus urgente à la moins urgente:
 - FEAT4
 - IDEA1
 
-### documentation (last: DOC1)
+### Documentation (last: DOC1)
 
-### filtrage (last: FIL2)
+### Filtrage (last: FIL2)
 
-### pagination (last: PAG2)
+### Pagination (last: PAG2)
 
-### gestion (last: GE3)
+### Gestion (last: GE3)
 
-### refactoring (last: REF3)
+### Refactoring (last: REF3)
 
-### affichage (last: AFF5)
+### Affichage (last: AFF5)
 
-### features (last: FEAT8)
+### Features (last: FEAT8)
 
 - [ ] FEAT4: ajouter un système de tags personnalisés pour classer les assets (ex: "à tester", "inspirant", "à acheter", etc.)
 
-### idées à creuser (last: IDEA1)
+### Idées à creuser (last: IDEA1)
 
 - [ ] IDEA1: rechercher/filtrer des assets (et afficher) parmis la totalité de la bibliothèque FAB (et pas seulement ceux qui sont posssédés) . Attention au volume de données à gérer et à afficher !!!
 
