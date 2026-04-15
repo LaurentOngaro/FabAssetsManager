@@ -1,18 +1,26 @@
 # Changelog
 
-Version: 0.13.4
+Version: 0.13.5
 
 ## [0.13.5] - 2026-04-15
 
 ### Added
 
 - New dedicated backend routes module `routes.py` for all web/API endpoints.
+- **[GE4]** New backend diagnostic endpoint `/api/diagnostic` to validate local preconditions (auth/config/storage/cache) without Fab.com fetch.
+- **[FEAT9]** New headless export endpoint `/api/export/headless` to write JSON/CSV exports directly to disk.
+- New centralized configuration service module `config_manager.py`.
 
 ### Changed
 
+- Aligned `_helpers/bumpImportantVersion.py` with the UnityAssetsManager helper: repo-local JSON configuration, recursive version-tag scan, and synchronized version-tag updates.
 - Refactored `app.py` to focus on startup/configuration concerns and route telemetry hooks.
 - Registered Flask routes through a blueprint (`main_bp`) to align backend structure with UnityAssetsManager.
 - Preserved route behavior and test monkeypatch compatibility by resolving runtime dependencies via the `app` module inside the new routes blueprint.
+- **[REF6]** Hardened JSON route parsing with `request.get_json(silent=True)` on POST endpoints handling JSON payloads.
+- **[REF7]** Centralized configuration loading/validation (defaults, int parsing, bounds checks) through `config_manager.py`.
+- **[REF8]** Standardized API errors now include `error.path` (request endpoint path).
+- **[REF4]** Added backend in-memory TTL cache for `load_all_assets()` to reduce repeated disk reads.
 
 ## [0.13.4] - 2026-04-15
 

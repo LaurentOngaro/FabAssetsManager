@@ -20,7 +20,7 @@ Chaque fois qu'une modification est teminée:
 
 ## Refactoring
 
-### [REF6] Durcissement des endpoints JSON
+### DONE [REF6] Durcissement des endpoints JSON
 
 - Objectif: eviter les erreurs 500 sur payload JSON invalide.
 - Actions:
@@ -30,7 +30,7 @@ Chaque fois qu'une modification est teminée:
 - Validation:
   - tests API sur payload vide, JSON malforme, champs manquants.
 
-### [REF8] Ajouter `error.path` aux reponses d'erreur
+### DONE [REF8] Ajouter `error.path` aux reponses d'erreur
 
 - Objectif: faciliter le diagnostic cote client et journalisation.
 - Actions:
@@ -40,7 +40,7 @@ Chaque fois qu'une modification est teminée:
 - Validation:
   - tests unitaires et API verifiant la presence de `error.path`.
 
-### [REF4] Cache memoire TTL backend
+### DONE [REF4] Cache memoire TTL backend
 
 - Objectif: limiter les relectures disque repetitives des assets.
 - Actions:
@@ -51,7 +51,7 @@ Chaque fois qu'une modification est teminée:
   - tests unitaires sur expiration TTL et invalidation.
   - verification de baisse du nombre d'appels disque sur endpoints frequents.
 
-### [REF7] Service de configuration unifie
+### DONE [REF7] Service de configuration unifie
 
 - Objectif: fiabiliser le chargement des parametres de config.
 - Actions:
@@ -76,7 +76,7 @@ Chaque fois qu'une modification est teminée:
 
 ## Fonctionnalités (Export)
 
-### [FEAT9] Export headless pour scripts locaux
+### DONE [FEAT9] Export headless pour scripts locaux
 
 - Objectif: permettre l'export vers un fichier local sans telechargement navigateur.
 - Actions:
@@ -88,7 +88,7 @@ Chaque fois qu'une modification est teminée:
 
 ## Maintenance, Tableaux et Caches
 
-### [GE4] Endpoint de diagnostic backend
+### DONE [GE4] Endpoint de diagnostic backend
 
 - Objectif: verifier rapidement l'etat de configuration et de stockage.
 - Actions:

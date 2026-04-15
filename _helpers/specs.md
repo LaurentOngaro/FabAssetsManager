@@ -1,6 +1,6 @@
 # FabAssetsManager — Specifications & Development Notes
 
-Version: 0.13.4
+Version: 0.13.5
 Last reviewed: 2026-04-15
 
 ## Context
@@ -61,6 +61,7 @@ Source: current Flask routes and the Fab.com library access flow.
 GET  /api/config
 POST /api/config
 POST /api/config/logging
+GET  /api/diagnostic
 GET  /api/test
 ```
 
@@ -85,6 +86,7 @@ GET  /api/image/{uid}
 GET  /api/export-templates
 POST /api/export/json
 POST /api/export/csv
+POST /api/export/headless
 ```
 
 ### Retrieve account ID
@@ -136,6 +138,7 @@ Used by the frontend badge to show the last cache synchronization time.
 ```
 FabAssetsManager/
 ├── app.py                  # Local Flask server (port 5002 by default)
+├── config_manager.py       # Centralized configuration parsing/validation/path resolution
 ├── cache_manager.py        # Local cache management (JSON files, paths, utilities)
 ├── fetch_fab_library.py    # API calls + pagination + cache logic
 ├── routes.py               # Flask API routes and UI endpoints

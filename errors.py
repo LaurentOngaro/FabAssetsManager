@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """FabAssetsManager — Standardized Error Handling
 
-Version: 0.13.4
+Version: 0.13.5
 
 Central registry for all application error codes and utilities.
 """
@@ -9,6 +9,8 @@ Central registry for all application error codes and utilities.
 from enum import Enum
 from datetime import datetime
 from typing import Optional
+
+from flask import has_request_context, request
 
 
 class ErrorCode(Enum):
@@ -80,6 +82,12 @@ class AppError(Exception):
                 "timestamp": self.timestamp,
             }
         }
+
+        try:
+            if has_request_context():
+                error_dict["error"]["path"] = request.path
+        except Exception:
+            pass
 
         if self.details:
             error_dict["error"]["details"] = self.details

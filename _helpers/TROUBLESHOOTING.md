@@ -1,6 +1,6 @@
 # FabAssetsManager Troubleshooting Guide
 
-Version: 0.13.4
+Version: 0.13.5
 
 Troubleshooting guide for FAB connection issues and 403 responses.
 

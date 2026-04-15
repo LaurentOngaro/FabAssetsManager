@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """FabAssetsManager — Local Flask Server
 
-Version: 0.13.4
+Version: 0.13.5
 
 Launch: python app.py
 Then open: http://localhost:5002
@@ -9,88 +9,45 @@ Then open: http://localhost:5002
 NOTE: 5002 is the default port for the web interface, but the it can be changed in `config/config.json`
 """
 
-import json
 import sys
 import logging
 import time
 import re
 from urllib.parse import urlparse
 from logging.handlers import RotatingFileHandler
-from pathlib import Path
 from flask import Flask, request, g
 from models import Asset
-from cache_manager import load_all_assets
+import cache_manager
+import fetch_fab_library
+import errors
 from routes import bp as main_bp
+import config_manager
 
 app = Flask(__name__, static_folder="static", static_url_path="")
 sys.modules.setdefault("app", sys.modules[__name__])
 
-APP_DIR = Path(__file__).parent
+APP_DIR = config_manager.APP_DIR
 
-# Configuration setup
-_DEFAULT_CONFIG_DIR = APP_DIR / "config"
-CONFIG_FILE = _DEFAULT_CONFIG_DIR / "config.json"
+_startup_settings = config_manager.load_settings()
 
+paths = config_manager.get_paths()
+CONFIG_DIR = paths["CONFIG_DIR"]
+ASSETS_DIR = paths["ASSETS_DIR"]
+PREVIEWS_DIR = paths["PREVIEWS_DIR"]
+COOKIES_FILE = paths["COOKIES_FILE"]
+UA_FILE = paths["UA_FILE"]
+LOG_FILE = paths["LOG_FILE"]
+LAST_UPDATE_FILE = paths["LAST_UPDATE_FILE"]
 
-def _init_settings() -> dict:
-    default_settings = {
-        "config_dir": "config",
-        "assets_dir": "assets",
-        "previews_dir": "previews",
-        "cookies_file": "config/cookies.txt",
-        "ua_file": "config/user_agent.txt",
-        "log_file": "app.log",
-        "last_update_file": "assets/last_update.txt",
-        "server_port": 5002,
-        "log_level": "INFO",
-        "log_output": "Both",
-        "log_max_bytes": 5 * 1024 * 1024,
-        "log_backup_count": 2
-    }
-
-    if not CONFIG_FILE.exists():
-        _DEFAULT_CONFIG_DIR.mkdir(exist_ok=True, parents=True)
-        CONFIG_FILE.write_text(json.dumps(default_settings, ensure_ascii=False, indent=2), encoding="utf-8")
-        return default_settings
-
-    try:
-        current_settings = json.loads(CONFIG_FILE.read_text(encoding="utf-8"))
-        modified = False
-        for k, v in default_settings.items():
-            if k not in current_settings:
-                current_settings[k] = v
-                modified = True
-        if modified:
-            CONFIG_FILE.write_text(json.dumps(current_settings, ensure_ascii=False, indent=2), encoding="utf-8")
-        return current_settings
-    except (OSError, json.JSONDecodeError):
-        return default_settings
-
-
-_startup_settings = _init_settings()
-
-
-def _resolve_path(path_value: object | None, default: Path) -> Path:
-    if not isinstance(path_value, str) or not path_value.strip():
-        return default
-    p = Path(path_value.strip())
-    return p if p.is_absolute() else (APP_DIR / p).resolve()
-
-
-# Configuration paths mapped from settings
-CONFIG_DIR = _resolve_path(_startup_settings.get("config_dir"), _DEFAULT_CONFIG_DIR)
-ASSETS_DIR = _resolve_path(_startup_settings.get("assets_dir"), APP_DIR / "assets")
-PREVIEWS_DIR = _resolve_path(_startup_settings.get("previews_dir"), APP_DIR / "previews")
-
-COOKIES_FILE = _resolve_path(_startup_settings.get("cookies_file"), CONFIG_DIR / "cookies.txt")
-UA_FILE = _resolve_path(_startup_settings.get("ua_file"), CONFIG_DIR / "user_agent.txt")
-LOG_FILE = _resolve_path(_startup_settings.get("log_file"), APP_DIR / "app.log")
-LAST_UPDATE_FILE = _resolve_path(_startup_settings.get("last_update_file"), ASSETS_DIR / "last_update.txt")
-
-# Create directories if needed
-CONFIG_DIR.mkdir(exist_ok=True, parents=True)
-ASSETS_DIR.mkdir(exist_ok=True, parents=True)
-PREVIEWS_DIR.mkdir(exist_ok=True, parents=True)
+# Expose runtime helpers for routes via _app_module() without circular imports.
+load_all_assets = cache_manager.load_all_assets
+save_asset = cache_manager.save_asset
+save_update_metadata = cache_manager.save_update_metadata
+load_update_metadata = cache_manager.load_update_metadata
+get_asset = cache_manager.get_asset
+fetch_all_assets = fetch_fab_library.fetch_all_assets
+fetch_asset_details = fetch_fab_library.fetch_asset_details
+create_error_response = errors.create_error_response
 
 # ─── Logging Setup ───────────────────────────────────────────
 logger = logging.getLogger("FabAssetsManager")
@@ -113,7 +70,7 @@ def configure_logger(level_str="INFO", output_str="Both"):
 
     if output_str in ("File", "Both"):
         try:
-            current_settings = load_settings() if 'load_settings' in globals() else _startup_settings
+            current_settings = config_manager.load_settings()
             max_bytes = current_settings.get("log_max_bytes", 5 * 1024 * 1024)
             backup_count = current_settings.get("log_backup_count", 2)
             fh = RotatingFileHandler(LOG_FILE, maxBytes=max_bytes, backupCount=backup_count, encoding="utf-8")
@@ -126,8 +83,7 @@ def configure_logger(level_str="INFO", output_str="Both"):
 # ─── Read / write config files ───────────────────────────────
 def load_config():
     """Load cookies and user_agent from files, or None if missing."""
-    cookies = COOKIES_FILE.read_text(encoding="utf-8").strip() if COOKIES_FILE.exists() else None
-    user_agent = UA_FILE.read_text(encoding="utf-8").strip() if UA_FILE.exists() else None
+    cookies, user_agent = config_manager.load_credentials(COOKIES_FILE, UA_FILE)
     if cookies:
         logger.info(f"✅ Cookies loaded from {COOKIES_FILE}")
     if user_agent:
@@ -136,41 +92,23 @@ def load_config():
 
 
 def save_config(cookies: str, user_agent: str):
-    COOKIES_FILE.write_text(cookies.strip(), encoding="utf-8")
-    UA_FILE.write_text(user_agent.strip(), encoding="utf-8")
+    config_manager.save_credentials(COOKIES_FILE, UA_FILE, cookies, user_agent)
 
 
 def load_settings() -> dict:
-    """Load UI settings from CONFIG_FILE."""
-    if not CONFIG_FILE.exists():
-        return {}
-    try:
-        return json.loads(CONFIG_FILE.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError):
-        return {}
+    return config_manager.load_settings()
 
 
 def save_settings(settings: dict) -> None:
-    """Persist UI settings to CONFIG_FILE."""
-    CONFIG_FILE.write_text(json.dumps(settings, ensure_ascii=False, indent=2), encoding="utf-8")
+    config_manager.save_settings(settings)
 
 
 def get_logging_settings() -> tuple[str, str]:
-    settings = load_settings()
-    level = str(settings.get("log_level", "INFO")).upper()
-    output = str(settings.get("log_output", "Both"))
-    if level not in {"DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"}:
-        level = "INFO"
-    if output not in {"Console", "File", "Both"}:
-        output = "Both"
-    return level, output
+    return config_manager.get_logging_settings()
 
 
 def save_logging_settings(level: str, output: str) -> None:
-    settings = load_settings()
-    settings["log_level"] = level
-    settings["log_output"] = output
-    save_settings(settings)
+    config_manager.save_logging_settings(level, output)
 
 
 def prompt_config():

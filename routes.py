@@ -7,6 +7,7 @@ Version: 0.13.4
 import csv
 import io
 import json
+import os
 from datetime import datetime
 
 from flask import Blueprint, Response, jsonify, request, send_from_directory
@@ -109,7 +110,9 @@ def api_config():
 def api_config_save():
     """Update cookies + user_agent from the web interface."""
     _app = _app_module()
-    data = request.get_json()
+    data = request.get_json(silent=True)
+    if data is None:
+        return _app.create_error_response(ErrorCode.INVALID_REQUEST, message="Invalid or missing JSON payload")
     cookies = data.get("cookies", "").strip()
     user_agent = data.get("user_agent", "").strip()
     log_level = str(data.get("log_level", "INFO")).upper()
@@ -130,7 +133,7 @@ def api_config_save():
 def api_config_logging_save():
     """Persist logging UI options and reconfigure logger immediately."""
     _app = _app_module()
-    data = request.get_json() or {}
+    data = request.get_json(silent=True) or {}
     log_level = str(data.get("level", "INFO")).upper()
     log_output = str(data.get("output", "Both"))
     if log_level not in {"DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"}:
@@ -143,6 +146,69 @@ def api_config_logging_save():
     return jsonify({"message": "Logging configuration saved", "level": log_level, "output": log_output})
 
 
+@bp.route("/api/diagnostic", methods=["GET"])
+def api_diagnostic():
+    """Return backend diagnostic information without fetching from Fab.com."""
+    _app = _app_module()
+
+    cookies, user_agent = _app.load_config()
+    metadata = _app.load_update_metadata()
+
+    # Check paths
+    assets_ok = _app.ASSETS_DIR.exists() and os.access(_app.ASSETS_DIR, os.W_OK)
+    previews_ok = _app.PREVIEWS_DIR.exists() and os.access(_app.PREVIEWS_DIR, os.W_OK)
+    config_ok = _app.CONFIG_DIR.exists() and os.access(_app.CONFIG_DIR, os.W_OK)
+
+    # Check assets
+    assets_count = len(list(_app.ASSETS_DIR.glob("*.json"))) if assets_ok else 0
+    previews_count = len(list(_app.PREVIEWS_DIR.glob("*.jpg"))) if previews_ok else 0
+
+    hints = []
+    if not cookies:
+        hints.append("Configure cookies via /api/config or config/cookies.txt")
+    if not user_agent:
+        hints.append("Configure user-agent via /api/config or config/user_agent.txt")
+    if not assets_ok:
+        hints.append("Ensure assets directory exists and is writable")
+    if not previews_ok:
+        hints.append("Ensure previews directory exists and is writable")
+    if not config_ok:
+        hints.append("Ensure config directory exists and is writable")
+    if not metadata:
+        hints.append("Run /api/fetch at least once to initialize cache metadata")
+
+    return jsonify({
+        "status": "ok",
+        "auth": {
+            "cookies_present": bool(cookies),
+            "cookies_length": len(cookies) if cookies else 0,
+            "user_agent_present": bool(user_agent),
+        },
+        "storage": {
+            "assets_dir": {
+                "path": str(_app.ASSETS_DIR),
+                "writable": assets_ok,
+                "files_count": assets_count
+            },
+            "previews_dir": {
+                "path": str(_app.PREVIEWS_DIR),
+                "writable": previews_ok,
+                "files_count": previews_count
+            },
+            "config_dir": {
+                "path": str(_app.CONFIG_DIR),
+                "writable": config_ok
+            }
+        },
+        "cache": {
+            "metadata_present": bool(metadata),
+            "reported_count": int(metadata.get("count", 0)),
+            "last_update": metadata.get("last_update", None)
+        },
+        "hints": hints
+    })
+
+
 @bp.route("/api/test")
 def api_test():
     """Test route to verify Flask works."""
@@ -153,7 +219,7 @@ def api_test():
 def api_fetch():
     """Fetch fresh data from fab.com — uses config files if available."""
     _app = _app_module()
-    data = request.get_json() or {}
+    data = request.get_json(silent=True) or {}
     cookies = data.get("cookies", "").strip()
     user_agent = data.get("user_agent", "").strip()
     debug_mode = bool(data.get("debug", False))
@@ -412,6 +478,9 @@ def clear_cache():
         if _app.LAST_UPDATE_FILE.exists():
             _app.LAST_UPDATE_FILE.unlink()
 
+        import cache_manager
+        cache_manager.clear_memory_cache()
+
         return jsonify(
             {
                 "status": "success",
@@ -428,7 +497,7 @@ def clear_cache():
 def export_json():
     """Export JSON with optional filtering by selected UIDs."""
     _app = _app_module()
-    data = request.get_json() or {}
+    data = request.get_json(silent=True) or {}
     selected_uids = data.get("selected_uids", [])
 
     assets = _app.get_assets()
@@ -449,7 +518,7 @@ def export_json():
 def export_csv():
     """Export CSV with optional filtering by selected UIDs."""
     _app = _app_module()
-    data = request.get_json() or {}
+    data = request.get_json(silent=True) or {}
     selected_uids = data.get("selected_uids", [])
     columns = data.get("columns", [])
 
@@ -486,6 +555,98 @@ def export_csv():
     return Response(
         output.getvalue(), mimetype="text/csv", headers={"Content-Disposition": f"attachment; filename=fab_library_{len(flat)}_items.csv"},
     )
+
+
+@bp.route("/api/export/headless", methods=["POST"])
+def export_headless():
+    """Headless export to local disk without browser download."""
+    _app = _app_module()
+    data = request.get_json(silent=True)
+    if not data:
+        return _app.create_error_response(ErrorCode.INVALID_REQUEST, message="Missing JSON payload")
+
+    output_path_str = data.get("output_path")
+    if not output_path_str:
+        output_dir = data.get("output_dir")
+        file_name = data.get("file_name")
+        if not output_dir or not file_name:
+            return _app.create_error_response(
+                ErrorCode.MISSING_PARAMETER,
+                message="Either 'output_path' or both 'output_dir' and 'file_name' are required"
+            )
+        file_name = str(file_name)
+        if os.path.basename(file_name) != file_name:
+            return _app.create_error_response(
+                ErrorCode.INVALID_REQUEST,
+                message="file_name must not contain path separators"
+            )
+        output_path = os.path.join(output_dir, file_name)
+    else:
+        output_path = output_path_str
+
+    output_path = os.path.abspath(output_path)
+    output_dir = os.path.dirname(output_path)
+
+    if not output_dir:
+        return _app.create_error_response(ErrorCode.INVALID_REQUEST, message="Invalid output path")
+
+    if not os.path.exists(output_dir):
+        try:
+            os.makedirs(output_dir, exist_ok=True)
+        except Exception as e:
+            return _app.create_error_response(
+                ErrorCode.INTERNAL_ERROR,
+                message=f"Failed to create output directory: {e}"
+            )
+
+    export_format = str(data.get("format", "json")).lower()
+    if export_format not in ["json", "csv"]:
+        return _app.create_error_response(ErrorCode.INVALID_REQUEST, message="Format must be 'json' or 'csv'")
+
+    selected_uids = data.get("selected_uids", [])
+    columns = data.get("columns", [])
+
+    assets = _app.get_assets()
+    if selected_uids:
+        assets = [a for a in assets if a.get("listing", {}).get("uid") in selected_uids]
+
+    flat = [Asset(a).to_dict() for a in assets]
+    if not flat:
+        return _app.create_error_response(ErrorCode.NO_RESULTS, message="No assets to export")
+
+    try:
+        if export_format == "json":
+            with open(output_path, "w", encoding="utf-8") as f:
+                json.dump(flat, f, ensure_ascii=False, indent=2)
+        elif export_format == "csv":
+            if columns:
+                fieldnames = [c for c in columns if isinstance(c, str) and c]
+            else:
+                fieldnames = list(flat[0].keys())
+
+            if "uid" in fieldnames:
+                fieldnames = ["uid"] + [c for c in fieldnames if c != "uid"]
+            else:
+                fieldnames = ["uid"] + fieldnames
+
+            with open(output_path, "w", encoding="utf-8", newline="") as f:
+                writer = csv.DictWriter(f, fieldnames=fieldnames, extrasaction="ignore")
+                writer.writeheader()
+                for asset in flat:
+                    writer.writerow({key: asset.get(key, "") for key in fieldnames})
+
+        return jsonify({
+            "status": "success",
+            "message": f"Successfully exported {len(flat)} assets to {output_path}",
+            "path": output_path,
+            "count": len(flat)
+        })
+    except Exception as e:
+        _app.logger.error(f"Error during headless export: {e}", exc_info=True)
+        return _app.create_error_response(
+            ErrorCode.INTERNAL_ERROR,
+            message=f"Failed to write file to disk: {e}"
+        )
 
 
 @bp.route("/api/status")

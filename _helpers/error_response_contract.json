@@ -62,6 +62,11 @@
           "format": "date-time",
           "example": "2026-04-13T14:23:45.123456Z"
         },
+        "path": {
+          "type": "string",
+          "description": "The endpoint URL path where the error occurred",
+          "example": "/api/fetch"
+        },
         "details": {
           "type": "object",
           "description": "Optional object with additional context-specific error details",
@@ -91,6 +96,7 @@
         "message": "Asset 'abc-123-def' not found in cache",
         "http_status": 404,
         "timestamp": "2026-04-13T14:23:45.123456Z",
+        "path": "/api/details/abc-123-def",
         "details": {
           "requested_uid": "abc-123-def",
           "searched_paths": [

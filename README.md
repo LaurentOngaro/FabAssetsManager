@@ -1,6 +1,6 @@
 # FabAssetsManager
 
-Version: 0.13.4
+Version: 0.13.5
 
 Local web application to manage, enrich, and explore your locally cached **fab.com** asset library (Unreal Engine, Blender, etc.).
 
@@ -16,6 +16,7 @@ Local web application to manage, enrich, and explore your locally cached **fab.c
 - **Cleanup**: easy cache deletion from interface
 - **Metadata Enrichment**: batch download detailed information for all assets directly from the `fab.com` product pages.
 - **Centralized mapping model**: backend now uses an `Asset` class to map and normalize asset list/detail payloads.
+- **Backend diagnostic endpoint**: `/api/diagnostic` validates auth/config/storage/cache preconditions without remote fetch.
 
 ### 🖼️ Image Previews
 
@@ -40,6 +41,7 @@ Local web application to manage, enrich, and explore your locally cached **fab.c
 - **Favorites**: star toggle in list and details modal to mark priority assets
 - **Local comments**: notes per asset stored locally (no cloud sync)
 - **Export**: CSV/JSON (selected or filtered assets)
+- **Headless export**: backend endpoint `/api/export/headless` writes JSON/CSV directly to local disk for automation scripts.
 - **Custom Export**: profils d'export textuels personnalisables (markdown, csv, texte) via une modale dédiée
 - **Extension auto**: `.csv`, `.md`, `.txt` selon le profil sélectionné
 - **CSV**: includes the asset UID first to simplify cache-file mapping

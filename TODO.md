@@ -10,16 +10,6 @@ Pour plus de détails sur l'implémentation de ces modifications, consulter le f
 
 ### Priorités d'implémentation
 
-Ordre recommandé d'implementation (voir le detail dans `_helpers\IMPLEMENTATION_UAM_PARITY_RECOMMENDATIONS.md`):
-
-1. REF6: durcir tous les endpoints JSON avec `request.get_json(silent=True)` + validation explicite des champs obligatoires.
-2. REF8: enrichir les erreurs API standardisees avec le champ `error.path` (endpoint ayant echoue) et synchroniser le schema de contrat.
-3. REF7: centraliser la lecture/validation de la configuration (parse bool/int, sanitation, bornes minimales).
-4. REF4: ajouter un cache memoire backend avec TTL pour limiter les appels repetes a `load_all_assets()`.
-5. GE4: ajouter un endpoint de diagnostic backend (config/cookies/user-agent/chemins/assets/previews) pour valider les preconditions sans fetch complet.
-6. FEAT9: ajouter un endpoint d'export headless (ecriture fichier sur disque via `output_path` ou `output_dir`/`file_name`) pour automatisation locale.
-7. REF5: introduire une pagination + filtrage server-side pour eviter le chargement complet de la bibliotheque cote navigateur.
-
 ### Documentation (last: DOC1)
 
 ### Filtrage (last: FIL2)
@@ -28,21 +18,13 @@ Ordre recommandé d'implementation (voir le detail dans `_helpers\IMPLEMENTATION
 
 ### Gestion (last: GE4)
 
-- [ ] GE4: ajouter un endpoint de diagnostic backend (config/cookies/user-agent/chemins/assets/previews) pour valider les preconditions sans fetch complet.
-
 ### Refactoring (last: REF8)
 
-- [ ] REF4: ajouter un cache memoire backend avec TTL pour limiter les appels repetes a `load_all_assets()`.
 - [ ] REF5: introduire une pagination + filtrage server-side pour eviter le chargement complet de la bibliotheque cote navigateur.
-- [ ] REF6: durcir tous les endpoints JSON avec `request.get_json(silent=True)` + validation explicite des champs obligatoires.
-- [ ] REF7: centraliser la lecture/validation de la configuration (parse bool/int, sanitation, bornes minimales).
-- [ ] REF8: enrichir les erreurs API standardisees avec le champ `error.path` (endpoint ayant echoue) et synchroniser le schema de contrat.
 
 ### Affichage (last: AFF5)
 
 ### Features (last: FEAT9)
-
-- [ ] FEAT9: ajouter un endpoint d'export headless (ecriture fichier sur disque via `output_path` ou `output_dir`/`file_name`) pour automatisation locale.
 
 ### Idées à creuser (last: IDEA2)
 
@@ -51,6 +33,12 @@ Ordre recommandé d'implementation (voir le detail dans `_helpers\IMPLEMENTATION
 
 ## Terminés
 
+- [x] REF4: ajouter un cache memoire backend avec TTL pour limiter les appels repetes a `load_all_assets()`.
+- [x] FEAT9: ajouter un endpoint d'export headless (ecriture fichier sur disque via `output_path` ou `output_dir`/`file_name`) pour automatisation locale.
+- [x] GE4: ajouter un endpoint de diagnostic backend (config/cookies/user-agent/chemins/assets/previews) pour valider les preconditions sans fetch complet.
+- [x] REF7: centraliser la lecture/validation de la configuration (parse bool/int, sanitation, bornes minimales).
+- [x] REF8: enrichir les erreurs API standardisees avec le champ `error.path` (endpoint ayant echoue) et synchroniser le schema de contrat.
+- [x] REF6: durcir tous les endpoints JSON avec `request.get_json(silent=True)` + validation explicite des champs obligatoires.
 - [x] FEAT5: ajouter un system de commentaires locaux pour chaque asset (ex: "ne fonctionne pas avec UE5.3", "super pour les jeux 2D", etc.)
 - [x] FEAT3: ajouter un système de favoris pour marquer les assets préférés
 - [x] FEAT6: utiliser des profils d'exportation de données

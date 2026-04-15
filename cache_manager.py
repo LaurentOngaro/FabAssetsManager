@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """FabAssetsManager — Cache Management
 
-Version: 0.13.4
+Version: 0.13.5
 
 Individual asset file storage for the local cache.
 
@@ -82,8 +82,19 @@ import json
 import logging
 from pathlib import Path
 from datetime import datetime
+import time
 
 logger = logging.getLogger("FabAssetsManager.cache")
+
+# Memory cache for load_all_assets()
+_memory_cache = {"assets": None, "timestamp": 0}
+CACHE_TTL_SECONDS = 300  # 5 minutes TTL
+
+
+def clear_memory_cache() -> None:
+    """Invalidate the in-memory cache. Call this after any cache mutation."""
+    _memory_cache["assets"] = None
+    _memory_cache["timestamp"] = 0
 
 
 def _get_assets_dir() -> Path:
@@ -128,6 +139,7 @@ def save_asset(asset: dict) -> None:
     filepath = _get_assets_dir() / f"{uid}.json"
     with open(filepath, "w", encoding="utf-8") as f:
         json.dump(asset, f, ensure_ascii=False, indent=2)
+    clear_memory_cache()
 
 
 def save_assets_batch(assets: list) -> None:
@@ -261,6 +273,10 @@ def load_all_assets() -> list:
         Uses sorted() glob for deterministic order (useful for testing/debugging)
         though order doesn't matter for UI functionality
     """
+    now = time.time()
+    if _memory_cache["assets"] is not None and (now - _memory_cache["timestamp"]) < CACHE_TTL_SECONDS:
+        return _memory_cache["assets"]
+
     init_assets_dir()
     assets = []
 
@@ -272,6 +288,8 @@ def load_all_assets() -> list:
         except Exception as e:
             logger.info(f"⚠️  Error reading {filepath}: {e}")
 
+    _memory_cache["assets"] = assets
+    _memory_cache["timestamp"] = now
     return assets
 
 

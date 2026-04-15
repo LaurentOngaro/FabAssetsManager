@@ -1,0 +1,19 @@
+{
+  "important_files": [
+    "app.py",
+    "cache_manager.py",
+    "errors.py",
+    "fetch_fab_library.py",
+    "models.py",
+    "static/index.html",
+    "static/js/app.js",
+    "static/css/style.css",
+    "README.md",
+    "API_GUIDE.md",
+    "openapi.yaml",
+    "_helpers/specs.md",
+    "_helpers/TROUBLESHOOTING.md",
+    "_helpers/bumpImportantVersion.py",
+    "VERSION.txt"
+  ]
+}

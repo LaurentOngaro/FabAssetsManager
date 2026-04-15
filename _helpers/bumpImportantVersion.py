@@ -1,51 +1,67 @@
-#!/usr/bin/env python3
-"""FabAssetsManager — Version Bump Helper
-
-Version: 0.13.4
-
-Bump version using a central VERSION file.
+"""Version bump helper using repo-local JSON configuration.
 
 Behavior:
 - Uses VERSION.txt as source of truth.
 - Bumps only when at least one important app file changed (unless --force).
-- Synchronizes the bumped version to key app files only to avoid noisy commits.
+- Scans repo files for version tags and synchronizes the bumped version only where a tag is found.
 
-Maintenance note:
-- Keep this helper aligned with the TerraBloom counterpart at
-    `H:/Sync/PKM_PROJECTS/TerraBloom/_Helpers/04_Assets/UnityAssetsManager/_helpers/bumpImportantVersion.py`.
-- Any agent change to one file should be mirrored in the other unless the repository-specific paths differ.
+Repo-specific configuration is loaded from:
+    `_helpers/bumpImportantVersion.config.json`
 """
 
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import subprocess
 import sys
+from functools import lru_cache
 from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 APP_ROOT = SCRIPT_DIR.parent
 VERSION_FILE = APP_ROOT / "VERSION.txt"
 
-VERSION_TAG_EXTENSIONS = {".py", ".md", ".html", ".htm", ".js", ".css", ".yaml", ".yml"}
+CONFIG_FILE = SCRIPT_DIR / "bumpImportantVersion.config.json"
 
-IMPORTANT_FILES = [
-    APP_ROOT / "app.py", APP_ROOT / "cache_manager.py", APP_ROOT / "errors.py", APP_ROOT / "fetch_fab_library.py", APP_ROOT / "models.py",
-    APP_ROOT / "static" / "index.html", APP_ROOT / "static" / "js" / "app.js", APP_ROOT / "static" / "css" / "style.css", APP_ROOT / "README.md",
-    APP_ROOT / "API_GUIDE.md", APP_ROOT / "CHANGELOG.md", APP_ROOT / "VERSION.txt", APP_ROOT / "openapi.yaml", APP_ROOT / "_helpers" / "specs.md",
-    APP_ROOT / "_helpers" / "TROUBLESHOOTING.md", APP_ROOT / "_helpers" / "bumpImportantVersion.py", APP_ROOT / "tests" / "conftest.py",
-    APP_ROOT / "tests" / "test_api.py", APP_ROOT / "tests" / "test_cache.py", APP_ROOT / "tests" / "test_parser.py",
-    APP_ROOT / "tests" / "test_connection.py",
-]
-
-VERSION_MARKER_RE = re.compile(r"(?m)^\s*(?:#\s*)?(?:\*\*Version:\*\*|Version:|version:)\s*\d+\.\d+\.\d+")
+VERSION_TAG_EXTENSIONS = {".py", ".md", ".html", ".htm", ".js", ".yaml", ".yml"}
+VERSION_MARKER_RE = re.compile(r"(?m)^\s*(?:#\s*)?(?:\*\*Version:\*\*|\*\*Version\*\*:|Version:|version:)\s*\d+\.\d+\.\d+")
 
 SEMVER_RE = re.compile(r"^(\d+)\.(\d+)\.(\d+)$")
 
 
+@lru_cache
+def load_config() -> dict[str, list[str]]:
+    if not CONFIG_FILE.exists():
+        raise ValueError(f"Missing configuration file: {CONFIG_FILE.relative_to(APP_ROOT)}")
+
+    try:
+        raw_config = json.loads(CONFIG_FILE.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"Invalid JSON in {CONFIG_FILE.relative_to(APP_ROOT)}: {exc}") from exc
+
+    if not isinstance(raw_config, dict):
+        raise ValueError(f"Configuration file must contain a JSON object: {CONFIG_FILE.relative_to(APP_ROOT)}")
+
+    important_files = raw_config.get("important_files")
+
+    if not isinstance(important_files, list) or any(not isinstance(item, str) for item in important_files):
+        raise ValueError("important_files must be a list of relative paths")
+
+    return {"important_files": important_files}
+
+
+def resolve_paths(relative_paths: list[str]) -> list[Path]:
+    return [APP_ROOT / Path(relative_path) for relative_path in relative_paths]
+
+
+def important_file_paths() -> list[Path]:
+    return resolve_paths(load_config()["important_files"])
+
+
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Bump version for important files only")
+    parser = argparse.ArgumentParser(description="Bump version for UnityAssetsManager important files only")
     parser.add_argument("--scope", choices=["patch", "minor", "major"], default="patch", help="Semver bump scope")
     parser.add_argument("--base-ref", default="HEAD", help="Git ref used to detect changes")
     parser.add_argument("--force", action="store_true", help="Force bump even if no important file changed")
@@ -72,7 +88,7 @@ def changed_important_files(base_ref: str, repo_root: Path | None) -> list[str]:
     if repo_root is None:
         return []
 
-    rel_paths = [normalize_repo_path(path, repo_root) for path in IMPORTANT_FILES]
+    rel_paths = [normalize_repo_path(path, repo_root) for path in important_file_paths()]
     cmd = ["git", "diff", "--name-only", base_ref, "--", *rel_paths]
     probe = run_git_command(cmd, repo_root)
     if probe.returncode != 0:
@@ -133,6 +149,17 @@ def discover_version_tag_files() -> list[Path]:
     return sorted(discovered)
 
 
+def version_tag_patterns(new_version: str) -> list[tuple[str, str]]:
+    return [
+        (r"^(\s*(?:#|//|::|REM)\s*Version:\s*)\d+\.\d+\.\d+(\s*)$", rf"\g<1>{new_version}\g<2>"),
+        (r"^(\s*<!--\s*Version:\s*)\d+\.\d+\.\d+(\s*-->)", rf"\g<1>{new_version}\g<2>"),
+        (r"^(\s*\*\*Version:\*\*\s*)\d+\.\d+\.\d+(\s*)$", rf"\g<1>{new_version}\g<2>"),
+        (r"^(\s*\*\*Version\*\*:\s*)\d+\.\d+\.\d+(\s*)$", rf"\g<1>{new_version}\g<2>"),
+        (r"^(\s*Version:\s*)\d+\.\d+\.\d+(\s*)$", rf"\g<1>{new_version}\g<2>"),
+        (r"^(\s*version:\s*)\d+\.\d+\.\d+(\s*)$", rf"\g<1>{new_version}\g<2>"),
+    ]
+
+
 def sync_version_txt(new_version: str) -> bool:
     previous = VERSION_FILE.read_text(encoding="utf-8").strip() if VERSION_FILE.exists() else ""
     if previous == new_version:
@@ -145,13 +172,8 @@ def sync_version_tag(file_path: Path, new_version: str) -> bool:
     if not file_path.exists():
         return False
     text = file_path.read_text(encoding="utf-8")
-    patterns = [
-        r"^(\s*#\s*Version:\s*)\d+\.\d+\.\d+(\s*)$", r"^(\s*\*\*Version:\*\*\s*)\d+\.\d+\.\d+(\s*)$", r"^(\s*Version:\s*)\d+\.\d+\.\d+(\s*)$",
-        r"^(\s*version:\s*)\d+\.\d+\.\d+(\s*)$",
-    ]
-
-    for pattern in patterns:
-        new_text, changed = replace_first(pattern, rf"\g<1>{new_version}\g<2>", text)
+    for pattern, replacement in version_tag_patterns(new_version):
+        new_text, changed = replace_first(pattern, replacement, text)
         if changed:
             if new_text != text:
                 file_path.write_text(new_text, encoding="utf-8")
@@ -188,7 +210,7 @@ def main() -> int:
     if not args.force and not important_changes:
         print("No important file change detected. Version bump skipped.")
         print("Tracked important files:")
-        for file_path in IMPORTANT_FILES:
+        for file_path in important_file_paths():
             print(f"- {file_path.relative_to(APP_ROOT)}")
         return 0
 

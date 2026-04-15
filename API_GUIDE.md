@@ -1,6 +1,6 @@
 # FabAssetsManager API Guide
 
-**Version:** 0.13.4
+**Version:** 0.13.5
 
 This guide explains how to integrate the FabAssetsManager API into your workflows (e.g., TerraBloom curation pipeline).
 
@@ -14,6 +14,7 @@ The API is available at `http://localhost:5002`. Most endpoints return flattened
 - `GET /api/config` returns the current runtime state, including whether cookies and a user-agent are configured.
 - `POST /api/config` saves cookies, user-agent, and logging preferences from the web interface.
 - `POST /api/config/logging` saves logging preferences and applies them immediately.
+- `GET /api/diagnostic` returns a local backend diagnostic report (auth/config/storage/cache) without calling Fab.com.
 - `GET /api/test` returns a simple Flask health response.
 
 ### 🔍 Finding an Asset
@@ -71,6 +72,7 @@ To display thumbnails, use `/api/image/{uid}`.
 
 - **`GET /api/export-templates`**: Retourne les profils d'export personnalisés utilisés par la modale **Custom Export**.
 - **`POST /api/export/json`** et **`POST /api/export/csv`**: exportent les assets, avec filtrage optionnel par UID sélectionnés.
+- **`POST /api/export/headless`**: exporte directement vers un fichier local via `output_path` ou `output_dir` + `file_name` (mode automatisation sans téléchargement navigateur).
 - Le frontend applique le pattern sélectionné asset par asset, puis choisit automatiquement l'extension du fichier exporté:
   - `.csv` pour les profils CSV
   - `.md` pour les profils Markdown
@@ -97,6 +99,7 @@ All errors follow a unified structure based on **ErrorCode** and **HTTP Status**
     "message": "Human-readable explanation",
     "http_status": 404,
     "timestamp": "ISO-TIMESTAMP",
+    "path": "/api/some-endpoint",
     "details": { "hint": "..." }
   }
 }

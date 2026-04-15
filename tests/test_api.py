@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """FabAssetsManager — API Tests
 
-Version: 0.13.4
+Version: 0.13.5
 """
+from pathlib import Path
+
 import pytest
 import app
 
@@ -85,3 +87,58 @@ def test_api_lookup_by_name_and_url(client, monkeypatch):
     assert by_url.status_code == 200
     assert by_url.json["count"] == 1
     assert by_url.json["matches"][0]["uid"] == "uid-123"
+
+
+def test_api_config_rejects_invalid_json_payload(client):
+    response = client.post('/api/config', data='{"cookies":', content_type='application/json')
+
+    assert response.status_code == 400
+    assert response.json["error"]["code"] == "INVALID_REQUEST"
+    assert response.json["error"]["path"] == "/api/config"
+
+
+def test_api_diagnostic(client, monkeypatch, tmp_path):
+    assets_dir = tmp_path / "assets"
+    previews_dir = tmp_path / "previews"
+    config_dir = tmp_path / "config"
+    assets_dir.mkdir()
+    previews_dir.mkdir()
+    config_dir.mkdir()
+
+    (assets_dir / "one.json").write_text('{"listing": {"uid": "u1"}}', encoding='utf-8')
+    (previews_dir / "one.jpg").write_bytes(b"jpg")
+
+    monkeypatch.setattr(app, "ASSETS_DIR", assets_dir)
+    monkeypatch.setattr(app, "PREVIEWS_DIR", previews_dir)
+    monkeypatch.setattr(app, "CONFIG_DIR", config_dir)
+    monkeypatch.setattr(app, "load_config", lambda: ("cookie=abc", "ua-test"))
+    monkeypatch.setattr(app, "load_update_metadata", lambda: {"count": "1", "last_update": "2026-04-15T00:00:00"})
+
+    response = client.get('/api/diagnostic')
+    assert response.status_code == 200
+    assert response.json["auth"]["cookies_present"] is True
+    assert response.json["storage"]["assets_dir"]["files_count"] == 1
+    assert response.json["storage"]["previews_dir"]["files_count"] == 1
+    assert response.json["cache"]["reported_count"] == 1
+
+
+def test_api_export_headless_json(client, monkeypatch, tmp_path):
+    dummy_assets = [{"listing": {"uid": "uid-1", "title": "Asset One"}}]
+    monkeypatch.setattr(app, "get_assets", lambda: dummy_assets)
+
+    out_file = tmp_path / "export.json"
+    response = client.post('/api/export/headless', json={"format": "json", "output_path": str(out_file)})
+
+    assert response.status_code == 200
+    assert response.json["status"] == "success"
+    assert out_file.exists()
+    content = out_file.read_text(encoding='utf-8')
+    assert "uid-1" in content
+
+
+def test_api_export_headless_invalid_format_has_error_path(client):
+    response = client.post('/api/export/headless', json={"format": "xml", "output_path": str(Path("out.xml"))})
+
+    assert response.status_code == 400
+    assert response.json["error"]["code"] == "INVALID_REQUEST"
+    assert response.json["error"]["path"] == "/api/export/headless"

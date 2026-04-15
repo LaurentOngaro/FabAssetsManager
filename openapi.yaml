@@ -5,7 +5,7 @@ openapi: 3.1.0
 info:
   title: FabAssetsManager API
   description: Local API to manage and query your Fab.com asset library. 5002 is the default port and can be changed in the config. Favorites/comments annotations are frontend-local (localStorage) and intentionally outside this API contract.
-  version: 0.13.4
+  version: 0.13.5
 servers:
   - url: http://localhost:5002
     description: Local development server
@@ -73,6 +73,8 @@ paths:
       responses:
         '200':
           description: Configuration saved.
+        '400':
+          $ref: '#/components/responses/ErrorResponse'
         '401':
           $ref: '#/components/responses/ErrorResponse'
 
@@ -94,6 +96,55 @@ paths:
       responses:
         '200':
           description: Logging configuration saved.
+        '400':
+          $ref: '#/components/responses/ErrorResponse'
+
+  /api/diagnostic:
+    get:
+      summary: Backend prerequisites diagnostic
+      description: Returns a local diagnostic report for auth/config/storage/cache preconditions without fetching data from Fab.com.
+      responses:
+        '200':
+          description: Diagnostic report.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  auth:
+                    type: object
+                    properties:
+                      cookies_present:
+                        type: boolean
+                      cookies_length:
+                        type: integer
+                      user_agent_present:
+                        type: boolean
+                  storage:
+                    type: object
+                    properties:
+                      assets_dir:
+                        type: object
+                      previews_dir:
+                        type: object
+                      config_dir:
+                        type: object
+                  cache:
+                    type: object
+                    properties:
+                      metadata_present:
+                        type: boolean
+                      reported_count:
+                        type: integer
+                      last_update:
+                        type: string
+                        nullable: true
+                  hints:
+                    type: array
+                    items:
+                      type: string
 
   /api/test:
     get:
@@ -392,6 +443,59 @@ paths:
       responses:
         '200':
           description: CSV export.
+
+  /api/export/headless:
+    post:
+      summary: Export cached assets to local disk
+      description: Writes a JSON or CSV export to a local output path for automation scripts.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                format:
+                  type: string
+                  enum: [json, csv]
+                  default: json
+                output_path:
+                  type: string
+                output_dir:
+                  type: string
+                file_name:
+                  type: string
+                selected_uids:
+                  type: array
+                  items:
+                    type: string
+                columns:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: File successfully written on disk.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+                  path:
+                    type: string
+                  count:
+                    type: integer
+        '400':
+          $ref: '#/components/responses/ErrorResponse'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
+
 components:
   responses:
     ErrorResponse:
