@@ -232,39 +232,40 @@ app.register_blueprint(main_bp)
 
 # ─── Startup ────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
-    logger.info("🚀 FabAssetsManager")
-    logger.info("=" * 40)
-
-    # Check if config exists (don't force interactive input)
-    cookies, user_agent = load_config()
-    if not cookies or not user_agent:
-        logger.info("\n⚠️  Incomplete configuration:")
-        if not cookies:
-            logger.info("   - config/cookies.txt missing or empty")
-        if not user_agent:
-            logger.info("   - config/user_agent.txt missing or empty")
-        logger.info("\n💡 You can:")
-        logger.info("   1. Use web interface to enter cookies + user-agent")
-        logger.info("   2. Manually create config/cookies.txt and config/user_agent.txt")
-        logger.info("   3. Run tests/test_connection.py to diagnose\n")
-    else:
-        logger.info("✅ Configuration loaded from config/cookies.txt and config/user_agent.txt")
-
-    assets_count = len(load_all_assets())
-    if assets_count > 0:
-        logger.info(f"📦 Cache found: {assets_count} assets")
-    else:
-        logger.info("⚠️  No cache — click 🔄 Get New Assets in interface")
-
     settings = load_settings()
     server_port = settings.get("server_port", 5002)
     server_host = settings.get("server_host", "127.0.0.1")
     flask_debug = settings.get("flask_debug", False)
     flask_threaded = settings.get("flask_threaded", True)
 
-    logger.info(f"\nOpen: http://{server_host}:{server_port}\n")
+    print("🚀 FabAssetsManager")
+    print("=" * 40)
+
+    print(f"\nOpen: http://{server_host}:{server_port}\n")
     if flask_debug:
-        logger.info("\n✅ FLASK DEBUGGER ON\n")
+        print("✅ FLASK DEBUGGER ON")
     if flask_threaded:
-        logger.info("\n✅ FLASK THREADING ON\n")
+        print("✅ FLASK THREADING ON")
+
+    # Check if config exists (don't force interactive input)
+    cookies, user_agent = load_config()
+    if not cookies or not user_agent:
+        print("\n⚠️  Incomplete configuration:")
+        if not cookies:
+            print("   - config/cookies.txt missing or empty")
+        if not user_agent:
+            print("   - config/user_agent.txt missing or empty")
+        print("\n💡 You can:")
+        print("   1. Use web interface to enter cookies + user-agent")
+        print("   2. Manually create config/cookies.txt and config/user_agent.txt")
+        print("   3. Run tests/test_connection.py to diagnose\n")
+    else:
+        print("✅ Configuration loaded from config/cookies.txt and config/user_agent.txt")
+
+    assets_count = len(load_all_assets())
+    if assets_count > 0:
+        print(f"📦 Cache found: {assets_count} assets")
+    else:
+        print("⚠️  No cache — click 🔄 Get New Assets in interface")
+
     app.run(debug=flask_debug, host=server_host, port=server_port, threaded=flask_threaded)
