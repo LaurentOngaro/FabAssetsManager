@@ -24,10 +24,11 @@ Pour plus de détails sur l'implémentation de ces modifications, consulter le f
 
 ### Features (last: FEAT9)
 
-### Idées à creuser (last: IDEA2)
+### Idées à creuser (last: IDEA3)
 
 - [ ] IDEA2: ajouter un système de tags personnalisés pour classer les assets (ex: "à tester", "inspirant", "à acheter", etc.)
 - [ ] IDEA1: rechercher/filtrer des assets (et afficher) parmis la totalité de la bibliothèque FAB (et pas seulement ceux qui sont posssédés) . Attention au volume de données à gérer et à afficher !!!
+- [ ] IDEA3: utiliser bootstrap plutot que du vanilla pour les pages statiques
 
 ## Terminés
 

@@ -1,6 +1,9 @@
 {
   "config_dir": "config",
+  "server_host": "127.0.0.1",
   "server_port": 5002,
+  "flask_debug": false,
+  "flask_threaded": true,
   "assets_dir": "assets",
   "previews_dir": "previews",
   "cookies_file": "config/cookies.txt",
@@ -8,7 +11,7 @@
   "last_update_file": "assets/last_update.txt",
   "log_file": "app.log",
   "log_level": "INFO",
-  "log_output": "Both",
+  "log_output": "both",
   "log_max_bytes": 5242880,
   "log_backup_count": 2
 }

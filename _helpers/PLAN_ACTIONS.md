@@ -40,3 +40,15 @@ Chaque fois qu'une modification est teminée:
 ### [IDEA1] Recherche globale (Bibliothèque Fab complète)
 
 - **Verdict :** Priorité la plus basse (très gourmand, API complexe hors-catalogue personnel).
+
+### [IDEA3] Utilisation de Bootstrap pour les pages statiques
+
+Utiliser bootstrap plutot que du vanilla pour les pages statiques
+
+- Pour:
+  - Uniformisation avec UnityAssetsManager (Flask + Bootstrap + DataTables)
+  - Mutualisation du code entre les 2 applis (ex: même template de base, même style de boutons, etc.)
+  - Évolutivité : Si vous prévoyez d'ajouter à FAM des fonctionnalités complexes (tableaux de données denses, popups de confirmation, menus déroulants complexes), Bootstrap vous fera gagner un temps précieux.
+  - Indispensable si ajout de datatables (pandas) dans le futur (filtrage avancé, pagination, etc.)
+- Contre:
+  - Le coût du refactoring : Remplacer du Vanilla par du Bootstrap demande de réécrire une grande partie du HTML (pour ajouter les classes spécifiques comme container, row, col, btn, etc.) et de nettoyer le CSS Vanilla existant pour éviter les conflits

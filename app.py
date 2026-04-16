@@ -258,6 +258,13 @@ if __name__ == "__main__":
 
     settings = load_settings()
     server_port = settings.get("server_port", 5002)
+    server_host = settings.get("server_host", "127.0.0.1")
+    flask_debug = settings.get("flask_debug", False)
+    flask_threaded = settings.get("flask_threaded", True)
 
-    logger.info(f"\n✅ Open: http://localhost:{server_port}\n")
-    app.run(debug=True, host="127.0.0.1", port=server_port)
+    logger.info(f"\nOpen: http://{server_host}:{server_port}\n")
+    if flask_debug:
+        logger.info("\n✅ FLASK DEBUGGER ON\n")
+    if flask_threaded:
+        logger.info("\n✅ FLASK THREADING ON\n")
+    app.run(debug=flask_debug, host=server_host, port=server_port, threaded=flask_threaded)
