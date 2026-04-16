@@ -1,6 +1,12 @@
 # Changelog
 
-Version: 1.0.1
+Version: 1.0.2
+
+## [1.0.2] - 2026-04-16
+
+### Changed
+
+- Added `lib/app_settings.py` to extract constants from `config_manager.py`, aligning architecture exactly with UnityAssetsManager.
 
 ## [1.0.1] - 2026-04-16
 
