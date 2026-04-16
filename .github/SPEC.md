@@ -15,6 +15,7 @@ Local application that allows an Epic Games / fab.com user to **retrieve, browse
 
 - `app.py`: Main entry point (Flask server).
 - `lib/`: Business logic package.
+  - `app_settings.py`: Constants and default paths (aligned with UAM).
   - `routes.py`: API and web route definitions.
   - `config_manager.py`: Centralized configuration (JSON files, cookies, UA).
   - `cache_manager.py`: Distributed cache management (individual JSON files).

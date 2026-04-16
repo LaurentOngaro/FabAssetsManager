@@ -14,7 +14,8 @@ Application locale (Python/Flask + Vanilla JS/HTML) permettant de lister, filtre
 1. **Backend (Python)** :
 
 - `app.py` sert simplement l'application Flask courante.
-- `fetch_fab_library.py` (et `cache_manager.py`) s'occupent de contacter l'API (avec `curl_cffi` pour by-passer Cloudflare) et de traiter les JSON.
+- `lib/app_settings.py` centralise les constantes applicatives.
+- `lib/fetch_fab_library.py` (et `lib/cache_manager.py`) s'occupent de contacter l'API (avec `curl_cffi` pour by-passer Cloudflare) et de traiter les JSON.
 - Les données sont **mises en cache localement** :
   - L'ensemble des assets sous forme de fichiers unitaires dans le dossier `assets/`
   - Les miniatures des images sous forme de `.jpg` dans le dossier `previews/`

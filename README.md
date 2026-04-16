@@ -1,4 +1,4 @@
-# FabAssetsManager
+# FabAssetsManager (FAM)
 
 Version: 1.0.2
 
@@ -35,7 +35,13 @@ Local web application to manage, enrich, and explore your locally cached **fab.c
 - **Options**: downloadable only, hide adult content
 - **Sorting**: title (A↔Z), creation date, update date
 
-### � Documentation
+### 🎨 UI & UX
+
+- **Dark Theme** 🌙: Modern and comfortable interface (matching UnityAssetsManager).
+- **Responsive Layout**: Sidebar-based navigation with collapsible sections.
+- **Real-time Search**: Instant filtering of the asset grid.
+
+### 📚 Documentation
 
 - **API Guide**: [API_GUIDE.md](./API_GUIDE.md) for detailed integration.
 - **Technical Specifications**: [.github/SPEC.md](.github/SPEC.md).
