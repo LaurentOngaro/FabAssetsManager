@@ -1,6 +1,14 @@
 # Changelog
 
-Version: 0.13.7
+Version: 0.13.8
+
+## [0.13.8] - 2026-04-16
+
+### Changed
+
+- Refonte de la structure du projet : déplacement des modules Python vers le dossier `lib/` pour une meilleure séparation des responsabilités.
+- Mise à jour des spécifications techniques (`_helpers/specs.md`) pour refléter la nouvelle architecture.
+- Correction et synchronisation des versions dans la documentation.
 
 ## [0.13.7] - 2026-04-15
 

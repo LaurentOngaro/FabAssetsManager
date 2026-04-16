@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """FabAssetsManager — Cache Management
 
-Version: 0.13.7
+Version: 0.13.8
 
 Individual asset file storage for the local cache.
 

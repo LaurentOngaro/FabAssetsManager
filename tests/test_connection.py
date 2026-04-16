@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """FabAssetsManager — Connection Diagnostics
 
-Version: 0.13.7
+Version: 0.13.8
 
 Diagnostic script to test connection to fab.com and troubleshoot Cloudflare issues.
 """
@@ -16,7 +16,7 @@ ROOT_DIR = APP_DIR.parent
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
 
-fetch_fab_library = importlib.import_module("fetch_fab_library")
+fetch_fab_library = importlib.import_module("lib.fetch_fab_library")
 build_headers_for_user_agent = fetch_fab_library.build_headers_for_user_agent
 create_http_session = fetch_fab_library.create_http_session
 

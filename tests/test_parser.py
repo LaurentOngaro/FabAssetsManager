@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """FabAssetsManager — Parser Tests
 
-Version: 0.13.7
+Version: 0.13.8
 """
-from models import Asset
+from lib.models import Asset
 
 
 def test_asset_parser_complete():

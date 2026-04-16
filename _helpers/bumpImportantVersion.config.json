@@ -1,10 +1,13 @@
 {
   "important_files": [
     "app.py",
-    "cache_manager.py",
-    "errors.py",
-    "fetch_fab_library.py",
-    "models.py",
+    "lib/cache_manager.py",
+    "lib/config_manager.py",
+    "lib/errors.py",
+    "lib/fetch_fab_library.py",
+    "lib/logging_setup.py",
+    "lib/models.py",
+    "lib/routes.py",
     "static/index.html",
     "static/js/app.js",
     "static/css/style.css",
@@ -12,8 +15,6 @@
     "API_GUIDE.md",
     "openapi.yaml",
     "_helpers/specs.md",
-    "_helpers/TROUBLESHOOTING.md",
-    "_helpers/bumpImportantVersion.py",
     "VERSION.txt"
   ]
 }

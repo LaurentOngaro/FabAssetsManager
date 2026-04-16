@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-APP_DIR = Path(__file__).parent
+APP_DIR = Path(__file__).parent.parent
 _DEFAULT_CONFIG_DIR = APP_DIR / "config"
 CONFIG_FILE = _DEFAULT_CONFIG_DIR / "config.json"
 

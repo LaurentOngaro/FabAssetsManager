@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """FabAssetsManager — Local Flask Server
 
-Version: 0.13.7
+Version: 0.13.8
 
 Launch: python app.py
 Then open: http://localhost:5002
@@ -15,13 +15,13 @@ import time
 import re
 from urllib.parse import urlparse
 from flask import Flask, request, g
-from models import Asset
-import cache_manager
-import fetch_fab_library
-import errors
-from routes import bp as main_bp
-import config_manager
-from logging_setup import configure_logging
+from lib.models import Asset
+import lib.cache_manager as cache_manager
+import lib.fetch_fab_library as fetch_fab_library
+import lib.errors as errors
+from lib.routes import bp as main_bp
+import lib.config_manager as config_manager
+from lib.logging_setup import configure_logging
 
 app = Flask(__name__, static_folder="static", static_url_path="")
 sys.modules.setdefault("app", sys.modules[__name__])

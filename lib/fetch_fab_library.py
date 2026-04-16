@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """FabAssetsManager — Fab.com Library Fetcher
 
-Version: 0.13.7
+Version: 0.13.8
 
 Fetches all assets from your fab.com library via session cookies.
 """
@@ -14,7 +14,7 @@ import argparse
 import re
 import requests  # Fallback always available
 import logging
-from models import Asset
+from .models import Asset
 
 logger = logging.getLogger("FabAssetsManager.fetch")
 

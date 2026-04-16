@@ -1,11 +1,31 @@
 # FabAssetsManager — Specifications & Development Notes
 
-Version: 0.13.7
-Last reviewed: 2026-04-15
+Version: 0.13.8
+Last reviewed: 2026-04-16
 
 ## Context
 
 Local application that allows an Epic Games / fab.com user to **retrieve, browse, enrich, and export** their owned asset library.
+
+---
+
+## Architecture Technical Structure
+
+### 1. File Structure
+
+- `app.py`: Main entry point (Flask server).
+- `lib/`: Business logic package.
+  - `routes.py`: API and web route definitions.
+  - `config_manager.py`: Centralized configuration (JSON files, cookies, UA).
+  - `cache_manager.py`: Distributed cache management (individual JSON files).
+  - `fetch_fab_library.py`: Integration with fab.com library search (session-based).
+  - `models.py`: Data models and mapping logic.
+  - `logging_setup.py`: Unified logging configuration.
+  - `errors.py`: API error contract and helpers.
+- `static/`: Frontend assets (Vanilla JS, CSS, HTML).
+- `assets/`: Individual JSON cache files.
+- `previews/`: Cached image thumbnails.
+- `config/`: User credentials and settings.
 
 ---
 
@@ -51,101 +71,28 @@ Because `cf_clearance` is tied to the exact browser UA, Python must send **the e
 
 ---
 
-## Discovered API Endpoints
+## API & Documentation
 
-Source: current Flask routes and the Fab.com library access flow.
-
-### Local configuration and diagnostics
-
-```
-GET  /api/config
-POST /api/config
-POST /api/config/logging
-GET  /api/diagnostic
-GET  /api/test
-```
-
-### Library synchronization and cache
-
-```
-POST /api/fetch
-GET  /api/missing_details
-GET  /api/cache-info
-POST /api/clear_previews
-POST /api/clear_cache
-GET  /api/status
-```
-
-### Library data and export
-
-```
-GET  /api/assets
-POST /api/assets/query
-GET  /api/lookup
-GET  /api/details/{uid}
-GET  /api/image/{uid}
-GET  /api/export-templates
-POST /api/export/json
-POST /api/export/csv
-POST /api/export/headless
-```
-
-### Retrieve account ID
-
-```
-GET https://www.fab.com/i/users/me/
-Headers: Cookie: <session cookies>
-Response: { "uid": "<account_id>", ... }
-```
-
-### Library asset list
-
-```
-GET https://www.fab.com/i/library/
-    ?sort_by=added_date
-    &order=desc
-    &count=100
-    &start=0
-Headers: Cookie: <session cookies>
-Response: {
-  "results": [ ...assets... ],
-  "total": <int>,
-  "next": "<next URL or null>"
-}
-```
-
-Pagination: use `start` and `count`; loop until `next == null` or `start >= total`.
-
-### Cache metadata
-
-```
-GET /api/cache-info
-```
-
-Used by the frontend badge to show the last cache synchronization time.
-
-### Reference sources
-
-- Full Rust app: https://github.com/AchetaGames/Epic-Asset-Manager
-- Rust API library: https://github.com/AchetaGames/egs-api-rs
-- fab.rs: https://raw.githubusercontent.com/AchetaGames/egs-api-rs/master/src/api/fab.rs
-- Fab library types: https://raw.githubusercontent.com/AchetaGames/egs-api-rs/master/src/api/types/fab_library.rs
-- Entitlement types: https://raw.githubusercontent.com/AchetaGames/egs-api-rs/master/src/api/types/fab_entitlement.rs
+For detailed information on API endpoints, request/response formats, and integration workflows, please refer to:
+- **[API_GUIDE.md](../API_GUIDE.md)**: Main developer reference for the local API.
 
 ---
 
-## Current Architecture
+## Technical Architecture Deep-Dive
 
 ```
 FabAssetsManager/
-├── app.py                  # Local Flask server (port 5002 by default)
-├── config_manager.py       # Centralized configuration parsing/validation/path resolution
-├── cache_manager.py        # Local cache management (JSON files, paths, utilities)
-├── fetch_fab_library.py    # API calls + pagination + cache logic
-├── routes.py               # Flask API routes and UI endpoints
-├── models.py               # Asset normalization and flattening model
-├── errors.py                # Standardized API error helpers
-├── requirements.txt        # python packages
+├── app.py                  # Entry point (port 5002 by default)
+├── lib/                    # Core business logic
+│   ├── __init__.py
+│   ├── config_manager.py   # Config parsing & path resolution
+│   ├── cache_manager.py    # Local cache management
+│   ├── fetch_fab_library.py# Fab.com library crawler
+│   ├── routes.py           # Flask API routes
+│   ├── models.py           # Data models
+│   ├── logging_setup.py    # Logging configuration
+│   └── errors.py           # API error contract
+├── requirements.txt        # Python packages
 ├── README.md
 ├── TODO.md                 # Prioritized tasks list
 ├── VERSION.txt
@@ -157,26 +104,22 @@ FabAssetsManager/
 ├── start_FabAssetsManager.bat
 ├── _helpers/               # Development and planning documents
 │   ├── PLAN_ACTIONS.md     # Detailed roadmap for current and future features
-│   ├── specs.md            # Initial specifications and notes
+│   ├── specs.md            # Specifications and notes
 │   ├── TROUBLESHOOTING.md  # Troubleshooting guide
 │   └── asset_example.json  # Data template reference
 ├── tests/                  # Unittests
-│   └── test_connection.py  # Connection test routine
-├── static/
-│   ├── index.html          # SPA shell and page markup
-│   ├── css/style.css       # Shared UI styling
-│   └── js/app.js           # Frontend behavior
+├── static/                 # Frontend assets (Vanilla JS, CSS, HTML)
 ├── assets/                 # Cached asset metadata (.json files per UID)
 └── previews/               # Cached preview images (.jpg files per UID)
 ```
 
 ### Runtime flow
 
-1. `python app.py` starts the Flask server and loads persisted configuration from `config/config.json`.
-2. Authentication relies on `config/cookies.txt` and `config/user_agent.txt`; the same machine/browser profile is expected when refreshing them.
+1. `python app.py` starts the Flask server and loads persisted configuration via `lib/config_manager.py`.
+2. Authentication relies on `config/cookies.txt` and `config/user_agent.txt`.
 3. Backend serves the cached assets from individual JSON files in `assets/` and cached thumbnails in `previews/`.
-4. `routes.py` exposes JSON endpoints for config, cache maintenance, asset lookup, details enrichment, and export.
-5. The UI in `static/index.html` and `static/js/app.js` manages sorting, filtering, detail modals, gallery navigation, and CSV/JSON export.
+4. `lib/routes.py` exposes JSON endpoints for config, cache maintenance, asset lookup, details enrichment, and export.
+5. The UI in `static/` manages sorting, filtering, detail modals, gallery navigation, and CSV/JSON export.
 
 ---
 

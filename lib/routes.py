@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """FabAssetsManager — API and web routes
 
-Version: 0.13.7
+Version: 0.13.8
 """
 
 import csv
@@ -13,8 +13,8 @@ from typing import Any
 
 from flask import Blueprint, Response, jsonify, request, send_from_directory
 
-from errors import ErrorCode
-from models import Asset
+from .errors import ErrorCode
+from .models import Asset
 
 bp = Blueprint("main", __name__)
 

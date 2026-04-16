@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """FabAssetsManager — API Tests
 
-Version: 0.13.7
+Version: 0.13.8
 """
 from pathlib import Path
 
