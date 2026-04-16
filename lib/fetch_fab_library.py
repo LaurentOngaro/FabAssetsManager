@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""FabAssetsManager — Fab.com Library Fetcher
-
-Version: 0.13.8
-
-Fetches all assets from your fab.com library via session cookies.
-"""
+# ============================================================================
+# FabAssetsManager - fetch_fab_library.py
+# ============================================================================
+# Description: Fab.com library crawler (API calls + pagination + cache logic).
+# Version: 0.13.8
+# ============================================================================
 
 import csv
 import json

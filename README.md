@@ -35,18 +35,13 @@ Local web application to manage, enrich, and explore your locally cached **fab.c
 - **Options**: downloadable only, hide adult content
 - **Sorting**: title (A↔Z), creation date, update date
 
-### 📊 User Interface
+### � Documentation
 
-- **Pagination**: 50 items/page, smooth navigation
-- **Selection**: individual or entire page
-- **Favorites**: star toggle in list and details modal to mark priority assets
-- **Local comments**: notes per asset stored locally (no cloud sync)
-- **Export**: CSV/JSON (selected or filtered assets)
-- **Headless export**: backend endpoint `/api/export/headless` writes JSON/CSV directly to local disk for automation scripts.
-- **Custom Export**: profils d'export textuels personnalisables (markdown, csv, texte) via une modale dédiée
-- **Extension auto**: `.csv`, `.md`, `.txt` selon le profil sélectionné
-- **CSV**: includes the asset UID first to simplify cache-file mapping
-- **Dark mode**: clean design optimized for long reading
+- **API Guide**: [API_GUIDE.md](./API_GUIDE.md) for detailed integration.
+- **Technical Specifications**: [.github/SPEC.md](.github/SPEC.md).
+- **Contributing**: [.github/CONTRIBUTING.md](.github/CONTRIBUTING.md).
+- **Security**: [.github/SECURITY.md](.github/SECURITY.md).
+- **Troubleshooting**: [_helpers/TROUBLESHOOTING.md](_helpers/TROUBLESHOOTING.md).
 
 ---
 

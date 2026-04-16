@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""FabAssetsManager — Standardized Error Handling
-
-Version: 0.13.8
-
-Central registry for all application error codes and utilities.
-"""
+# ============================================================================
+# FabAssetsManager - errors.py
+# ============================================================================
+# Description: Standardized API error contract and helper functions.
+# Version: 0.13.8
+# ============================================================================
 
 from enum import Enum
 from datetime import datetime

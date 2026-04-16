@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
-"""FabAssetsManager — API and web routes
-
-Version: 0.13.8
-"""
+# ============================================================================
+# FabAssetsManager - routes.py
+# ============================================================================
+# Description: API route definitions and web endpoints.
+# Version: 0.13.8
+# ============================================================================
 
 import csv
 import io

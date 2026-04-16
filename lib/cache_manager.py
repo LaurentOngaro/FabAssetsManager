@@ -1,82 +1,84 @@
 #!/usr/bin/env python3
-"""FabAssetsManager — Cache Management
+# ============================================================================
+# FabAssetsManager - cache_manager.py
+# ============================================================================
+# Description: Distributed cache management (individual JSON files).
+# Version: 0.13.8
 
-Version: 0.13.8
+# Individual asset file storage for the local cache.
 
-Individual asset file storage for the local cache.
+# This module implements a distributed cache system where each asset is stored
+# as an individual JSON file instead of a monolithic cache. This approach enables:
 
-This module implements a distributed cache system where each asset is stored
-as an individual JSON file instead of a monolithic cache. This approach enables:
+# ARCHITECTURE OVERVIEW:
+# ═════════════════════════════════════════════════════════════════════════════
 
-ARCHITECTURE OVERVIEW:
-═════════════════════════════════════════════════════════════════════════════
+# Cache Structure:
+#   assets/
+#     ├── <UID_1>.json          (individual asset 1)
+#     ├── <UID_2>.json          (individual asset 2)
+#     ├── ...
+#     ├── <UID_3480>.json       (individual asset 3480)
+#     └── last_update.txt       (metadata: count, oldest_created_at, last_update)
 
-Cache Structure:
-  assets/
-    ├── <UID_1>.json          (individual asset 1)
-    ├── <UID_2>.json          (individual asset 2)
-    ├── ...
-    ├── <UID_3480>.json       (individual asset 3480)
-    └── last_update.txt       (metadata: count, oldest_created_at, last_update)
+# Advantages of Individual Files:
+# - PARTIAL UPDATES: Fetch only new/modified assets (early stopping optimization)
+# - SCALABILITY: Add/remove assets without rewriting entire cache
+# - RESILIENCE: One corrupt file doesn't break entire cache
+# - MEMORY EFFICIENT: No need to load all assets simultaneously
+# - ASYNC FRIENDLY: Can load assets in parallel if needed
 
-Advantages of Individual Files:
-- PARTIAL UPDATES: Fetch only new/modified assets (early stopping optimization)
-- SCALABILITY: Add/remove assets without rewriting entire cache
-- RESILIENCE: One corrupt file doesn't break entire cache
-- MEMORY EFFICIENT: No need to load all assets simultaneously
-- ASYNC FRIENDLY: Can load assets in parallel if needed
+# Performance Characteristics:
+# - Add single asset: ~1ms (write one file)
+# - Load all 3480 assets: ~500ms (parallel I/O, JSON parsing)
+# - Check if asset exists: <1ms (filesystem stat)
+# - Update metadata: <1ms (small text file)
 
-Performance Characteristics:
-- Add single asset: ~1ms (write one file)
-- Load all 3480 assets: ~500ms (parallel I/O, JSON parsing)
-- Check if asset exists: <1ms (filesystem stat)
-- Update metadata: <1ms (small text file)
+# METADATA FILE FORMAT (last_update.txt):
+# ═════════════════════════════════════════════════════════════════════════════
 
-METADATA FILE FORMAT (last_update.txt):
-═════════════════════════════════════════════════════════════════════════════
+# count=3480
+# oldest_created_at=2024-01-15T10:30:00  (earliest createdAt from fetched assets)
+# last_update=2025-03-15T18:45:00        (ISO timestamp of last fetch)
 
-count=3480
-oldest_created_at=2024-01-15T10:30:00  (earliest createdAt from fetched assets)
-last_update=2025-03-15T18:45:00        (ISO timestamp of last fetch)
+# This metadata enables:
+# - Early stopping in partial updates (stop before oldest_created_at)
+# - Cache staleness detection in UI
+# - Quick asset count without filesystem scan
 
-This metadata enables:
-- Early stopping in partial updates (stop before oldest_created_at)
-- Cache staleness detection in UI
-- Quick asset count without filesystem scan
+# IMAGE CACHING (previews/):
+# ═════════════════════════════════════════════════════════════════════════════
 
-IMAGE CACHING (previews/):
-═════════════════════════════════════════════════════════════════════════════
+# Separate from asset cache:
+#   previews/
+#     ├── <UID_1>.jpg  (cached thumbnail from fab.com)
+#     ├── <UID_2>.jpg
+#     └── ...
 
-Separate from asset cache:
-  previews/
-    ├── <UID_1>.jpg  (cached thumbnail from fab.com)
-    ├── <UID_2>.jpg
-    └── ...
+# Managed by app.py /api/image/<uid> endpoint:
+# - First access: download from fab.com, save to previews/<uid>.jpg
+# - Subsequent: serve from disk cache (no network)
+# - Persistent: survives app restart (unlike in-memory cache)
 
-Managed by app.py /api/image/<uid> endpoint:
-- First access: download from fab.com, save to previews/<uid>.jpg
-- Subsequent: serve from disk cache (no network)
-- Persistent: survives app restart (unlike in-memory cache)
+# USAGE EXAMPLES:
+# ═════════════════════════════════════════════════════════════════════════════
 
-USAGE EXAMPLES:
-═════════════════════════════════════════════════════════════════════════════
+# # Save new asset (called during fetch)
+# asset = fetch_fab_library.fetch_all_assets(...)[0]
+# cache_manager.save_asset(asset)
 
-# Save new asset (called during fetch)
-asset = fetch_fab_library.fetch_all_assets(...)[0]
-cache_manager.save_asset(asset)
+# # Load all assets for display
+# assets = cache_manager.load_all_assets()  # Returns list of 3480 dicts
 
-# Load all assets for display
-assets = cache_manager.load_all_assets()  # Returns list of 3480 dicts
+# # Check if asset cached
+# if cache_manager.asset_exists("001d83fe-..."):
+#     asset = cache_manager.get_asset("001d83fe-...")
 
-# Check if asset cached
-if cache_manager.asset_exists("001d83fe-..."):
-    asset = cache_manager.get_asset("001d83fe-...")
-
-# Get metadata for partial updates
-metadata = cache_manager.load_update_metadata()
-last_update_date = metadata.get("oldest_created_at", "")
-fetch_fab_library.fetch_all_assets(..., last_update_date=last_update_date)
-"""
+# # Get metadata for partial updates
+# metadata = cache_manager.load_update_metadata()
+# last_update_date = metadata.get("oldest_created_at", "")
+# fetch_fab_library.fetch_all_assets(..., last_update_date=last_update_date)
+# ============================================================================
 
 import json
 import logging

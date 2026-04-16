@@ -1,9 +1,9 @@
-"""FabAssetsManager — Asset Data Model
-
-Version: 0.13.8
-
-Asset data model and mapping helpers.
-"""
+# ============================================================================
+# FabAssetsManager - models.py
+# ============================================================================
+# Description: Asset data models and mapping/flattening logic.
+# Version: 0.13.8
+# ============================================================================
 
 from dataclasses import dataclass
 from typing import List, Dict, Any

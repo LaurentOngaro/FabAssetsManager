@@ -1,13 +1,10 @@
 #!/usr/bin/env python3
-"""FabAssetsManager — Local Flask Server
-
-Version: 0.13.8
-
-Launch: python app.py
-Then open: http://localhost:5002
-
-NOTE: 5002 is the default port for the web interface, but the it can be changed in `config/config.json`
-"""
+# ============================================================================
+# FabAssetsManager - app.py
+# ============================================================================
+# Description: Local Flask server entry point and startup logic.
+# Version: 0.13.8
+# ============================================================================
 
 import sys
 import logging

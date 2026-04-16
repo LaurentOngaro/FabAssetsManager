@@ -1,8 +1,11 @@
 <!DOCTYPE html>
 <!--
-FabAssetsManager — Web Interface
-
+============================================================================
+FabAssetsManager - static/index.html
+============================================================================
+Description: Main HTML interface for browsing the asset library.
 Version: 0.13.8
+============================================================================
 
 Local HTML entry point for the FabAssetsManager interface.
 
@@ -70,28 +73,6 @@ This interface manages a local cache of fab.com assets (3480+ items) with:
     is_mature: boolean             // Adult content flag
     fab_url: "https://fab.com/..." // Direct link to fab.com
   }
-
-  KEY BACKEND ENDPOINTS:
-  ═════════════════════════════════════════════════════════════════════════════
-
-  GET /api/assets
-    → Returns all cached assets in flattened format with thumbnail_url
-
-  GET /api/image/<uid>
-    → Serves cached preview image or lazy-downloads from fab.com
-    → First access: Downloads from fab.com URL, saves to previews/<uid>.jpg
-    → Subsequent: Serves from disk cache
-
-  POST /api/export/csv | /api/export/json
-    → Export endpoint (body: {selected_uids: [...]})
-    → Empty array = export all cached assets
-
-  GET /api/cache-info
-    → Returns cache count and last sync timestamp for the UI badge
-
-  POST /api/fetch
-    → Refresh assets from fab.com (partial or full mode)
-    → Saves individual JSON files to assets/<uid>.json
 
   DEVELOPMENT NOTES:
   ═════════════════════════════════════════════════════════════════════════════
