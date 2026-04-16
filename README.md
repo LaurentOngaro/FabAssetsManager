@@ -1,6 +1,6 @@
 # FabAssetsManager
 
-Version: 0.13.8
+Version: 1.0.1
 
 Local web application to manage, enrich, and explore your locally cached **fab.com** asset library (Unreal Engine, Blender, etc.).
 
@@ -307,14 +307,3 @@ python fetch_fab_library.py \
 - **fab.com API**: based on work by [AchetaGames/egs-api-rs](https://github.com/AchetaGames/egs-api-rs)
 - **Cloudflare bypass**: [curl_cffi docs](https://github.com/lexiforest/curl_cffi)
 - **Problems?** → See [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
-
----
-
-## 📝 License
-
-MIT
-
----
-
-**Last updated**: April 15, 2026
-Release version is maintained in the header (`Version: x.y.z`) and synchronized by the version bump helper.

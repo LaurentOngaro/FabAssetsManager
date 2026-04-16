@@ -1,14 +1,21 @@
-"""FabAssetsManager — Test Configuration
+# ============================================================================
+# FabAssetsManager - Test Configuration
+# ============================================================================
+# Description: Shared pytest fixtures and configuration for FabAssetsManager tests.
+# Version: 1.0.1
+# ============================================================================
 
-Version: 0.13.8
-"""
-
-import sys
 import warnings
-from pathlib import Path
+import pytest
+import app
 
-# Add the root project directory to the Python path
-sys.path.insert(0, str(Path(__file__).parent.parent))
+
+@pytest.fixture
+def client():
+    app.app.config['TESTING'] = True
+    with app.app.test_client() as client:
+        yield client
+
 
 # Silence an environment-level warning emitted by langsmith on Python 3.14+.
 warnings.filterwarnings(

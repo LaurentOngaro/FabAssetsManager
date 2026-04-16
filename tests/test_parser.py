@@ -1,8 +1,10 @@
-#!/usr/bin/env python3
-"""FabAssetsManager — Parser Tests
+# ============================================================================
+# FabAssetsManager - Parser Tests
+# ============================================================================
+# Description: Unit tests for the asset parsing logic.
+# Version: 1.0.1
+# ============================================================================
 
-Version: 0.13.8
-"""
 from lib.models import Asset
 
 

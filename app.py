@@ -1,9 +1,8 @@
-#!/usr/bin/env python3
 # ============================================================================
 # FabAssetsManager - app.py
 # ============================================================================
 # Description: Local Flask server entry point and startup logic.
-# Version: 0.13.8
+# Version: 1.0.1
 # ============================================================================
 
 import sys
@@ -88,6 +87,18 @@ def get_logging_settings() -> tuple[str, str]:
 
 def save_logging_settings(level: str, output: str) -> None:
     config_manager.save_logging_settings(level, output)
+
+
+def configure_logger(level_str="INFO", output_str="both"):
+    """Helper for routes to reconfigure logging using current settings."""
+    settings = load_settings()
+    configure_logging(
+        log_level=level_str,
+        log_output=output_str,
+        log_max_bytes=settings.get("log_max_bytes", 5 * 1024 * 1024),
+        log_backup_count=settings.get("log_backup_count", 2),
+        log_file_path=APP_DIR / settings.get("log_file", "app.log"),
+    )
 
 
 def prompt_config():

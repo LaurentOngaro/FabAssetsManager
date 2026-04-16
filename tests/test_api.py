@@ -1,19 +1,13 @@
-#!/usr/bin/env python3
-"""FabAssetsManager — API Tests
+# ============================================================================
+# FabAssetsManager - API Tests
+# ============================================================================
+# Description: Tests for Flask API endpoints and contract validation.
+# Version: 1.0.1
+# ============================================================================
 
-Version: 0.13.8
-"""
 from pathlib import Path
 
-import pytest
 import app
-
-
-@pytest.fixture
-def client():
-    app.app.config['TESTING'] = True
-    with app.app.test_client() as client:
-        yield client
 
 
 def test_index_route(client):
@@ -89,12 +83,26 @@ def test_api_lookup_by_name_and_url(client, monkeypatch):
     assert by_url.json["matches"][0]["uid"] == "uid-123"
 
 
+def _assert_error_contract(payload, expected_code: str, expected_status: int):
+    assert payload is not None
+    assert "error" in payload
+    assert payload["error"]["code"] == expected_code
+    assert payload["error"]["http_status"] == expected_status
+    assert "message" in payload["error"]
+    assert "timestamp" in payload["error"]
+    assert "path" in payload["error"]
+
+
 def test_api_config_rejects_invalid_json_payload(client):
     response = client.post('/api/config', data='{"cookies":', content_type='application/json')
-
     assert response.status_code == 400
-    assert response.json["error"]["code"] == "INVALID_REQUEST"
-    assert response.json["error"]["path"] == "/api/config"
+    _assert_error_contract(response.json, "INVALID_REQUEST", 400)
+
+
+def test_api_config_logging_rejects_invalid_level(client):
+    response = client.post('/api/config/logging', json={"level": "SUPER_DEBUG", "output": "both"})
+    assert response.status_code == 400
+    _assert_error_contract(response.json, "INVALID_REQUEST", 400)
 
 
 def test_api_diagnostic(client, monkeypatch, tmp_path):

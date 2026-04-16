@@ -1,8 +1,10 @@
-#!/usr/bin/env python3
-"""FabAssetsManager — Cache Tests
+# ============================================================================
+# FabAssetsManager - Cache Tests
+# ============================================================================
+# Description: Unit tests for the cache management system, including asset saving, loading, and metadata handling.
+# Version: 1.0.1
+# ============================================================================
 
-Version: 0.13.8
-"""
 import pytest
 import lib.cache_manager as cache_manager
 

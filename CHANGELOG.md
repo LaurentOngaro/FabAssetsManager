@@ -1,6 +1,22 @@
 # Changelog
 
-Version: 0.13.8
+Version: 1.0.1
+
+## [1.0.1] - 2026-04-16
+
+### Changed
+
+- Fixed test fixtures and module imports after moving the backend into `lib/`.
+- Added export regression coverage and tightened API error handling.
+- Standardized documentation and file headers across the project.
+
+## [1.0.0] - 2026-04-16
+
+### Changed
+
+- Global codebase formatting and uniformization (Python, HTML, CSS, JS).
+- Standardized file headers across all project files to match UnityAssetsManager format.
+- UI styling and layout improvements.
 
 ## [0.13.8] - 2026-04-16
 

@@ -1,9 +1,8 @@
-#!/usr/bin/env python3
 # ============================================================================
 # FabAssetsManager - errors.py
 # ============================================================================
 # Description: Standardized API error contract and helper functions.
-# Version: 0.13.8
+# Version: 1.0.1
 # ============================================================================
 
 from enum import Enum

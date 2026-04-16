@@ -1,12 +1,12 @@
-#!/usr/bin/env python3
 # ============================================================================
 # FabAssetsManager - cache_manager.py
 # ============================================================================
 # Description: Distributed cache management (individual JSON files).
-# Version: 0.13.8
+# Version: 1.0.1
+# ============================================================================
 
 # Individual asset file storage for the local cache.
-
+#
 # This module implements a distributed cache system where each asset is stored
 # as an individual JSON file instead of a monolithic cache. This approach enables:
 

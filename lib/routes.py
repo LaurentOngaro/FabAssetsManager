@@ -1,9 +1,8 @@
-#!/usr/bin/env python3
 # ============================================================================
 # FabAssetsManager - routes.py
 # ============================================================================
 # Description: API route definitions and web endpoints.
-# Version: 0.13.8
+# Version: 1.0.1
 # ============================================================================
 
 import csv
@@ -333,11 +332,19 @@ def api_config_logging_save():
     _app = _app_module()
     data = request.get_json(silent=True) or {}
     log_level = str(data.get("level", "INFO")).upper()
-    log_output = str(data.get("output", "Both"))
+    log_output = str(data.get("output", "both")).lower()
+
     if log_level not in {"DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"}:
-        log_level = "INFO"
-    if log_output not in {"Console", "File", "Both"}:
-        log_output = "Both"
+        return _app.create_error_response(
+            ErrorCode.INVALID_REQUEST,
+            message=f"Invalid log level: {log_level}",
+            details={"allowed": ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]}
+        )
+
+    if log_output not in {"console", "file", "both"}:
+        return _app.create_error_response(
+            ErrorCode.INVALID_REQUEST, message=f"Invalid log output: {log_output}", details={"allowed": ["console", "file", "both"]}
+        )
 
     _app.save_logging_settings(log_level, log_output)
     _app.configure_logger(log_level, log_output)

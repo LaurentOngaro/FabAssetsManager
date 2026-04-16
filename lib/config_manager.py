@@ -2,7 +2,7 @@
 # FabAssetsManager - config_manager.py
 # ============================================================================
 # Description: Centralized configuration parsing, validation, and path resolution.
-# Version: 0.13.8
+# Version: 1.0.1
 # ============================================================================
 
 import json
