@@ -31,7 +31,7 @@
     "description": "Liste Markdown à puces avec lien sur le nom : TITRE(URL) - VENDEUR - TYPE - TAGS",
     "pattern": "- [%title%](%fab_url%) - %seller_name% - %listing_type% - %tags%"
   },
-  "TerraBloom V2 - FAB raw normalize (markdown)": {
+  "TerraBloom - raw normalize (markdown)": {
     "description": "Template recommandé TerraBloom : TITRE(URL) - VENDEUR - TYPE - UID (compatible buildStoreRawNormalized)",
     "pattern": "- [%title%](%fab_url%) - %seller_name% - %listing_type% - %uid%"
   },
