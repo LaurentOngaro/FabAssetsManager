@@ -1,6 +1,12 @@
-# Plan d'Action - FabAssetsManager
+# PLAN D'ACTIONS
 
-Ce document ordonne et détaille les étapes d'implémentation selon les définies dans le fichier `TODO.md`.
+Ce document détaille (et décrits les étapes d'implémentation) de certaines des taches présentes dans le fichier `TODO.md`.
+Un regroupement par Sprints peut être envisagé dans ce document, selon le nombre de tâches à implémenter.
+La priorisation des tâches est définie dans `TODO.md` et doit être respectée pour éviter de se disperser sur des points moins urgents.
+
+## Contexte et Lignes Directrices (Héritées du plan de migration)
+
+- **Séparation des rôles** : Garder une séparation claire entre l'outil applicatif (`FABAssetsManager`) et le pipeline de curation (`_Helpers/04_Assets/AssetsCuration/`).
 
 **REGLE D'OR : Toujours proposer d'effectuer les corrections de bugs et les corrections immédiates en premier. Elles sont listées dans les section "Corrections immédiates" et "Bugs" du fichier `TODO.md`.**
 
@@ -15,8 +21,6 @@ Chaque fois qu'une modification est teminée:
   - déplacer la tache au début de la section "Terminés" à la fin du fichier (ex: `### Terminés`)
 
 ## TOP Priorités (pour les corrections immédiates)
-
-- Note: l'ordre d'implementation detaille est desormais porte par `TODO.md`; ce document regroupe les chantiers par theme et par nature de travail.
 
 ## Refactoring
 
