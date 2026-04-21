@@ -1,6 +1,12 @@
 # Changelog
 
-Version: 1.0.2
+Version: 1.0.3
+
+## [1.0.3] - 2026-04-21
+
+### Fixed
+
+- Fixed a bug in the version bump script that was not updating the version in `_helpers/bumpImportantVersion.py`, causing versions to be out of sync between tracked files.
 
 ## [1.0.2] - 2026-04-16
 

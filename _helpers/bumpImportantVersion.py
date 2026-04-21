@@ -60,6 +60,10 @@ def important_file_paths() -> list[Path]:
     return resolve_paths(load_config()["important_files"])
 
 
+def important_file_specs() -> list[str]:
+    return [str(Path(relative_path).as_posix()) for relative_path in load_config()["important_files"]]
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Bump version for UnityAssetsManager important files only")
     parser.add_argument("--scope", choices=["patch", "minor", "major"], default="patch", help="Semver bump scope")
@@ -80,17 +84,17 @@ def get_repo_root() -> Path | None:
     return Path(probe.stdout.strip())
 
 
-def normalize_repo_path(path: Path, repo_root: Path) -> str:
-    return str(path.resolve().relative_to(repo_root.resolve())).replace("\\", "/")
-
-
 def changed_important_files(base_ref: str, repo_root: Path | None) -> list[str]:
     if repo_root is None:
         return []
 
-    rel_paths = [normalize_repo_path(path, repo_root) for path in important_file_paths()]
+    rel_paths = important_file_specs()
+
+    if not rel_paths:
+        return []
+
     cmd = ["git", "diff", "--name-only", base_ref, "--", *rel_paths]
-    probe = run_git_command(cmd, repo_root)
+    probe = run_git_command(cmd, APP_ROOT)
     if probe.returncode != 0:
         return []
 

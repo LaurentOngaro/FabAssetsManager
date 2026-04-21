@@ -1,6 +1,7 @@
 {
   "important_files": [
     "app.py",
+    "_helpers/bumpImportantVersion.py",
     "lib/cache_manager.py",
     "lib/config_manager.py",
     "lib/errors.py",

@@ -2,7 +2,7 @@
 # FabAssetsManager - errors.py
 # ============================================================================
 # Description: Standardized API error contract and helper functions.
-# Version: 1.0.2
+# Version: 1.0.3
 # ============================================================================
 
 from enum import Enum

@@ -2,7 +2,7 @@
 # FabAssetsManager - Parser Tests
 # ============================================================================
 # Description: Unit tests for the asset parsing logic.
-# Version: 1.0.2
+# Version: 1.0.3
 # ============================================================================
 
 from lib.models import Asset
