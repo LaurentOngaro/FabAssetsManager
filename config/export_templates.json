@@ -32,8 +32,8 @@
     "pattern": "- [%title%](%fab_url%) - %seller_name% - %listing_type% - %tags%"
   },
   "TerraBloom - raw normalize (markdown)": {
-    "description": "Template recommandé TerraBloom : TITRE(URL) - VENDEUR - TYPE - UID (compatible buildStoreRawNormalized)",
-    "pattern": "- [%title%](%fab_url%) - %seller_name% - %listing_type% - %uid%"
+    "description": "Template recommandé TerraBloom : NOM | SLUG | URL | CATÉGORIE | ÉDITEUR",
+    "pattern": "| %title% | %uid% | %fab_url% | %listing_type% | %seller_name% |"
   },
   "UE version tracking": {
     "description": "Suivi des versions Unreal Engine : TITRE(URL) - VENDEUR - MAX_UE",

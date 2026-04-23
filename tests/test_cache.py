@@ -2,7 +2,7 @@
 # FabAssetsManager - Cache Tests
 # ============================================================================
 # Description: Unit tests for the cache management system, including asset saving, loading, and metadata handling.
-# Version: 1.0.3
+# Version: 1.0.4
 # ============================================================================
 
 import pytest

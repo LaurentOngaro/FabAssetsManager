@@ -1,6 +1,6 @@
 # FabAssetsManager (FAM)
 
-Version: 1.0.3
+Version: 1.0.4
 
 Local web application to manage, enrich, and explore your locally cached **fab.com** asset library (Unreal Engine, Blender, etc.).
 
@@ -164,8 +164,8 @@ Click **Title**, **Added**, or **Updated** to toggle sort ascending ↔ descendi
 2. Click **⬇ CSV**, **⬇ JSON**, or **⬇ Custom Export**
 3. If no selection → exports all **filtered** assets
 4. File named:
-   - Standard export: `fab_export_YYYY-MM-DD.csv|json`
-   - Custom export: `Fab_export.csv|md|txt` (extension auto selon profil)
+   - Standard export: `raw_assets_YYYY-MM-DD.csv|json`
+   - Custom export: `raw_assets.csv|md|txt` (extension auto selon profil)
 
 ### Favorites & Local Notes
 

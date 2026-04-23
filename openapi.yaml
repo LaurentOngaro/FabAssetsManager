@@ -5,7 +5,7 @@ openapi: 3.1.0
 info:
   title: FabAssetsManager API
   description: Local API to manage and query your Fab.com asset library. 5002 is the default port and can be changed in the config. Favorites/comments annotations are frontend-local (localStorage) and intentionally outside this API contract.
-  version: 1.0.3
+  version: 1.0.4
 servers:
   - url: http://localhost:5002
     description: Local development server
@@ -526,7 +526,7 @@ paths:
   /api/export/csv:
     post:
       summary: Export cached assets as CSV
-      description: Returns a downloadable CSV export of cached assets, optionally filtered by selected UIDs.
+      description: Returns a downloadable CSV export of cached assets, optionally filtered by selected UIDs. Filename is `raw_assets_YYYY-MM-DD.csv`.
       requestBody:
         required: false
         content:
@@ -545,6 +545,32 @@ paths:
       responses:
         '200':
           description: CSV export.
+
+  /api/export/custom:
+    post:
+      summary: Custom export with pattern
+      description: Generates a custom export file based on a pattern, adds headers, and optionally formats Markdown via a local linter. Filename is `raw_assets.<ext>`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [pattern]
+              properties:
+                pattern:
+                  type: string
+                extension:
+                  type: string
+                selected_uids:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: Exported file content.
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
 
   /api/export/headless:
     post:

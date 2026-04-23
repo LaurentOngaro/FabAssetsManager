@@ -2,7 +2,7 @@
 # FabAssetsManager - cache_manager.py
 # ============================================================================
 # Description: Distributed cache management (individual JSON files).
-# Version: 1.0.3
+# Version: 1.0.4
 # ============================================================================
 
 # Individual asset file storage for the local cache.

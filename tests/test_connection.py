@@ -2,7 +2,7 @@
 # FabAssetsManager - API Test
 # ============================================================================
 # Description: Diagnostic script to test connection to fab.com and troubleshoot Cloudflare issues.
-# Version: 1.0.3
+# Version: 1.0.4
 # ============================================================================
 
 import sys

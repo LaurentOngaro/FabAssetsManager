@@ -2,13 +2,15 @@
 # FabAssetsManager - routes.py
 # ============================================================================
 # Description: API route definitions and web endpoints.
-# Version: 1.0.3
+# Version: 1.0.4
 # ============================================================================
 
 import csv
 import io
 import json
 import os
+import re
+import subprocess
 from datetime import datetime
 from typing import Any
 
@@ -717,7 +719,7 @@ def export_json():
     return Response(
         json.dumps(flat, ensure_ascii=False, indent=2),
         mimetype="application/json",
-        headers={"Content-Disposition": f"attachment; filename=fab_library_{len(flat)}_items.json"},
+        headers={"Content-Disposition": f"attachment; filename=raw_assets_{datetime.now().strftime('%Y-%m-%d')}.json"},
     )
 
 
@@ -760,7 +762,9 @@ def export_csv():
     for asset in flat:
         writer.writerow({key: asset.get(key, "") for key in fieldnames})
     return Response(
-        output.getvalue(), mimetype="text/csv", headers={"Content-Disposition": f"attachment; filename=fab_library_{len(flat)}_items.csv"},
+        output.getvalue(),
+        mimetype="text/csv",
+        headers={"Content-Disposition": f"attachment; filename=raw_assets_{datetime.now().strftime('%Y-%m-%d')}.csv"},
     )
 
 
@@ -846,6 +850,94 @@ def export_headless():
     except Exception as e:
         _app.logger.error(f"Error during headless export: {e}", exc_info=True)
         return _app.create_error_response(ErrorCode.INTERNAL_ERROR, message=f"Failed to write file to disk: {e}")
+
+
+@bp.route("/api/export/custom", methods=["POST"])
+def export_custom():
+    """Custom export with pattern matching and optional formatting."""
+    _app = _app_module()
+    data = request.get_json(silent=True)
+    if not data:
+        return _app.create_error_response(ErrorCode.INVALID_REQUEST, message="Missing JSON payload")
+
+    pattern = data.get("pattern")
+    if not pattern:
+        return _app.create_error_response(ErrorCode.MISSING_PARAMETER, message="Pattern is required")
+
+    extension = data.get("extension", "txt")
+    selected_uids = data.get("selected_uids", [])
+
+    assets = _app.get_assets()
+    if selected_uids:
+        assets = [a for a in assets if a.get("listing", {}).get("uid") in selected_uids]
+
+    flat_assets = [Asset(a).to_dict() for a in assets]
+    if not flat_assets:
+        return _app.create_error_response(ErrorCode.NO_RESULTS, message="No assets to export")
+
+    output_lines = []
+
+    # 1. Markdown title
+    if extension == "md":
+        output_lines.append("# raw_assets\n")
+
+    # 2. Header row
+    placeholders = re.findall(r"%([^%]+)%", pattern)
+    if placeholders:
+        header_line = pattern
+        for p in placeholders:
+            header_line = header_line.replace(f"%{p}%", p)
+        output_lines.append(header_line)
+
+        # Add markdown table separator if it looks like a table
+        if extension == "md" and pattern.strip().startswith("|") and pattern.strip().endswith("|"):
+            parts = pattern.strip().split("|")
+            sep_parts = []
+            for i, part in enumerate(parts):
+                if i == 0 or i == len(parts) - 1:
+                    sep_parts.append("")
+                else:
+                    sep_parts.append("---")
+            output_lines.append("|".join(sep_parts))
+
+    # 3. Data lines
+    for asset in flat_assets:
+        line = pattern
+        for key, value in asset.items():
+            placeholder = f"%{key}%"
+            if placeholder in line:
+                line = line.replace(placeholder, str(value if value is not None else ""))
+        output_lines.append(line)
+
+    content = "\n".join(output_lines)
+
+    # 4. Markdown linter
+    if extension == "md":
+        try:
+            import tempfile
+
+            # Use a temporary file
+            fd, tmp_path = tempfile.mkstemp(suffix=".md")
+            try:
+                with os.fdopen(fd, "w", encoding="utf-8") as tmp:
+                    tmp.write(content)
+
+                linter_script = r"H:\Sync\Scripts\Windows\04c_dev_scripts\run_linters.ps1"
+                if os.path.exists(linter_script):
+                    subprocess.run(["powershell.exe", "-File", linter_script, tmp_path], capture_output=True, check=False, shell=True)
+                    with open(tmp_path, "r", encoding="utf-8") as f:
+                        content = f.read()
+            finally:
+                if os.path.exists(tmp_path):
+                    os.remove(tmp_path)
+        except Exception as e:
+            _app.logger.warning(f"Linter execution failed: {e}")
+
+    return Response(
+        content,
+        mimetype="text/markdown" if extension == "md" else "text/plain",
+        headers={"Content-Disposition": f"attachment; filename=raw_assets.{extension}"},
+    )
 
 
 @bp.route("/api/status")

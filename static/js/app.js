@@ -2205,7 +2205,7 @@ async function exportAssets(format) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `fab_export_${new Date().toISOString().slice(0, 10)}.${format}`;
+    a.download = `raw_assets_${new Date().toISOString().slice(0, 10)}.${format}`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -2344,42 +2344,45 @@ async function performCustomExport() {
   const profile = exportTemplates[profileName];
   const extension = resolveCustomExportExtension(profileName, profile.pattern);
 
-  let targetAssets = [];
-  if (selectedAssets.size > 0) {
-    targetAssets = filteredAssets.filter((a) => selectedAssets.has(a.uid));
-  } else if (isServerModeActive && !requiresLegacyModeFromState(collectFiltersState())) {
+  let uids = Array.from(selectedAssets);
+  if (uids.length === 0 && isServerModeActive && !requiresLegacyModeFromState(collectFiltersState())) {
     try {
-      targetAssets = await queryAllFilteredAssets(collectFiltersState());
+      uids = await queryAllFilteredUids(collectFiltersState());
     } catch (e) {
       alert('❌ Error preparing custom export: ' + e.message);
       return;
     }
-  } else {
-    targetAssets = filteredAssets;
   }
 
-  let output = [];
-  targetAssets.forEach((asset) => {
-    let line = profile.pattern;
-    line = line.replace(/%uid%/g, asset.uid || '');
-    line = line.replace(/%title%/g, asset.title || '');
-    line = line.replace(/%seller_name%/g, asset.seller_name || '');
-    line = line.replace(/%listing_type%/g, asset.listing_type || '');
-    line = line.replace(/%ue_max%/g, asset.ue_max || '');
-    line = line.replace(/%engine_versions%/g, asset.engine_versions || '');
-    line = line.replace(/%licenses%/g, asset.licenses || '');
-    line = line.replace(/%fab_url%/g, asset.fab_url || '');
-    line = line.replace(/%price%/g, asset.price || '');
-    line = line.replace(/%tags%/g, asset.tags || '');
-    output.push(line);
-  });
+  const payload = {
+    pattern: profile.pattern,
+    extension: extension,
+    selected_uids: uids,
+  };
 
-  const blob = new Blob([output.join('\n')], { type: 'text/plain;charset=utf-8' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `Fab_export.${extension}`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  closeExportModal();
+  try {
+    const resp = await fetch('/api/export/custom', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+
+    if (!resp.ok) {
+      alert('❌ Export error: ' + (await resp.text()));
+      return;
+    }
+
+    const blob = await resp.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `raw_assets.${extension}`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    closeExportModal();
+  } catch (e) {
+    alert('❌ Error: ' + e.message);
+  }
 }

@@ -1,6 +1,6 @@
 # FabAssetsManager API Guide
 
-**Version:** 1.0.3
+**Version:** 1.0.4
 
 This guide explains how to integrate the FabAssetsManager API into your workflows (e.g., TerraBloom curation pipeline).
 
@@ -69,15 +69,12 @@ To display thumbnails, use `/api/image/{uid}`.
 - **`POST /api/clear_previews`**: Supprime toutes les images de prévisualisation enregistrées localement dans le dossier des previews.
 - **`POST /api/clear_cache`**: Supprime tous les fichiers de cache des assets et remet à zéro l'état du cache local.
 
-### 5. Custom Export Profiles
+### 5. Export Profiles
 
 - **`GET /api/export-templates`**: Retourne les profils d'export personnalisés utilisés par la modale **Custom Export**.
-- **`POST /api/export/json`** et **`POST /api/export/csv`**: exportent les assets, avec filtrage optionnel par UID sélectionnés.
+- **`POST /api/export/json`** et **`POST /api/export/csv`**: exportent les assets, avec filtrage optionnel par UID sélectionnés. Le nom par défaut est `raw_assets_YYYY-MM-DD.<ext>`.
+- **`POST /api/export/custom`**: génère un export personnalisé basé sur un pattern, ajoute une ligne d'en-tête, et formate le Markdown via un linter externe si disponible.
 - **`POST /api/export/headless`**: exporte directement vers un fichier local via `output_path` ou `output_dir` + `file_name` (mode automatisation sans téléchargement navigateur).
-- Le frontend applique le pattern sélectionné asset par asset, puis choisit automatiquement l'extension du fichier exporté:
-  - `.csv` pour les profils CSV
-  - `.md` pour les profils Markdown
-  - `.txt` pour les autres profils texte
 
 ### 6. Local User Annotations (FEAT3 / FEAT5)
 

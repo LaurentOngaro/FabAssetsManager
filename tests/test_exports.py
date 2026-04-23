@@ -2,7 +2,7 @@
 # FabAssetsManager - Export Tests
 # ============================================================================
 # Description: Unit tests for JSON, CSV, and Headless export endpoints.
-# Version: 1.0.3
+# Version: 1.0.4
 # ============================================================================
 
 import pytest

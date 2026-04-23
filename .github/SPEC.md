@@ -1,6 +1,6 @@
 # FabAssetsManager — Specifications & Development Notes
 
-Version: 1.0.3
+Version: 1.0.4
 Last reviewed: 2026-04-16
 
 ## Context

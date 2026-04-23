@@ -1,6 +1,19 @@
 # Changelog
 
-Version: 1.0.3
+Version: 1.0.4
+
+## [1.0.4] - 2026-04-23
+
+### Added
+
+- Nouvel endpoint `/api/export/custom` pour gérer les exports personnalisés côté serveur.
+- Support du formatage automatique des fichiers Markdown via un script PowerShell (`run_linters.ps1`).
+- Ajout automatique d'un titre H1 (nom du fichier) et d'un en-tête de colonnes dans les exports Markdown et personnalisés.
+
+### Changed
+
+- Renommage des fichiers d'export par défaut de `fab_export` à `raw_assets`.
+- Migration de la logique d'export personnalisé du frontend vers le backend pour permettre le post-traitement.
 
 ## [1.0.3] - 2026-04-21
 
