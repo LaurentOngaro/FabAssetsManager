@@ -2,7 +2,7 @@
 # FabAssetsManager - logging_setup.py
 # ============================================================================
 # Description: Application logging configuration (console + file rotation).
-# Version: 1.0.4
+# Version: 1.1.0
 # ============================================================================
 
 from __future__ import annotations

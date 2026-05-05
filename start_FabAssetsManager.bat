@@ -1,4 +1,10 @@
 @echo off
+:: =============================================================================
+:: FabAssetsManager  - start_FabAssetsManager.bat
+:: ============================================================================
+:: Description: Launcher script that detects Python and starts the Flask server.
+:: Version: 1.0.4
+:: =============================================================================
 setlocal
 
 cd /d "%~dp0"

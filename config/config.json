@@ -13,5 +13,6 @@
   "log_level": "INFO",
   "log_output": "both",
   "log_max_bytes": 5242880,
-  "log_backup_count": 2
+  "log_backup_count": 2,
+  "version": "1.0.4"
 }

@@ -2,7 +2,7 @@
 # FabAssetsManager - API Tests
 # ============================================================================
 # Description: Tests for Flask API endpoints and contract validation.
-# Version: 1.0.4
+# Version: 1.1.0
 # ============================================================================
 
 from pathlib import Path

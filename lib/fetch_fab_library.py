@@ -2,7 +2,7 @@
 # FabAssetsManager - fetch_fab_library.py
 # ============================================================================
 # Description: Fab.com library crawler (API calls + pagination + cache logic).
-# Version: 1.0.4
+# Version: 1.1.0
 # ============================================================================
 
 import csv

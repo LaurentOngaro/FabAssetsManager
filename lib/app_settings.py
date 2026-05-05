@@ -2,7 +2,7 @@
 # FabAssetsManager - app_settings.py
 # ============================================================================
 # Description: Configuration constants and default application paths.
-# Version: 1.0.4
+# Version: 1.1.0
 # ============================================================================
 
 from pathlib import Path
@@ -26,5 +26,6 @@ DEFAULT_SETTINGS = {
     "log_level": "INFO",
     "log_output": "both",
     "log_max_bytes": 5 * 1024 * 1024,
-    "log_backup_count": 2
+    "log_backup_count": 2,
+    "version": "1.0.0"
 }

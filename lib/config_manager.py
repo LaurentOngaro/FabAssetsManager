@@ -2,11 +2,12 @@
 # FabAssetsManager - config_manager.py
 # ============================================================================
 # Description: Centralized configuration parsing, validation, and path resolution.
-# Version: 1.0.4
+# Version: 1.1.0
 # ============================================================================
 
 import json
 from pathlib import Path
+
 from .app_settings import APP_DIR, DEFAULT_CONFIG_DIR as _DEFAULT_CONFIG_DIR, CONFIG_FILE, DEFAULT_SETTINGS
 
 
@@ -67,6 +68,14 @@ def load_settings() -> dict:
         modified = True
     else:
         current_settings["log_output"] = log_output
+
+    version_file = APP_DIR / "VERSION.txt"
+    if version_file.exists():
+        try:
+            current_settings["version"] = version_file.read_text().strip()
+            modified = True
+        except Exception:
+            pass
 
     if modified:
         save_settings(current_settings)

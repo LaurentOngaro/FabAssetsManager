@@ -2,7 +2,7 @@
 # FabAssetsManager - app.py
 # ============================================================================
 # Description: Local Flask server entry point and startup logic.
-# Version: 1.0.4
+# Version: 1.1.0
 # ============================================================================
 
 import sys
@@ -237,8 +237,11 @@ if __name__ == "__main__":
     server_host = settings.get("server_host", "127.0.0.1")
     flask_debug = settings.get("flask_debug", False)
     flask_threaded = settings.get("flask_threaded", True)
+    version = settings.get("version", "1.0.0")
 
+    print("=" * 40)
     print("🚀 FabAssetsManager")
+    print(f"version: {version}")
     print("=" * 40)
 
     print(f"\nOpen: http://{server_host}:{server_port}\n")
