@@ -2,7 +2,7 @@
 # FabAssetsManager - app_settings.py
 # ============================================================================
 # Description: Configuration constants and default application paths.
-# Version: 1.1.0
+# Version: 1.1.1
 # ============================================================================
 
 from pathlib import Path

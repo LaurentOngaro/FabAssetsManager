@@ -2,7 +2,7 @@
 # FabAssetsManager - models.py
 # ============================================================================
 # Description: Asset data models and mapping/flattening logic.
-# Version: 1.1.0
+# Version: 1.1.1
 # ============================================================================
 
 from dataclasses import dataclass

@@ -4,7 +4,7 @@
 FabAssetsManager - static/index.html
 ============================================================================
 Description: Main HTML interface for browsing the asset library.
-Version: 1.1.0
+Version: 1.1.1
 ============================================================================
 
 Local HTML entry point for the FabAssetsManager interface.
@@ -106,9 +106,13 @@ This interface manages a local cache of fab.com assets (3480+ items) with:
   <button class="btn btn-ghost btn-sm" id="btnStopScrap" style="display:none; color:var(--red);" title="Stop current scraping process" onclick="stopBatchDetails()">⏹ Stop Scraping</button>
   <button class="btn btn-ghost btn-sm" title="Load new assets (merge with cache)" onclick="handleLoadLibraryClick()">🔄 Get New Assets</button>
   <button class="btn btn-ghost btn-sm" title="Download all assets (replace cache)" onclick="handleForceRefresh()">⚡ Full Update</button>
-  <button class="btn btn-green btn-sm" onclick="exportAssets('csv')">⬇ CSV</button>
-  <button class="btn btn-primary btn-sm" onclick="openExportModal()">⬇ Custom Export</button>
-  <button class="btn btn-ghost btn-sm" onclick="exportAssets('json')">⬇ JSON</button>
+  <div class="export-block" style="display:flex;align-items:center;gap:6px">
+    <span style="font-weight:600; font-size:0.95rem;">Export</span>
+    <button class="btn btn-green btn-sm" onclick="exportAssets('csv')">CSV</button>
+    <button class="btn btn-ghost btn-sm" onclick="exportAssets('json')">JSON</button>
+    <button class="btn btn-primary btn-sm" onclick="openExportModal()">Custom</button>
+    <span class="badge" id="lastExportBadge" style="display:none; background:var(--bg3);">—</span>
+  </div>
 </header>
 
 <!-- Layout -->

@@ -10,9 +10,9 @@
   "ua_file": "config/user_agent.txt",
   "last_update_file": "assets/last_update.txt",
   "log_file": "app.log",
-  "log_level": "INFO",
-  "log_output": "both",
+  "log_level": "WARNING",
+  "log_output": "console",
   "log_max_bytes": 5242880,
   "log_backup_count": 2,
-  "version": "1.0.4"
+  "version": "1.1.0"
 }

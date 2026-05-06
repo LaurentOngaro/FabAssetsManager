@@ -2,7 +2,7 @@
 # FabAssetsManager - app.py
 # ============================================================================
 # Description: Local Flask server entry point and startup logic.
-# Version: 1.1.0
+# Version: 1.1.1
 # ============================================================================
 
 import sys

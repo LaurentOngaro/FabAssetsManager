@@ -1,10 +1,10 @@
 /* ============================================================================
-* FabAssetsManager - static/js/app.js
-* ============================================================================
-* Description: Frontend application logic (Vanilla JS) for the asset library.
-* Version: 0.13.8
-* ============================================================================
-*/
+ * FabAssetsManager - static/js/app.js
+ * ============================================================================
+ * Description: Frontend application logic (Vanilla JS) for the asset library.
+ * Version: 0.13.8
+ * ============================================================================
+ */
 
 // ─────────────────────────────────────────────────────────────────────────
 // GLOBAL STATE VARIABLES
@@ -2210,6 +2210,23 @@ async function exportAssets(format) {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+
+    // Log filename and show GUI message
+    try {
+      const filename = a.download || `raw_assets_${new Date().toISOString().slice(0, 10)}.${format}`;
+      message = 'Data Exported to file: ' + filename;
+      alert(message);
+      const badge = document.getElementById('lastExportBadge');
+      if (badge) {
+        badge.textContent = 'Export: ' + filename;
+        badge.style.display = 'inline-block';
+        setTimeout(() => {
+          badge.style.display = 'none';
+        }, 5000);
+      }
+    } catch (e) {
+      console.error('Failed to show export filename', e);
+    }
   } catch (e) {
     alert('❌ Error: ' + e.message);
   }
@@ -2381,6 +2398,27 @@ async function performCustomExport() {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+
+    // Log filename and show GUI message
+    try {
+      const filename = a.download || `raw_assets.${extension}`;
+      message = 'Custom Data Exported to file: ' + filename;
+      if (profileName.match(/TerraBloom/i)) {
+        message += '\n\nNote: This export is formatted for use with Terrabloom.\nThe file `H:\\Sync\\PKM_PROJECTS\\TerraBloom\\_Helpers\\data\\assetsExports\\Fab\\FAM\\raw_assets.md` must be updated with this new content.';
+      }
+      alert(message );
+      const badge = document.getElementById('lastExportBadge');
+      if (badge) {
+        badge.textContent = 'Export: ' + filename;
+        badge.style.display = 'inline-block';
+        setTimeout(() => {
+          badge.style.display = 'none';
+        }, 5000);
+      }
+    } catch (e) {
+      console.error('Failed to show export filename', e);
+    }
+
     closeExportModal();
   } catch (e) {
     alert('❌ Error: ' + e.message);

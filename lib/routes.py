@@ -2,7 +2,7 @@
 # FabAssetsManager - routes.py
 # ============================================================================
 # Description: API route definitions and web endpoints.
-# Version: 1.1.0
+# Version: 1.1.1
 # ============================================================================
 
 import csv

@@ -2,7 +2,7 @@
 # FabAssetsManager - Test Configuration
 # ============================================================================
 # Description: Shared pytest fixtures and configuration for FabAssetsManager tests.
-# Version: 1.1.0
+# Version: 1.1.1
 # ============================================================================
 
 import warnings

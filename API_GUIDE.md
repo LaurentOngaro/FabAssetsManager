@@ -1,6 +1,6 @@
 # FabAssetsManager API Guide
 
-**Version:** 1.1.0
+**Version:** 1.1.1
 
 This guide explains how to integrate the FabAssetsManager API into your workflows (e.g., TerraBloom curation pipeline).
 
