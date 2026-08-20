@@ -112,10 +112,10 @@ NOTE: 5002 is the default port for the web interface, but it can be changed in `
 
 **Essential Cookies:**
 
-- `fab_csrftoken` — CSRF protection
-- `fab_sessionid` — user session
-- `cf_clearance` — 🔴 **CRITICAL** for Cloudflare (validated by IP + User-Agent)
-- `__cf_bm` — bot management (expires ~30 min)
+- `fab_csrftoken` - CSRF protection
+- `fab_sessionid` - user session
+- `cf_clearance` - 🔴 **CRITICAL** for Cloudflare (validated by IP + User-Agent)
+- `__cf_bm` - bot management (expires ~30 min)
 
 ### Step 2: Test Configuration
 
@@ -145,12 +145,12 @@ If you see `✅✅✅ SUCCESS!`, you're ready! Otherwise, see [TROUBLESHOOTING.m
 
 ### Filtering & Search
 
-| Feature              | Description                                                    |
-| -------------------- | -------------------------------------------------------------- |
+| Feature             | Description                                                    |
+| ------------------- | -------------------------------------------------------------- |
 | 🔍 **Search**        | Title in real-time, case-insensitive                           |
-| **UE Versions**      | Filter by engine version (multi-select)                        |
-| **UE Max**           | Maximum supported version (semantic sort: 4.27, 5.0, 5.3, ...) |
-| **Licenses**         | Filter by license type (multi-select)                          |
+| **UE Versions**     | Filter by engine version (multi-select)                        |
+| **UE Max**          | Maximum supported version (semantic sort: 4.27, 5.0, 5.3, ...) |
+| **Licenses**        | Filter by license type (multi-select)                          |
 | 📥 **Downloadable**  | Show only downloadable assets                                  |
 | 🔞 **Adult Content** | Hide adult/mature content                                      |
 
@@ -196,7 +196,7 @@ Click **Title**, **Added**, or **Updated** to toggle sort ascending ↔ descendi
 - Fetch new assets from fab.com
 - Early stop if assets already cached (optimized)
 - Merge with existing cache
-- Shows "No new assets — your library is up to date!" when nothing new
+- Shows "No new assets - your library is up to date!" when nothing new
 - ⚡ Fast for small updates
 
 #### "Full Update" (full mode)

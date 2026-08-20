@@ -261,7 +261,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- **[BUG1]** Le bouton "Get New Assets" affiche désormais un message informatif "No new assets — your library is up to date!" au lieu d'une erreur 403 quand il n'y a pas de nouveaux assets en ligne.
+- **[BUG1]** Le bouton "Get New Assets" affiche désormais un message informatif "No new assets - your library is up to date!" au lieu d'une erreur 403 quand il n'y a pas de nouveaux assets en ligne.
 
 ### Changed
 

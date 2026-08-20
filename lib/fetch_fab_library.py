@@ -75,7 +75,8 @@ def build_headers_for_user_agent(user_agent: str) -> dict:
     is_mobile = "Mobile" in user_agent or "Android" in user_agent or "iPhone" in user_agent
 
     return {
-        "sec-ch-ua": f'"Chromium";v="{chrome_major}", "Not-A.Brand";v="99", "Google Chrome";v="{chrome_major}"',
+        "sec-ch-ua":
+        f'"Chromium";v="{chrome_major}", "Not-A.Brand";v="99", "Google Chrome";v="{chrome_major}"',
         "sec-ch-ua-mobile": "?1" if is_mobile else "?0",
         "sec-ch-ua-platform": f'"{platform}"',
     }
@@ -93,16 +94,22 @@ def create_http_session(user_agent: str = "", debug: bool = False):
                 continue
             seen.add(impersonation)
             try:
-                session = cffi_requests.Session(impersonate=impersonation)  # type: ignore[attr-defined]
+                session = cffi_requests.Session(
+                    impersonate=impersonation)  # type: ignore[attr-defined]
                 if debug:
-                    logger.info(f"✅ Using curl_cffi impersonation: {impersonation}")
+                    logger.info(
+                        f"✅ Using curl_cffi impersonation: {impersonation}")
                 return session
             except Exception as e:
                 if debug:
-                    logger.info(f"⚠️  curl_cffi impersonation failed ({impersonation}): {e}")
+                    logger.info(
+                        f"⚠️  curl_cffi impersonation failed ({impersonation}): {e}"
+                    )
 
     if debug:
-        logger.info("⚠️ curl_cffi unavailable or incompatible — using requests (may fail with Cloudflare)")
+        logger.info(
+            "⚠️ curl_cffi unavailable or incompatible - using requests (may fail with Cloudflare)"
+        )
     return requests.Session()
 
 
@@ -116,7 +123,11 @@ def parse_cookies(cookie_string: str) -> dict:
     return cookies
 
 
-def fetch_all_assets(cookie_string: str, user_agent: str = "", verbose: bool = True, debug: bool = False, last_update_date: str = "") -> list:
+def fetch_all_assets(cookie_string: str,
+                     user_agent: str = "",
+                     verbose: bool = True,
+                     debug: bool = False,
+                     last_update_date: str = "") -> list:
     """Fetch assets from fab.com API with support for partial updates.
 
     Connects to fab.com's entitlements API endpoint which returns assets sorted by
@@ -171,7 +182,8 @@ def fetch_all_assets(cookie_string: str, user_agent: str = "", verbose: bool = T
         logger.info("🔍 Parsed cookies:")
         for k, v in cookies.items():
             # Truncate long values for readability
-            logger.info(f"   {k} = {v[:30]}..." if len(v) > 30 else f"   {k} = {v}")
+            logger.info(f"   {k} = {v[:30]}..." if len(v) >
+                        30 else f"   {k} = {v}")
         logger.info(f"\n🌐 cf_clearance present: {'cf_clearance' in cookies}")
         logger.info(f"🌐 fab_sessionid present: {'fab_sessionid' in cookies}")
 
@@ -183,7 +195,8 @@ def fetch_all_assets(cookie_string: str, user_agent: str = "", verbose: bool = T
     if user_agent:
         headers["User-Agent"] = user_agent
     else:
-        headers["User-Agent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36"
+        headers[
+            "User-Agent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36"
 
     # Generate coherent Client Hints from current User-Agent.
     headers.update(build_headers_for_user_agent(headers["User-Agent"]))
@@ -223,19 +236,29 @@ def fetch_all_assets(cookie_string: str, user_agent: str = "", verbose: bool = T
 
         # Handle HTTP 403 (Cloudflare block or cookie expiration)
         if resp.status_code == 403:
-            logger.info("\n❌ HTTP 403 — cookies expired or Cloudflare is blocking.")
-            logger.info("   Make sure you run this script on the same machine as your browser.")
+            logger.info(
+                "\n❌ HTTP 403 - cookies expired or Cloudflare is blocking.")
+            logger.info(
+                "   Make sure you run this script on the same machine as your browser."
+            )
             if not USE_CURL_CFFI:
-                logger.info("   💡 Install curl_cffi to bypass detection: pip install curl_cffi")
+                logger.info(
+                    "   💡 Install curl_cffi to bypass detection: pip install curl_cffi"
+                )
             if debug:
                 logger.info("\n🔍 DEBUG - Sent Headers:")
                 for k, v in session.headers.items():
                     v_str = str(v) if v is not None else "None"
-                    logger.info(f"   {k}: {v_str[:60]}..." if len(v_str) > 60 else f"   {k}: {v_str}")
+                    logger.info(f"   {k}: {v_str[:60]}..." if len(v_str) >
+                                60 else f"   {k}: {v_str}")
                 logger.info("\n🔍 DEBUG - 403 Response:")
-                logger.info(f"   Content-Type: {resp.headers.get('content-type', 'N/A')}")
-                logger.info(f"   Cloudflare: {resp.headers.get('cf-ray', 'N/A')}")
-                logger.info(f"   Response (first 300 chars): {resp.text[:300]}")
+                logger.info(
+                    f"   Content-Type: {resp.headers.get('content-type', 'N/A')}"
+                )
+                logger.info(
+                    f"   Cloudflare: {resp.headers.get('cf-ray', 'N/A')}")
+                logger.info(
+                    f"   Response (first 300 chars): {resp.text[:300]}")
             return []
         elif resp.status_code != 200:
             logger.info(f"\n❌ HTTP {resp.status_code}: {resp.text[:300]}")
@@ -263,7 +286,9 @@ def fetch_all_assets(cookie_string: str, user_agent: str = "", verbose: bool = T
                     # This asset and all following are older than last update
                     early_stop = True
                     if verbose:
-                        logger.info(f"\n⏹️  Early stop: asset created before {last_update_date}")
+                        logger.info(
+                            f"\n⏹️  Early stop: asset created before {last_update_date}"
+                        )
                     break
                 new_results.append(asset)
             results = new_results
@@ -274,7 +299,8 @@ def fetch_all_assets(cookie_string: str, user_agent: str = "", verbose: bool = T
         # Progress output
         total = data.get("count", "?")
         if verbose:
-            logger.info(f"✅ +{len(results)} (total: {len(all_assets)}/{total})")
+            logger.info(
+                f"✅ +{len(results)} (total: {len(all_assets)}/{total})")
 
         # Exit if early stop triggered
         if early_stop:
@@ -296,7 +322,10 @@ def fetch_all_assets(cookie_string: str, user_agent: str = "", verbose: bool = T
     return all_assets
 
 
-def fetch_asset_details(uid: str, cookie_string: str, user_agent: str = "", debug: bool = False) -> dict:
+def fetch_asset_details(uid: str,
+                        cookie_string: str,
+                        user_agent: str = "",
+                        debug: bool = False) -> dict:
     """Fetch detailed information for a single asset via its UID.
 
     Connects to fab.com/i/listings/<uid> to retrieve extended metadata
@@ -310,7 +339,8 @@ def fetch_asset_details(uid: str, cookie_string: str, user_agent: str = "", debu
     if user_agent:
         headers["User-Agent"] = user_agent
     else:
-        headers["User-Agent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36"
+        headers[
+            "User-Agent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36"
     headers.update(build_headers_for_user_agent(headers["User-Agent"]))
     if "fab_csrftoken" in cookies:
         headers["X-CSRFToken"] = cookies["fab_csrftoken"]
@@ -325,7 +355,9 @@ def fetch_asset_details(uid: str, cookie_string: str, user_agent: str = "", debu
 
     if resp.status_code != 200:
         if debug:
-            logger.info(f"\n❌ HTTP {resp.status_code} fetching details for {uid}: {resp.text[:300]}")
+            logger.info(
+                f"\n❌ HTTP {resp.status_code} fetching details for {uid}: {resp.text[:300]}"
+            )
         return {}
 
     try:
@@ -340,10 +372,18 @@ def fetch_asset_details(uid: str, cookie_string: str, user_agent: str = "", debu
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Fetch your fab.com library")
-    parser.add_argument("--cookies", required=True, help="Complete cookie string")
-    parser.add_argument("--output", default="fab_library", help="Output file name")
-    parser.add_argument("--format", choices=["json", "csv", "both"], default="both")
-    parser.add_argument("--debug", action="store_true", help="Enable debug mode")
+    parser.add_argument("--cookies",
+                        required=True,
+                        help="Complete cookie string")
+    parser.add_argument("--output",
+                        default="fab_library",
+                        help="Output file name")
+    parser.add_argument("--format",
+                        choices=["json", "csv", "both"],
+                        default="both")
+    parser.add_argument("--debug",
+                        action="store_true",
+                        help="Enable debug mode")
     args = parser.parse_args()
 
     logger.info("🚀 Connecting to fab.com...")

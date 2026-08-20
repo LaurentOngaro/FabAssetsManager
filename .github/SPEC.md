@@ -1,4 +1,4 @@
-# FabAssetsManager — Specifications & Development Notes
+# FabAssetsManager - Specifications & Development Notes
 
 Version: 1.1.1
 Last reviewed: 2026-04-16
@@ -55,10 +55,10 @@ fab.com is protected by Cloudflare (WAF + JS challenge).
 
 No documented public API. Access relies on session cookies:
 
-- `fab_csrftoken` — CSRF token
-- `fab_sessionid` — Django/backend session on fab.com
-- `cf_clearance` — Cloudflare validation (tied to IP+UA)
-- `__cf_bm` — Cloudflare bot-management cookie (secondary)
+- `fab_csrftoken` - CSRF token
+- `fab_sessionid` - Django/backend session on fab.com
+- `cf_clearance` - Cloudflare validation (tied to IP+UA)
+- `__cf_bm` - Cloudflare bot-management cookie (secondary)
 
 ### 3. User-Agent
 

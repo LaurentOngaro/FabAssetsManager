@@ -61,7 +61,8 @@ configure_logging(
 # ─── Read / write config files ───────────────────────────────
 def load_config():
     """Load cookies and user_agent from files, or None if missing."""
-    cookies, user_agent = config_manager.load_credentials(COOKIES_FILE, UA_FILE)
+    cookies, user_agent = config_manager.load_credentials(
+        COOKIES_FILE, UA_FILE)
     if cookies:
         logger.info(f"✅ Cookies loaded from {COOKIES_FILE}")
     if user_agent:
@@ -114,7 +115,7 @@ def prompt_config():
         logger.error("=" * 60)
         cookies = input("\nPaste your cookie string here: ").strip()
         if not cookies:
-            logger.error("❌ Cookies empty — aborting.")
+            logger.error("❌ Cookies empty - aborting.")
             sys.exit(1)
 
     if not user_agent:
@@ -123,13 +124,17 @@ def prompt_config():
         logger.error("    DevTools → Network → click a request")
         logger.error("    → Request Headers → copy the 'user-agent:' value")
         logger.error("=" * 60)
-        user_agent = input("\nPaste your User-Agent string here (optional): ").strip()
+        user_agent = input(
+            "\nPaste your User-Agent string here (optional): ").strip()
         if not user_agent:
-            logger.warning("⚠️  User-Agent empty — using generic UA (may fail).")
+            logger.warning(
+                "⚠️  User-Agent empty - using generic UA (may fail).")
             user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36"
 
     save_config(cookies, user_agent)
-    logger.info("\n✅ Configuration saved to config/cookies.txt and config/user_agent.txt\n")
+    logger.info(
+        "\n✅ Configuration saved to config/cookies.txt and config/user_agent.txt\n"
+    )
     return cookies, user_agent
 
 
@@ -138,7 +143,8 @@ def get_assets():
     """Load all assets from individual cache files (assets/*.json)"""
     assets = load_all_assets()
     if assets:
-        logger.info(f"✅ {len(assets)} assets loaded from individual cache files")
+        logger.info(
+            f"✅ {len(assets)} assets loaded from individual cache files")
     return assets
 
 
@@ -148,7 +154,9 @@ def normalize_lookup_uid_from_url(value: str) -> str:
         return ""
 
     text = value.strip()
-    uid_match = re.search(r"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}", text)
+    uid_match = re.search(
+        r"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}",
+        text)
     if uid_match:
         return uid_match.group(0).lower()
 
@@ -198,9 +206,11 @@ def lookup_assets(uid: str = "", name: str = "", url: str = "") -> list[dict]:
             matches.append(flat_asset)
 
     if target_uid:
-        matches.sort(key=lambda item: 0 if str(item.get("uid", "")).strip().lower() == target_uid else 1)
+        matches.sort(key=lambda item: 0 if str(item.get("uid", "")).strip().
+                     lower() == target_uid else 1)
     elif name:
-        matches.sort(key=lambda item: (0 if str(item.get("title", "")).strip().lower() == name else 1, str(item.get("title", "")).lower()))
+        matches.sort(key=lambda item: (0 if str(item.get("title", "")).strip(
+        ).lower() == name else 1, str(item.get("title", "")).lower()))
 
     return matches
 
@@ -210,7 +220,13 @@ def log_route_call():
     """Log every Flask route call at DEBUG level."""
     g.request_started_at = time.perf_counter()
     endpoint = request.endpoint or "unknown"
-    logger.debug("route_call method=%s endpoint=%s path=%s args=%s", request.method, endpoint, request.path, dict(request.args), )
+    logger.debug(
+        "route_call method=%s endpoint=%s path=%s args=%s",
+        request.method,
+        endpoint,
+        request.path,
+        dict(request.args),
+    )
 
 
 @app.after_request
@@ -222,7 +238,10 @@ def log_route_result(response):
         duration_ms = (time.perf_counter() - started_at) * 1000
     endpoint = request.endpoint or "unknown"
     logger.debug(
-        "route_done method=%s endpoint=%s status=%s duration_ms=%s", request.method, endpoint, response.status_code,
+        "route_done method=%s endpoint=%s status=%s duration_ms=%s",
+        request.method,
+        endpoint,
+        response.status_code,
         f"{duration_ms:.2f}" if duration_ms is not None else "n/a",
     )
     return response
@@ -260,15 +279,22 @@ if __name__ == "__main__":
             print("   - config/user_agent.txt missing or empty")
         print("\n💡 You can:")
         print("   1. Use web interface to enter cookies + user-agent")
-        print("   2. Manually create config/cookies.txt and config/user_agent.txt")
+        print(
+            "   2. Manually create config/cookies.txt and config/user_agent.txt"
+        )
         print("   3. Run tests/test_connection.py to diagnose\n")
     else:
-        print("✅ Configuration loaded from config/cookies.txt and config/user_agent.txt")
+        print(
+            "✅ Configuration loaded from config/cookies.txt and config/user_agent.txt"
+        )
 
     assets_count = len(load_all_assets())
     if assets_count > 0:
         print(f"📦 Cache found: {assets_count} assets")
     else:
-        print("⚠️  No cache — click 🔄 Get New Assets in interface")
+        print("⚠️  No cache - click 🔄 Get New Assets in interface")
 
-    app.run(debug=flask_debug, host=server_host, port=server_port, threaded=flask_threaded)
+    app.run(debug=flask_debug,
+            host=server_host,
+            port=server_port,
+            threaded=flask_threaded)

@@ -324,7 +324,7 @@ function formatPrice(asset) {
   const price = asset.price;
   const currency = asset.currency_code || '';
   if (price === '' || price === null || price === undefined) {
-    return '—';
+    return '-';
   }
   const numeric = Number(price);
   if (Number.isFinite(numeric) && currency) {
@@ -359,7 +359,7 @@ function renderTagList(value, filterClass) {
     .map((item) => item.trim())
     .filter(Boolean);
   if (!items.length) {
-    return '<span style="color:var(--text2)">—</span>';
+    return '<span style="color:var(--text2)">-</span>';
   }
   if (filterClass) {
     return items
@@ -382,22 +382,22 @@ function renderColumnValue(asset, column) {
     case 'thumbnail_url':
       return asset.thumbnail_url
         ? `<img class="preview-thumb" src="/api/image/${asset.uid || ''}" alt="Preview" onerror="this.style.display='none'" onclick="showImageModal('${asset.uid}')" style="cursor:pointer; max-width:60px; max-height:40px; border-radius:4px; object-fit:cover;">`
-        : '<span style="color:var(--text2)">—</span>';
+        : '<span style="color:var(--text2)">-</span>';
     case 'title':
-      return `<div class="title-cell-wrap">${favoriteBtn}<a href="javascript:void(0)" onclick="showAssetDetailsModal('${asset.uid}')" title="${escapeHtml(asset.title || '')}">${escapeHtml(asset.title || '—')}</a>${commentBadge}</div>`;
+      return `<div class="title-cell-wrap">${favoriteBtn}<a href="javascript:void(0)" onclick="showAssetDetailsModal('${asset.uid}')" title="${escapeHtml(asset.title || '')}">${escapeHtml(asset.title || '-')}</a>${commentBadge}</div>`;
     case 'seller_name':
       return asset.seller_name
         ? `<a href="javascript:void(0)" style="color:inherit;text-decoration:underline dashed;" onclick="setFilterByClick('seller-cb', '${escapeHtml(asset.seller_name)}')">${escapeHtml(asset.seller_name)}</a>`
-        : '—';
+        : '-';
     case 'listing_type':
       return asset.listing_type
         ? `<a href="javascript:void(0)" style="color:inherit;text-decoration:underline dashed;" onclick="setFilterByClick('type-cb', '${escapeHtml(asset.listing_type)}')">${escapeHtml(asset.listing_type)}</a>`
-        : '—';
+        : '-';
     case 'created_at':
     case 'last_updated_at':
-      return asset[column] ? escapeHtml(asset[column].substring(0, 10)) : '—';
+      return asset[column] ? escapeHtml(asset[column].substring(0, 10)) : '-';
     case 'can_download':
-      return asset.can_download ? '<span class="icon-check" title="Downloadable">✓</span>' : '<span class="icon-cross">—</span>';
+      return asset.can_download ? '<span class="icon-check" title="Downloadable">✓</span>' : '<span class="icon-cross">-</span>';
     case 'is_mature':
       return asset.is_mature ? 'Yes' : 'No';
     case 'price':
@@ -412,9 +412,9 @@ function renderColumnValue(asset, column) {
     case 'tags':
       return renderTagList(asset[column], null);
     case 'fab_url':
-      return asset.fab_url ? `<a class="btn btn-ghost btn-sm" href="${escapeHtml(asset.fab_url)}" target="_blank">Open</a>` : '—';
+      return asset.fab_url ? `<a class="btn btn-ghost btn-sm" href="${escapeHtml(asset.fab_url)}" target="_blank">Open</a>` : '-';
     default:
-      return escapeHtml(asset[column] ?? '—');
+      return escapeHtml(asset[column] ?? '-');
   }
 }
 
@@ -822,16 +822,16 @@ async function refreshCacheInfo() {
     const resp = await fetch('/api/cache-info');
     const data = await resp.json();
     if (!resp.ok || !data.has_cache) {
-      badge.textContent = 'Last synced: —';
+      badge.textContent = 'Last synced: -';
       badge.title = 'No cached assets yet';
       return;
     }
 
-    const label = data.last_sync_label || data.timestamp || '—';
+    const label = data.last_sync_label || data.timestamp || '-';
     badge.textContent = `Last synced: ${label}`;
     badge.title = data.last_sync_at ? `Cache updated at ${data.last_sync_at}` : 'Cache updated recently';
   } catch (err) {
-    badge.textContent = 'Last synced: —';
+    badge.textContent = 'Last synced: -';
     badge.title = 'Cache information unavailable';
   }
 }
@@ -1812,7 +1812,7 @@ async function fetchAssetByUid(uid) {
 }
 
 /**
- * ASSET DETAILS MODAL — with lazy loading of details (CI7)
+ * ASSET DETAILS MODAL - with lazy loading of details (CI7)
  */
 async function showAssetDetailsModal(uid) {
   let asset = allAssets.find((a) => a.uid === uid);
@@ -1845,14 +1845,14 @@ async function showAssetDetailsModal(uid) {
   _renderDetailSeller(asset);
   document.getElementById('detType').innerHTML = asset.listing_type
     ? `<a href="javascript:void(0)" style="color:inherit;text-decoration:underline dashed;" onclick="setFilterByClick('type-cb', '${escapeHtml(asset.listing_type)}'); closeAssetDetailsModal();">${escapeHtml(asset.listing_type)}</a>`
-    : '—';
+    : '-';
   document.getElementById('detFormats').innerHTML = renderTagList(asset.asset_formats, 'format-cb');
   document.getElementById('detUe').innerHTML = renderTagList(asset.engine_versions, 'engine-cb');
   document.getElementById('detLicenses').innerHTML = renderTagList(asset.licenses, 'license-cb');
-  document.getElementById('detPrice').textContent = formatPrice(asset) || '—';
-  document.getElementById('detRating').textContent = asset.average_rating ? `${Number(asset.average_rating).toFixed(1)} / 5` : '—';
-  document.getElementById('detAdded').textContent = asset.created_at ? asset.created_at.substring(0, 10) : '—';
-  document.getElementById('detUpdated').textContent = asset.last_updated_at ? asset.last_updated_at.substring(0, 10) : '—';
+  document.getElementById('detPrice').textContent = formatPrice(asset) || '-';
+  document.getElementById('detRating').textContent = asset.average_rating ? `${Number(asset.average_rating).toFixed(1)} / 5` : '-';
+  document.getElementById('detAdded').textContent = asset.created_at ? asset.created_at.substring(0, 10) : '-';
+  document.getElementById('detUpdated').textContent = asset.last_updated_at ? asset.last_updated_at.substring(0, 10) : '-';
   document.getElementById('detTags').innerHTML = renderTagList(asset.tags);
   document.getElementById('detDesc').textContent = asset.description || 'No description provided.';
   const localCommentInput = document.getElementById('detLocalComment');
@@ -1900,7 +1900,7 @@ async function showAssetDetailsModal(uid) {
       document.getElementById('detContent').style.opacity = '1';
     }
   } else {
-    // Details already fetched — render enriched info
+    // Details already fetched - render enriched info
     _renderEnrichedDetails(asset);
   }
 }
@@ -1911,7 +1911,7 @@ function _renderDetailSeller(asset) {
 
   sellerEl.innerHTML = asset.seller_name
     ? `<a href="javascript:void(0)" style="color:inherit;text-decoration:underline dashed;" onclick="setFilterByClick('seller-cb', '${escapeHtml(asset.seller_name)}'); closeAssetDetailsModal();">${escapeHtml(asset.seller_name)}</a>`
-    : '—';
+    : '-';
 
   // Seller avatar (from details)
   const avatarUrl = asset.seller_avatar_url || '';
@@ -1939,7 +1939,7 @@ function _renderEnrichedDetails(asset) {
     document.getElementById('detTechSpecs').innerHTML = sanitizeHtml(techSpecs);
   }
 
-  // Media gallery (from details — listing.medias)
+  // Media gallery (from details - listing.medias)
   const mediaUrls = asset.media_urls || [];
   if (mediaUrls.length > 0) {
     document.getElementById('detMediaSection').style.display = 'block';
