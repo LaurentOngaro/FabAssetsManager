@@ -1081,7 +1081,7 @@ def export_custom():
                 linter_script = r"H:\Sync\Scripts\Windows\04c_dev_scripts\run_linters.ps1"
                 if os.path.exists(linter_script):
                     subprocess.run(
-                        ["powershell.exe", "-File", linter_script, tmp_path],
+                        ["pwsh.exe", "-File", linter_script, tmp_path],
                         capture_output=True,
                         check=False,
                         shell=True)
